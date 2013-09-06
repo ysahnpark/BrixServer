@@ -1,0 +1,25 @@
+{
+	"$schema": "http://pearson.com/brix/0.1/schema#",
+	"title": "Brix Message",
+	"description": "Remoting Message",
+	"type": "object",
+	"properties": {
+		"session": {
+			"description": "The session ID",
+			"type": "string"
+			},
+		"timestamp": {
+			"description": "The time this message was created",
+			"type": "string"
+			},
+		"type": {
+			"description": "The type of the message",
+			"type": "string"
+			},
+		"body": {
+			"description": "The message payload",
+			"type": "string"
+			}
+	},
+	"required": ["session", "type"]
+}
