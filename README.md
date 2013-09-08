@@ -24,7 +24,7 @@ Directory Structure
 
 Running Tests
 -------------
-There are two ways of running the tests:
+There are two ways of running the tests:  
   `npm test`  
 or  
   `make test`
