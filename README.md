@@ -10,11 +10,11 @@ The project uses make tool. If you are using Mac, you must install Xcode first.
 Directory Structure
 -------------------
 - lib    - Contains the application source code
-    aggregation.js - 
-    amsproxy.js    - AMS Proxy
-    controller.js  - The controller that includes the routes
-    hubproxy.js    - Hub Proxy
-    ips.js         - The IPS component
+  - aggregation.js - 
+  - amsproxy.js    - AMS Proxy
+  - controller.js  - The controller that includes the routes
+  - hubproxy.js    - Hub Proxy
+  - ips.js         - The IPS component
 - sample - Sample Hapi application
 - schema - Message validation schema
 - test
@@ -25,14 +25,14 @@ Directory Structure
 Running Tests
 -------------
 There are two ways of running the tests:
-  npm test
+  `npm test`
 or
-  make test
+  `make test`
 
 Running the Application
 -----------------------
 To run the application:
-node app.js
+`node app.js`
 Prior running the server, make sure that the port as defined in config.js is not in use.
 
 Then to check: Start browser and go to URL http://localhost:8088/seqnode?seqNodeRequestParam=123
