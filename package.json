@@ -1,0 +1,41 @@
+{
+  "name": "PlayerServer",
+  "version": "0.0.1",
+  "description": "Brix player server",
+  "main": "./src/index.js",
+  "contributors": [
+    "Pearson"
+  ],
+  "directories": {
+    "lib": ".",
+    "test": "test"
+  },
+  "dependencies": {
+    "hapi": "~1.9.4",
+    "supertest": "~0.7.1",
+    "winston": "~0.7.2",
+    "redis": "~0.8.4",
+    "z-schema": "~1.5.1",
+    "async": "~0.2.9",
+    "request": "~2.27.0",
+    "joi": "~1.2.0",
+    "blanket": "~1.1.5",
+    "underscore": "~1.5.2",
+    "should": "~1.2.2",
+    "tracer": "~0.5.1"
+  },
+  "devDependencies": {
+    "mocha": "~1.12.0",
+    "nock": "~0.22.1",
+    "should": "~1.2.2"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "keywords": [
+    "brix",
+    "player"
+  ],
+  "author": "Young-Suk Ahn Park",
+  "license": "BSD-2-Clause"
+}

@@ -1,0 +1,10 @@
+{
+	"numWorkers": 2,
+	"maxDeadWorkerSize": 10,
+	"host": "localhost",
+	"port": 8088,
+	"maxSockets": 100,
+
+	"amsBaseUrl": "http://localhost",
+	"hubBaseUrl": "https://localhost"
+}

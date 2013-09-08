@@ -1,0 +1,10 @@
+//
+// Message sample
+// This file  is a sample instance of the message as defined by the schema
+//
+{
+	"session": "SESSID1234",
+	"timestamp": "2013-05-25T12:44:12",
+	"type": "submit-answer",
+	"body": "<result-node-content>"
+}
