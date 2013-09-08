@@ -32,9 +32,9 @@ or
 Running the Application
 -----------------------
 To run the application:
-`node app.js`
+`node app.js`.
 Prior running the server, make sure that the port as defined in config.js is not in use.
 
 Then to check: Start browser and go to URL http://localhost:8088/seqnode?seqNodeRequestParam=123
-Should display 
-{"id":"123","binding":"http://binding/123"}
+Should display  
+`{"id":"123","binding":"http://binding/123"}`
