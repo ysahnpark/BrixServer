@@ -9,18 +9,18 @@ The project uses make tool. If you are using Mac, you must install Xcode first.
 
 Directory Structure
 -------------------
-  lib    - Contains the application source code
+- lib    - Contains the application source code
     aggregation.js - 
     amsproxy.js    - AMS Proxy
     controller.js  - The controller that includes the routes
     hubproxy.js    - Hub Proxy
     ips.js         - The IPS component
-  sample - Sample Hapi application
-  schema - Message validation schema
-  test
-    integration   - Integration testing
-    test_messages - Messages for unit testing
-    unit          - Unit testing
+- sample - Sample Hapi application
+- schema - Message validation schema
+- test
+  - integration   - Integration testing
+  - test_messages - Messages for unit testing
+  - unit          - Unit testing
 
 Running Tests
 -------------
