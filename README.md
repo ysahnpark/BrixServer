@@ -25,8 +25,8 @@ Directory Structure
 Running Tests
 -------------
 There are two ways of running the tests:
-  `npm test`
-or
+  `npm test`  
+or  
   `make test`
 
 Running the Application
