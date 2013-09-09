@@ -6,5 +6,6 @@
 	"maxSockets": 100,
 
 	"amsBaseUrl": "http://localhost",
+	"amsCaching": true,
 	"hubBaseUrl": "https://localhost"
 }

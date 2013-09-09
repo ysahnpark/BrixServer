@@ -2,5 +2,10 @@
 	"session": "SESSID1234",
 	"timestamp": "2013-05-25T12:44:12",
 	"type": "request-sequence-node",
-	"body": "<sequence-node-content>"
+	"body": {
+		 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+		 "@type": "SequenceNode",
+		 "nodeIndex": "1",
+		 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+		}
 }
