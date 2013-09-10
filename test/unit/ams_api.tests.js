@@ -4,6 +4,10 @@
  *
  * @fileoverview Contains unit tests for the AMS interface, basically amsproxy.js
  *
+ * NOTE: You will have to start the Redis server manually prior running the
+ *       tests, otherwise you will get ECONNREFUSED error and the test will 
+ *       fail.
+ *
  * Created on       Sept 9, 2013
  * @author          Young-Suk Ahn Park
  *
@@ -89,7 +93,7 @@ var seqNodeBody = {
  * @param {string} expectBody   - The expected result body (stringified JSON if necessary)
  * @param {Function} done       - The done callback function for the Mocha's asynch testing
  */
-function testReqNode(amsProxy, reqParam, expectError, expectBody, done) {
+function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
     amsProxy.getSequenceNode(reqParam, function(error, body) {
         
         if (expectError === null) {
@@ -108,8 +112,8 @@ function testReqNode(amsProxy, reqParam, expectError, expectBody, done) {
             expect(error).to.equal(expectError);
         }
 
-        if (expectBody !== null) {
-            expect(JSON.stringify(body.data)).to.equal(expectBody);
+        if (expectData !== null) {
+            expect(JSON.stringify(body.data)).to.equal(expectData);
         }
 
         done();
@@ -212,6 +216,12 @@ function getConfig() {
 }
 
 
+/**
+ * start the Redis server.
+ * NOTE: this method is not being used yet.
+ *       You will have to run the Redis server manually, otherwise the test 
+ *       will fail with ECONNREFUSED error message.
+ */
 function createRedisServer( callback ) { 
      redisserver = spawn('redis-server', ['test/redis.conf'] );
      redisserver.stderr.setEncoding('utf8');
