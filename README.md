@@ -15,7 +15,7 @@ Directory Structure
   - controller.js  - The controller that includes the routes
   - hubproxy.js    - Hub Proxy
   - ips.js         - The IPS component
-- sample - Sample Hapi application
+- sample - Sample REST server application using Hapi and Redis 
 - schema - Message validation schema
 - test
   - integration   - Integration testing

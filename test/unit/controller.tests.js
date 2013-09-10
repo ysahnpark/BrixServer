@@ -109,7 +109,7 @@ function getConfig() {
 
 function setupNocks(config) {
 	var amsNock = nock(config.amsBaseUrl);
-	amsNock.get('/aemonitor')
+	amsNock.get('/ams/health')
 		.reply(200, {"test": "test"});
 
 	var hubNock = nock(config.hubBaseUrl);

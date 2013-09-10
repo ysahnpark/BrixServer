@@ -1,0 +1,24 @@
+{
+	"title": "Get Sequence Node Message",
+	"description": "Message for requesting sequence node from PAF Hub",
+	"type": "object",
+	"properties": {
+		"@context": {
+			"description": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+			"type": "string"
+			},
+		"@type": {
+			"description": "Must contain the word: SequenceNode",
+			"type": "string"
+			},
+		"nodeIndex": {
+			"description": "Numeric index of the node",
+			"type": "integer"
+			},
+		"targetBinding": {
+			"description": "URI of the binding",
+			"type": "string"
+			}
+	},
+	"required": ["@context", "@type", "targetBinding"]
+}
