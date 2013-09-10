@@ -1,14 +1,32 @@
-/**
- * Test Hapi Simple REST server with Supertest
- */
+/* **************************************************************************
+ * $Workfile:: ams_api.tests.js                                             $
+ * *********************************************************************/ /**
+ *
+ * @fileoverview Contains unit tests for the AMS interface, basically amsproxy.js
+ *
+ * Created on       Sept 9, 2013
+ * @author          Young-Suk Ahn Park
+ *
+ * @copyright (c) 2013 Pearson, All rights reserved.
+ *
+ * **************************************************************************/
 
-// Supertest is for HTTP testing  
 var fs = require('fs'),
     nock = require('nock'),
     AmsProxy = require('../../lib/amsproxy.js'),
+    spawn = require('child_process').spawn,
+    redis = require("redis"),
     expect = require('chai').expect;
 
-
+var targetActivityBody = {
+    "bipsSubmission":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/submissions",
+     "bipsInteraction":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/interactions",
+     "brixConfig":"...bunch of brix config goes here..."
+}
+/**
+ * The test sequence node content.
+ * @todo: add a realistic value for targetActivity field
+ */
 var seqNodeBody = {
         "guid": "course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-46bd-49ee-8f06-47b4421f599b%2Fbindings%2F0",
         "player": {
@@ -29,7 +47,7 @@ var seqNodeBody = {
         "startTime": 1376949443403,
         "nodeIndex": 1,
         "targetActivityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pjxhc3Nlc3NtZW50SXRlbSB4bWxucz0iaHR0cDovL3d3dy5pbXNnbG9iYWwub3JnL3hzZC9pbXNxdGlfdjJwMSIgeG1sbnM6bnMyPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hJbmNsdWRlIiB4bWxuczpuczM9Imh0dHA6Ly93d3cuaW1zZ2xvYmFsLm9yZy94c2QvaW1zbGlwX3YxcDAiIHRpdGxlPSJNQSAxLjEwLjMiIGFkYXB0aXZlPSJmYWxzZSIgdGltZURlcGVuZGVudD0iZmFsc2UiPjxyZXNwb25zZURlY2xhcmF0aW9uIGlkZW50aWZpZXI9IlJFU1BPTlNFIiBjYXJkaW5hbGl0eT0ic2luZ2xlIiBiYXNlVHlwZT0iaWRlbnRpZmllciI+PGNvcnJlY3RSZXNwb25zZT48dmFsdWU+NDwvdmFsdWU+PC9jb3JyZWN0UmVzcG9uc2U+PC9yZXNwb25zZURlY2xhcmF0aW9uPjxpdGVtQm9keT48Y2hvaWNlSW50ZXJhY3Rpb24gc2h1ZmZsZT0iZmFsc2UiIG1heENob2ljZXM9IjEiIHJlc3BvbnNlSWRlbnRpZmllcj0iUkVTUE9OU0UiPjxwcm9tcHQ+VGhlIHRleHQgb2YgJmx0O0kmZ3Q7VGhlIFNlY3JldCZsdDsvSSZndDsgaXMgcXVvdGVkIGluIHRoZSB2aWRlbyBhcyBzYXlpbmcgdGhhdCB3aGVuIHlvdSB0aGluayBvZiB0aGUgdGhpbmdzIHRoYXQgeW91IHdhbnQsIGFuZCB5b3UgZm9jdXMgb24gdGhlbSB3aXRoIGFsbCB5b3VyIGF0dGVudGlvbiwgeW91IHdpbGwgZ2V0IHdoYXQgeW91IHdhbnQsIGV2ZXJ5IHRpbWUuIFRoZSBhdXRob3IncyB0ZXJtIGZvciB0aGlzIGlkZWEgb2YgYnJpbmdpbmcgdGhpbmdzIGludG8geW91ciBsaWZlIGlzICZxdW90O19fX19fLiZxdW90OzwvcHJvbXB0PjxzaW1wbGVDaG9pY2UgaWRlbnRpZmllcj0iMSI+cHJpbmNpcGxlIG9mIHNlY3JlY3k8L3NpbXBsZUNob2ljZT48c2ltcGxlQ2hvaWNlIGlkZW50aWZpZXI9IjIiPnJ1bGUgb2YgdGhlIHVuY29uc2Npb3VzPC9zaW1wbGVDaG9pY2U+PHNpbXBsZUNob2ljZSBpZGVudGlmaWVyPSIzIj50aGVvcnkgb2YgbWluZDwvc2ltcGxlQ2hvaWNlPjxzaW1wbGVDaG9pY2UgaWRlbnRpZmllcj0iNCI+bGF3IG9mIGF0dHJhY3Rpb248L3NpbXBsZUNob2ljZT48L2Nob2ljZUludGVyYWN0aW9uPjwvaXRlbUJvZHk+PC9hc3Nlc3NtZW50SXRlbT4=",
-        "targetActivity": "<ActivityConfigJson here>",
+        "targetActivity": targetActivityBody,
         "aggregateResult": {
             "guid": null,
             "attempt": null,
@@ -62,18 +80,37 @@ var seqNodeBody = {
         "nodeResult": []
     };
 
+/**
+ * Tests the amsProxy's getSequenceNode operation
+ *
+ * @param {AMSProxy} amsProxy   - The reference of the AMS proxy instance
+ * @param {string} reqParam     - The JSON input parameter in string
+ * @param {string} expectError  - The expected error message
+ * @param {string} expectBody   - The expected result body (stringified JSON if necessary)
+ * @param {Function} done       - The done callback function for the Mocha's asynch testing
+ */
 function testReqNode(amsProxy, reqParam, expectError, expectBody, done) {
     amsProxy.getSequenceNode(reqParam, function(error, body) {
         
-        if (expectError !== null) {
-            expect(error).to.equal(expectError);
-        } else {
+        if (expectError === null) {
             expect(error).to.equal(null);
-        }
-        if (expectBody !== null) {
-            expect(JSON.stringify(body)).to.equal(expectBody);
+
+            // No error means we should be able to retrieve it from cache as well.
+            redisClient = redis.createClient();
+
+            seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
+            redisClient.get(seqNodeKey, function(err, reply){
+                expect(reply).to.be.a('string');
+            });
+        } 
+        else 
+        {
+            expect(error).to.equal(expectError);
         }
 
+        if (expectBody !== null) {
+            expect(JSON.stringify(body.data)).to.equal(expectBody);
+        }
 
         done();
     });
@@ -82,7 +119,7 @@ function testReqNode(amsProxy, reqParam, expectError, expectBody, done) {
 
 describe('IPS->AMS API Test', function () {
 
-    // Create a server with a host and port
+    // Define different test input messages
     var correctReqMessage = {
          "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
          "@type": "SequenceNode",
@@ -116,15 +153,17 @@ describe('IPS->AMS API Test', function () {
     var amsProxy = null;
     var config = getConfig();
     var inputValidationErrorMsg = "Input validation error";
+
     before(function () {
-        //Arrange
         amsProxy = new AmsProxy(config);
     });
 
     it('returns the SequenceNode', function (done) {
+        // The nocks will intercept the HTTP call and return without requiring the actual server. 
         setupNocks(config);
         var strMessage = JSON.stringify(correctReqMessage);
-        testReqNode(amsProxy, strMessage, null, null, done);
+        var expectData = JSON.stringify(targetActivityBody);
+        testReqNode(amsProxy, strMessage, null, expectData, done);
     });
 
     it('returns error at wrong type', function (done) {
@@ -149,17 +188,42 @@ describe('IPS->AMS API Test', function () {
     });  
 });
 
+/**
+ * A HTTP server mock that intercepts HTTP call and returns as configured.
+ * This particular Nock will intercept AMS call and return code 200 with the 
+ * body as specified in the global variable seqNodeBody
+ *
+ * @param {object} config  - Should contain config.amsBaseUrl.
+ */
 function setupNocks(config) {
-    
     var amsNock = nock(config.amsBaseUrl);
     amsNock.post('/seqnode')
         .reply(200, JSON.stringify(seqNodeBody));
         
 }
 
+/**
+ * Returns a config object with only those fields used in this test. 
+ */
 function getConfig() {
     return {
         "amsBaseUrl": "http://localhost",
-        "hubBaseUrl": "http://localhost"
     };
 }
+
+
+function createRedisServer( callback ) { 
+     redisserver = spawn('redis-server', ['test/redis.conf'] );
+     redisserver.stderr.setEncoding('utf8');
+     redisserver.stderr.on('data', function(data){
+         console.log( 'stderr: ', data );
+     });
+     redisserver.stdout.setEncoding('utf8');
+     redisserver.stdout.on('data', function(data){
+         if (/Server started/.test(data)) {
+             if ( 'function' == typeof callback ) {
+                 callback();
+             }
+         }
+     });
+ }

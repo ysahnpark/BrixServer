@@ -1,8 +1,17 @@
-/**
- * Test Hapi Simple REST server with Supertest
- */
+/* **************************************************************************
+ * $Workfile:: schema.tests.js                                             $
+ * *********************************************************************/ /**
+ *
+ * @fileoverview Contains unit tests for the json-schemas
+ *
+ * Created on       Sept 9, 2013
+ * @author          Young-Suk Ahn Park
+ *
+ * @copyright (c) 2013 Pearson, All rights reserved.
+ *
+ * **************************************************************************/
 
-// Supertest is for HTTP testing  
+
 var fs = require('fs'),
     ZSchema = require('z-schema'),
     expect = require('chai').expect;
@@ -38,9 +47,7 @@ describe('Brix Message Schema Validations', function () {
 
         it('validates answer-feedback', function (done) {
             var message = JSON.parse(fs.readFileSync(sampleRootDir + 'test_message_ans_feedback.json', 'utf8'));
-            //console.log(message);
             validateMessage(message, messageSchema, done);
-            //console.log (JSON.stringify(validationResult));
         });
 
         it('validates sequence-node request', function (done) {
