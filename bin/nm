@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# USAGE (from the repo's base directory): ./bin/nm app.js
+# https://github.com/remy/nodemon for details
+# This watches app.js and all js files under ./lib and restarts the server when a change is made.
+
+./node_modules/nodemon/nodemon.js -e js,css,html --watch app.js --watch lib $1

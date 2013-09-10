@@ -18,9 +18,9 @@ if(error) {
 var getAppStatus = function() {
 		//return info about the app
 		return {};
-	},
+};
 	
-	appStartUp = function() {
+var	appStartUp = function() {
 		http.globalAgent.maxSockets = config.maxSockets;
 
 		serverOptions = {
@@ -35,11 +35,11 @@ var getAppStatus = function() {
 		server.route(controller.routes);
 		
 		return server;
-	},
+};
 	
-	appShutDown = function(evt, err) {
+var appShutDown = function(evt, err) {
 		// shutdown code... logging evt/err, clean up, etc.
-	};
+};
 
 var pManOptions = {
 	numWorkers: config.numWorkers,
