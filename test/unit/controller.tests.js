@@ -1,3 +1,21 @@
+/* **************************************************************************
+ * $Workfile:: controller.tests.js                                          $
+ * *********************************************************************/ /**
+ *
+ * @fileoverview Contains unit tests for routes controller.js
+ *
+ * NOTE: This was largely pilfered from the Pearson node app reference
+ * implementation.  At this point it's mainly testing that routes
+ * exist, not that they really do stuff.
+ * 
+ * Created on       Sept 10, 2013
+ * @author          Young-Suk Ahn Park
+ * @author          Seann Ives
+ *
+ * @copyright (c) 2013 Pearson, All rights reserved.
+ *
+ * **************************************************************************/
+
 var assert = require('assert'),
 	nock = require('nock'),
 	_ = require('underscore'),
@@ -38,10 +56,14 @@ describe ('IPS Controller', function(){
 			//Assert
 			assert(routes, 'routes should exist');
 			assert(_.isArray(routes), 'routes should be an array');
+			// Routes in here must be in the same order as routes in controller.js for the following to play nicely
 			assert.strictEqual(routes.length, 4, 'there should be 4 routes in the array');
+			assert.strictEqual(routes[0].method, 'GET', '/healthInfo should be a GET');
+			assert.strictEqual(routes[1].method, 'POST', '/sequenceNodes should be a POST');
+			assert.strictEqual(routes[2].method, 'POST', '/sequencenodes/{sequenceNodeKey}/interactions should be a POST');
+			assert.strictEqual(routes[3].method, 'POST', '/sequencenodes/{sequenceNodeKey}/submissions should be a POST');
 			routes.forEach(function(route) {
 				assert(_.isObject(route), 'the route should be an object');
-				//assert.strictEqual(route.method, 'GET', 'the route method should be set correctly');
 				assert(_.isFunction(route.handler), 'the route handler should be set correctly');
 			});
 			
@@ -96,6 +118,55 @@ describe ('IPS Controller', function(){
 		});
 		
 	});
+
+	describe ('/sequenceNodes handler', function() {
+		
+		it ('should work', function(done) {
+			
+			//Arrange
+			var config = getConfig();
+			var controller = new Controller(config);
+			var handler = controller.routes[1].handler;
+			var request = new RequestMock(onReplyCallback);
+			
+			//Act
+			handler(request);
+			
+			//Assert
+			function onReplyCallback(replyValue) {
+				assert(replyValue, 'the handler should reply');
+
+				// @todo I'm honestly not sure how best to handle this here.  Ideally
+				// we'd just want to fake both the request and reply...perhaps
+				// the above is enough.
+				
+				//assert.deepEqual(replyValue, getExpectedSuccessResponse());
+				done();
+			}
+		});
+
+		it ('should handle an error appropriately', function(done) {
+			
+			//Arrange
+			var config = getConfig();
+			config.amsBaseUrl = "baddomain.ecollege.net";
+			var controller = new Controller(config);
+			var handler = controller.routes[1].handler;
+			var request = new RequestMock(onReplyCallback);
+			
+			//Act
+			handler(request);
+			
+			//Assert
+			function onReplyCallback(replyValue) {
+				assert(replyValue, 'the handler should reply');
+				//assert.deepEqual(replyValue, getExpectedFailureResponse());
+				done();
+			}
+			
+		});
+		
+	});
 	
 });
 
@@ -142,7 +213,7 @@ function getExpectedSuccessResponse() {
 			
 		}
 	};
-};
+}
 
 function getExpectedFailureResponse() {
 	return {
@@ -157,7 +228,7 @@ function getExpectedFailureResponse() {
 			"headers":{}
 		}
 	};
-};
+}
 
 
 function RequestMock(onReplyCallback) {

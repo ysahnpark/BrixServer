@@ -10,6 +10,11 @@ update:
 test:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter spec --timeout 3000 test/unit
 
+# "Watch" mode runs your tests each time it seems a file change under the base directory.
+# The 'tap' reporter seems to play nicest with this and also shows the most complete error messages.
+test-w:
+	@NODE_ENV=test ./node_modules/.bin/mocha --watch --recursive --reporter tap --timeout 3000 test/unit
+
 test-cov:
 	@NODE_ENV=test ./node_modules/.bin/mocha --require blanket --recursive --timeout 3000 -R travis-cov test/unit
 

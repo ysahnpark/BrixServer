@@ -25,15 +25,22 @@ Directory Structure
 Running Tests
 -------------
 There are two ways of running the tests:  
-  `npm test`  
+  'npm test'  
 or  
-  `make test`
+  'make test'
+
+Running 'make test-w' will run tests in "watch" mode, with the directory files will be watched for
+file changes and tests re-run.  This is useful during development.
 
 Running the Application
 -----------------------
 To run the application:
-`node app.js`.
+'node app.js'.
 Prior running the server, make sure that the port as defined in config.js is not in use.
+
+Alternately, in development, nodemon can be used to run the application, watch files under the
+main directory, and restart the server after every change.  This is useful during development.
+'./bin/nm app.js'
 
 Then to check: Start browser and go to URL http://localhost:8088/seqnode?seqNodeRequestParam=123
 Should display  
