@@ -16,29 +16,29 @@ if(error) {
 }
 
 var getAppStatus = function() {
-		//return info about the app
-		return {};
+	//return info about the app
+	return {};
 };
 	
 var	appStartUp = function() {
-		http.globalAgent.maxSockets = config.maxSockets;
+	http.globalAgent.maxSockets = config.maxSockets;
 
-		serverOptions = {
-			router: {
-				isCaseSensitive: false
-			}
-		};
+	serverOptions = {
+		router: {
+			isCaseSensitive: false
+		}
+	};
 
-		server = new Hapi.Server(serverOptions.host, config.port, serverOptions);
+	server = new Hapi.Server(serverOptions.host, config.port, serverOptions);
 
-		var controller = new Controller(config);
-		server.route(controller.routes);
-		
-		return server;
+	var controller = new Controller(config);
+	server.route(controller.routes);
+	
+	return server;
 };
 	
 var appShutDown = function(evt, err) {
-		// shutdown code... logging evt/err, clean up, etc.
+	// shutdown code... logging evt/err, clean up, etc.
 };
 
 var pManOptions = {
