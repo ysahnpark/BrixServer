@@ -22,7 +22,8 @@
     "blanket": "~1.1.5",
     "underscore": "~1.5.2",
     "should": "~1.2.2",
-    "tracer": "~0.5.1"
+    "tracer": "~0.5.1",
+    "q": "~0.9.7"
   },
   "devDependencies": {
     "mocha": "~1.12.0",

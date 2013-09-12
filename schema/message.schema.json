@@ -18,7 +18,10 @@
 			},
 		"body": {
 			"description": "The message payload",
-			"type": "string"
+			"oneOf": [
+				{"type": "string"}, 
+				{"type": "object"}
+				]
 			}
 	},
 	"required": ["session", "type"]
