@@ -22,15 +22,13 @@ var spawn = require("child_process").spawn;
 var redis = require("redis");
 var expect = require("chai").expect;
 
+// @todo: a more "realistic" value for targetActivity field
 var targetActivityBody = {
-    //"bipsSubmission":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/submissions",
-    //"bipsInteraction":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/interactions",
     "brixConfig":"...bunch of brix config goes here..."
 }
 
 /**
  * The test sequence node content.
- * @todo: add a realistic value for targetActivity field
  */
 var seqNodeBody = {
         "guid": "course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-46bd-49ee-8f06-47b4421f599b%2Fbindings%2F0",
@@ -102,7 +100,10 @@ function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
     redisClient = redis.createClient();
 
     seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
-    redisClient.del("SEQN:" + seqNodeKey);
+    /* Disabled: Need further investigation but it seems del action may not be synchronous,
+                producing unwanted side effects as deleting after getSequenceNode operation
+     */ 
+    //redisClient.del("SEQN:" + seqNodeKey); 
 
     amsProxy.getSequenceNode(reqParam, function(error, body) {
         
@@ -110,9 +111,9 @@ function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
             // No error means we should be able to retrieve it from cache as well.
             expect(error).to.equal(null);
 
-            redisClient.get("SEQN:" + seqNodeKey, function(err, reply){
+            redisClient.get(amsProxy.getCacheKeyPrefix() + seqNodeKey, function(err, reply){
                 expect(reply).to.be.a("string");
-                redisClient.del("SEQN:" + seqNodeKey);
+                redisClient.del(amsProxy.getCacheKeyPrefix() + seqNodeKey);
             });
         } 
         else 
@@ -133,34 +134,132 @@ describe("IPS->AMS API Test", function () {
 
     // Define different test input messages (sequence node ID as sent from AMS)
     var correctReqMessage = {
-         "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-         "@type": "SequenceNode",
-         "nodeIndex": 1,
-         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-        }
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNode",
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode",
+            method: "POST"
+        };
+
+    var incorrectReqMessage_missingHubSession = {
+            header : {
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNode",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode",
+            method: "POST"
+        };
+
+    var incorrectReqMessage_missingUrl = {
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNude",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            method: "POST"
+        };
+
+    var incorrectReqMessage_missingMethod = {
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNude",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode"
+        };
+
+    var incorrectReqMessage_illegalMethod = {
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNude",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode",
+            method: "PUST"
+        };
 
     var incorrectReqMessage_wrongType = {
-         "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-         "@type": "SequenceNude",
-         "nodeIndex": "1",
-         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-        }
-    var incorrectReqMessage_emptyContext = {
-         "@context": "",
-         "@type": "SequenceNude",
-         "nodeIndex": "1",
-         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-        }
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNude",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode",
+            method: "POST"
+        };
+
+    var incorrectReqMessage_missingContext = {
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@type": "SequenceNode",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode",
+            method: "POST"
+        };
+
     var incorrectReqMessage_missingType = {
-         "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-         "nodeIndex": "1",
-         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-        }
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "nodeIndex": 1,
+                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+            },
+            url: "http://localhost/seqnode",
+            method: "POST"
+        };
+
     var incorrectReqMessage_missingBinding = {
-         "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-         "@type": "SequenceNude",
-         "nodeIndex": "1"
-         }
+            header : {
+                "Hub­-Session" : "AmazingHubSession",
+                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+            },
+            content : {
+                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                 "@type": "SequenceNode",
+                 "nodeIndex": 1
+            },
+            url: "http://localhost/seqnode",
+            method: "POST"
+        };
 
     var amsProxy = null;
     var config = getConfig();
@@ -178,23 +277,47 @@ describe("IPS->AMS API Test", function () {
         testReqNode(amsProxy, strMessage, null, expectData, done);
     });
 
-    it("returns error at wrong type", function (done) {
+    it("returns error at missing Hub-session", function (done) {
+        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        var strMessage = JSON.stringify(incorrectReqMessage_missingHubSession);
+        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+    });
+
+    it("returns error at missing url", function (done) {
+        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        var strMessage = JSON.stringify(incorrectReqMessage_missingUrl);
+        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+    });
+
+    it("returns error at missing method", function (done) {
+        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        var strMessage = JSON.stringify(incorrectReqMessage_missingMethod);
+        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+    });
+
+    it("returns error at illegal method", function (done) {
+        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        var strMessage = JSON.stringify(incorrectReqMessage_illegalMethod);
+        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+    });    
+
+    it("returns error at content wrong type", function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_wrongType);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });
 
-    it("returns error at empty context", function (done) {
-        var strMessage = JSON.stringify(incorrectReqMessage_emptyContext);
+    it("returns error at content empty context", function (done) {
+        var strMessage = JSON.stringify(incorrectReqMessage_missingContext);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });  
 
-    it("returns error at missing type", function (done) {
+    it("returns error at content missing type", function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingType);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });  
 
-    it("returns error at missing binding", function (done) {
+    it("returns error at content missing binding", function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingBinding);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });  
@@ -210,6 +333,8 @@ describe("IPS->AMS API Test", function () {
 function setupNocks(config) {
     var amsNock = nock(config.amsBaseUrl);
     amsNock.post("/seqnode")
+        .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+        .matchHeader('Hub­-Session', 'AmazingHubSession')
         .reply(200, JSON.stringify(seqNodeBody));
         
 }

@@ -79,11 +79,19 @@ describe('Brix Message Schema Validations', function () {
 
         it('validates AMS sequence-node request', function (done) {
             var correctReqMessage = {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNode",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-                }
+                header : {
+                    "Hub­-Session" : "AmazingHubSession",
+                    "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+                },
+                content : {
+                     "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+                     "@type": "SequenceNode",
+                     "nodeIndex": 1,
+                     "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+                },
+                url: "http://localhost/seqnode",
+                method: "POST"
+                };
             validateMessage(correctReqMessage, messageSchema, done);
         });
 
