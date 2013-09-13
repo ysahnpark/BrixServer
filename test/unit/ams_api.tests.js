@@ -15,18 +15,19 @@
  *
  * **************************************************************************/
 
-var fs = require('fs'),
-    nock = require('nock'),
-    AmsProxy = require('../../lib/amsproxy.js'),
-    spawn = require('child_process').spawn,
-    redis = require("redis"),
-    expect = require('chai').expect;
+var fs = require("fs");
+var nock = require("nock");
+var AmsProxy = require("../../lib/amsproxy.js");
+var spawn = require("child_process").spawn;
+var redis = require("redis");
+var expect = require("chai").expect;
 
 var targetActivityBody = {
-    "bipsSubmission":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/submissions",
-     "bipsInteraction":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/interactions",
-     "brixConfig":"...bunch of brix config goes here..."
+    //"bipsSubmission":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/submissions",
+    //"bipsInteraction":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/interactions",
+    "brixConfig":"...bunch of brix config goes here..."
 }
+
 /**
  * The test sequence node content.
  * @todo: add a realistic value for targetActivity field
@@ -85,26 +86,33 @@ var seqNodeBody = {
     };
 
 /**
- * Tests the amsProxy's getSequenceNode operation
+ * Tests the amsProxy's getSequenceNode operation.
+ * It sends request messages proxy and validates the response.
+ * For successful retrieval, it also validates that the AMS proxy has correctly set the cache. 
  *
- * @param {AMSProxy} amsProxy   - The reference of the AMS proxy instance
+ * @param {AMSProxy} amsProxy   - The AMS proxy instance
  * @param {string} reqParam     - The JSON input parameter in string
- * @param {string} expectError  - The expected error message
- * @param {string} expectBody   - The expected result body (stringified JSON if necessary)
+ * @param {?string} expectError - The expected error message, or null if no error is expected
+ * @param {?string} expectBody  - The expected result body (stringified JSON if necessary), or null if error is expected
  * @param {Function} done       - The done callback function for the Mocha's asynch testing
  */
 function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
+
+    // Make sure that the cache does not have the key yet (before the proxy call)
+    redisClient = redis.createClient();
+
+    seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
+    redisClient.del("SEQN:" + seqNodeKey);
+
     amsProxy.getSequenceNode(reqParam, function(error, body) {
         
         if (expectError === null) {
+            // No error means we should be able to retrieve it from cache as well.
             expect(error).to.equal(null);
 
-            // No error means we should be able to retrieve it from cache as well.
-            redisClient = redis.createClient();
-
-            seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
-            redisClient.get(seqNodeKey, function(err, reply){
-                expect(reply).to.be.a('string');
+            redisClient.get("SEQN:" + seqNodeKey, function(err, reply){
+                expect(reply).to.be.a("string");
+                redisClient.del("SEQN:" + seqNodeKey);
             });
         } 
         else 
@@ -121,9 +129,9 @@ function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
 }
 
 
-describe('IPS->AMS API Test', function () {
+describe("IPS->AMS API Test", function () {
 
-    // Define different test input messages
+    // Define different test input messages (sequence node ID as sent from AMS)
     var correctReqMessage = {
          "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
          "@type": "SequenceNode",
@@ -151,7 +159,7 @@ describe('IPS->AMS API Test', function () {
     var incorrectReqMessage_missingBinding = {
          "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
          "@type": "SequenceNude",
-         "nodeIndex": "1",
+         "nodeIndex": "1"
          }
 
     var amsProxy = null;
@@ -162,31 +170,31 @@ describe('IPS->AMS API Test', function () {
         amsProxy = new AmsProxy(config);
     });
 
-    it('returns the SequenceNode', function (done) {
+    it("returns the SequenceNode", function (done) {
         // The nocks will intercept the HTTP call and return without requiring the actual server. 
         setupNocks(config);
         var strMessage = JSON.stringify(correctReqMessage);
-        var expectData = JSON.stringify(targetActivityBody);
+        var expectData = JSON.stringify(seqNodeBody);
         testReqNode(amsProxy, strMessage, null, expectData, done);
     });
 
-    it('returns error at wrong type', function (done) {
+    it("returns error at wrong type", function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_wrongType);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });
 
-    it('returns error at empty context', function (done) {
+    it("returns error at empty context", function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_emptyContext);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });  
 
-    it('returns error at missing type', function (done) {
+    it("returns error at missing type", function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingType);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });  
 
-    it('returns error at missing binding', function (done) {
+    it("returns error at missing binding", function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingBinding);
         testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
     });  
@@ -201,7 +209,7 @@ describe('IPS->AMS API Test', function () {
  */
 function setupNocks(config) {
     var amsNock = nock(config.amsBaseUrl);
-    amsNock.post('/seqnode')
+    amsNock.post("/seqnode")
         .reply(200, JSON.stringify(seqNodeBody));
         
 }
@@ -223,15 +231,15 @@ function getConfig() {
  *       will fail with ECONNREFUSED error message.
  */
 function createRedisServer( callback ) { 
-     redisserver = spawn('redis-server', ['test/redis.conf'] );
-     redisserver.stderr.setEncoding('utf8');
-     redisserver.stderr.on('data', function(data){
-         console.log( 'stderr: ', data );
+     redisserver = spawn("redis-server", ["test/redis.conf"] );
+     redisserver.stderr.setEncoding("utf8");
+     redisserver.stderr.on("data", function(data){
+         console.log( "stderr: ", data );
      });
-     redisserver.stdout.setEncoding('utf8');
-     redisserver.stdout.on('data', function(data){
+     redisserver.stdout.setEncoding("utf8");
+     redisserver.stdout.on("data", function(data){
          if (/Server started/.test(data)) {
-             if ( 'function' == typeof callback ) {
+             if ( "function" == typeof callback ) {
                  callback();
              }
          }
