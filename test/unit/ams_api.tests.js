@@ -23,9 +23,9 @@ var redis = require("redis");
 var expect = require("chai").expect;
 
 var targetActivityBody = {
-    "bipsSubmission":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/submissions",
-     "bipsInteraction":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/interactions",
-     "brixConfig":"...bunch of brix config goes here..."
+    //"bipsSubmission":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/submissions",
+    //"bipsInteraction":"https://brixserver.com/sequencenodes/895af0ae2d8aa5bffba54ab0555d7461/interactions",
+    "brixConfig":"...bunch of brix config goes here..."
 }
 
 /**
@@ -86,24 +86,30 @@ var seqNodeBody = {
     };
 
 /**
- * Tests the amsProxy's getSequenceNode operation
+ * Tests the amsProxy's getSequenceNode operation.
+ * It sends request messages proxy and validates the response.
+ * For successful retrieval, it also validates that the AMS proxy has correctly set the cache. 
  *
- * @param {AMSProxy} amsProxy   - The reference of the AMS proxy instance
+ * @param {AMSProxy} amsProxy   - The AMS proxy instance
  * @param {string} reqParam     - The JSON input parameter in string
- * @param {string} expectError  - The expected error message
- * @param {string} expectBody   - The expected result body (stringified JSON if necessary)
+ * @param {?string} expectError - The expected error message, or null if no error is expected
+ * @param {?string} expectBody  - The expected result body (stringified JSON if necessary), or null if error is expected
  * @param {Function} done       - The done callback function for the Mocha's asynch testing
  */
 function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
+
+    // Make sure that the cache does not have the key yet (before the proxy call)
+    redisClient = redis.createClient();
+
+    seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
+    redisClient.del("SEQN:" + seqNodeKey);
+
     amsProxy.getSequenceNode(reqParam, function(error, body) {
         
         if (expectError === null) {
+            // No error means we should be able to retrieve it from cache as well.
             expect(error).to.equal(null);
 
-            // No error means we should be able to retrieve it from cache as well.
-            redisClient = redis.createClient();
-
-            seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
             redisClient.get("SEQN:" + seqNodeKey, function(err, reply){
                 expect(reply).to.be.a("string");
                 redisClient.del("SEQN:" + seqNodeKey);
@@ -125,7 +131,7 @@ function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
 
 describe("IPS->AMS API Test", function () {
 
-    // Define different test input messages
+    // Define different test input messages (sequence node ID as sent from AMS)
     var correctReqMessage = {
          "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
          "@type": "SequenceNode",
