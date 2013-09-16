@@ -34,6 +34,9 @@ file changes and tests re-run.  This is useful during development.
 
 Running the Application
 -----------------------
+Redis must be running for the application to be started.  Locally, redis can be started using:
+'redis-server'.
+
 To run the application:
 'node app.js'.
 Prior running the server, make sure that the port as defined in config.js is not in use.

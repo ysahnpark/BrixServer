@@ -8,7 +8,7 @@ update:
 	make clean && rm -rf npm-shrinkwrap.json && npm install . && npm shrinkwrap
 	 
 test:
-	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter spec --timeout 3000 test/unit
+	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter tap --timeout 3000 test/unit
 
 # "Watch" mode runs your tests each time it seems a file change under the base directory.
 # The 'tap' reporter seems to play nicest with this and also shows the most complete error messages.

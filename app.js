@@ -24,12 +24,15 @@ var	appStartUp = function() {
 	http.globalAgent.maxSockets = config.maxSockets;
 
 	serverOptions = {
+		debug: {
+			request: ['error', 'uncaught']
+		},
 		router: {
 			isCaseSensitive: false
 		}
 	};
 
-	server = new Hapi.Server(serverOptions.host, config.port, serverOptions);
+	server = new Hapi.Server(config.host, config.port, serverOptions);
 
 	var controller = new Controller(config);
 	server.route(controller.routes);
