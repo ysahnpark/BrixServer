@@ -2,7 +2,8 @@
  * $Workfile:: ams_api.tests.js                                             $
  * *********************************************************************/ /**
  *
- * @fileoverview Contains unit tests for the AMS interface, basically amsproxy.js
+ * @fileoverview Contains unit tests for the sequence node retrieval interface, 
+ * basically tests for the behavior of sequencenodeprovider.js
  *
  * NOTE: You will have to start the Redis server manually prior running the
  *       tests, otherwise you will get ECONNREFUSED error and the test will 
@@ -15,12 +16,12 @@
  *
  * **************************************************************************/
 
-var fs = require("fs");
-var nock = require("nock");
-var AmsProxy = require("../../lib/amsproxy.js");
-var spawn = require("child_process").spawn;
-var redis = require("redis");
-var expect = require("chai").expect;
+var fs = require('fs');
+var nock = require('nock');
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js');
+var spawn = require('child_process').spawn;
+var redis = require('redis');
+var expect = require('chai').expect;
 
 // @todo: a more "realistic" value for targetActivity field
 var targetActivityBody = {
@@ -83,59 +84,114 @@ var seqNodeBody = {
         "nodeResult": []
     };
 
+
 /**
- * Tests the amsProxy's getSequenceNode operation.
+ * Encapsulating an assert function (i.e. chai) so it checks
+ */
+function checkDoneOnException( done, fn ) {
+    try {
+        fn();
+        done();
+    } catch( e ) {
+        done( e );
+    }
+}
+
+
+/**
+ * Tests the seqNodeProvider's getSequenceNode operation.
  * It sends request messages proxy and validates the response.
  * For successful retrieval, it also validates that the AMS proxy has correctly set the cache. 
  *
- * @param {AMSProxy} amsProxy   - The AMS proxy instance
- * @param {string} reqParam     - The JSON input parameter in string
+ * Dev Note: If you do not wrap with try/catch the expect() function, the done() will never
+ *           be called, and test will fail with timeout instead of the actual assert.
+ *
+ * @param {SequenceNodeProvider} seqNodeProvider   - The SequenceNodeProvider instance
+ * @param {string} sequenceNodeIdentifier     - The JSON input parameter in string
  * @param {?string} expectError - The expected error message, or null if no error is expected
  * @param {?string} expectBody  - The expected result body (stringified JSON if necessary), or null if error is expected
  * @param {Function} done       - The done callback function for the Mocha's asynch testing
  */
-function testReqNode(amsProxy, reqParam, expectError, expectData, done) {
+function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expectData, done) {
 
     // Make sure that the cache does not have the key yet (before the proxy call)
     redisClient = redis.createClient();
 
-    seqNodeKey = amsProxy.obtainSequenceNodeKey(reqParam);
-    /* Disabled: Need further investigation but it seems del action may not be synchronous,
-                producing unwanted side effects as deleting after getSequenceNode operation
-     */ 
-    //redisClient.del("SEQN:" + seqNodeKey); 
+    seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifier);
 
-    amsProxy.getSequenceNode(reqParam, function(error, body) {
+    // Delete the cache entry prior calling the getSequenceNode()
+    redisClient.del('SEQN:' + seqNodeKey, function(error, body) {
+
+        seqNodeProvider.getSequenceNode(sequenceNodeIdentifier, function(error, body) {
         
-        if (expectError === null) {
-            // No error means we should be able to retrieve it from cache as well.
-            expect(error).to.equal(null);
+            if (expectError === null) {
+                // No error means we should be able to retrieve it from cache as well.
+                try 
+                {
+                    expect(error).to.equal(null);
+                } 
+                catch( e ) 
+                {
+                    done( e ) // failure: call done with an error Object to indicate that it() failed
+                    return;
+                } 
 
-            redisClient.get(amsProxy.getCacheKeyPrefix() + seqNodeKey, function(err, reply){
-                expect(reply).to.be.a("string");
-                redisClient.del(amsProxy.getCacheKeyPrefix() + seqNodeKey);
-            });
-        } 
-        else 
-        {
-            expect(error).to.equal(expectError);
-        }
+                // Check cache as well
+                seqNodeProvider.getSequenceNode(sequenceNodeIdentifier, function(error, body){
+                    try 
+                    {
+                        expect(error).to.equal(null);
+                        expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
+                        expect(body.sequenceNodeKey).to.equal(seqNodeKey);
+                        expect(body.fromCache).to.equal(true);
+                    } 
+                    catch( e ) 
+                    {
+                        done( e ) // failure: call done with an error Object to indicate that it() failed
+                        return;
+                    } 
+                });
+            } 
+            else // An error was expected 
+            {
+                try 
+                {
+                    expect(error).to.equal(expectError);
+                } 
+                catch( e ) 
+                {
+                    done( e ) // failure: call done with an error Object to indicate that it() failed
+                    return;
+                } 
+                
+            }
 
-        if (expectData !== null) {
-            expect(JSON.stringify(body.data)).to.equal(expectData);
-        }
+            // Compare against expected Data
+            if (expectData !== null) {
+                try 
+                {
+                    expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
+                }
+                catch( e ) 
+                {
+                    done( e ) // failure: call done with an error Object to indicate that it() failed
+                    return;
+                } 
+            }
 
-        done();
-    });
+            done();
+        });
+    }); 
 }
 
 
-describe("IPS->AMS API Test", function () {
+describe('SequenceNodeProvider', function () {
 
+    var HUB_SESSION = "AmazingHubSession";
     // Define different test input messages (sequence node ID as sent from AMS)
     var correctReqMessage = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -163,7 +219,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_missingUrl = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -177,7 +233,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_missingMethod = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -191,7 +247,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_illegalMethod = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -206,7 +262,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_wrongType = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -221,7 +277,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_missingContext = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -235,7 +291,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_missingType = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -249,7 +305,7 @@ describe("IPS->AMS API Test", function () {
 
     var incorrectReqMessage_missingBinding = {
             header : {
-                "Hub­-Session" : "AmazingHubSession",
+                "Hub­-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -261,65 +317,84 @@ describe("IPS->AMS API Test", function () {
             method: "POST"
         };
 
-    var amsProxy = null;
+    var seqNodeProvider = null;
     var config = getConfig();
-    var inputValidationErrorMsg = "Input validation error";
+    var inputValidationErrorMsg = 'Input validation error';
 
     before(function () {
-        amsProxy = new AmsProxy(config);
+        seqNodeProvider = new SequenceNodeProvider(config);
     });
 
-    it("returns the SequenceNode", function (done) {
+    it('should return the SequenceNode given sequence node identifier', function (done) {
         // The nocks will intercept the HTTP call and return without requiring the actual server. 
         setupNocks(config);
         var strMessage = JSON.stringify(correctReqMessage);
         var expectData = JSON.stringify(seqNodeBody);
-        testReqNode(amsProxy, strMessage, null, expectData, done);
+        
+        testReqNode(seqNodeProvider, strMessage, null, expectData, done);
     });
 
-    it("returns error at missing Hub-session", function (done) {
+    it('should return the SequenceNode (from cache) given sequence node key', function (done) {
+        var expectData = JSON.stringify(seqNodeBody);
+
+        var seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(JSON.stringify(correctReqMessage));
+        seqNodeProvider.getSequenceNodeByKey(seqNodeKey, function(error, body){
+            try {
+                expect(error).to.equal(null);
+                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
+                expect(body.hubSession).to.equal(HUB_SESSION);
+                done();
+            }
+            catch ( e )
+            {
+                done(e);
+            }
+        });
+    });
+
+    it('should return error at missing Hub-session', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_missingHubSession);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
-    it("returns error at missing url", function (done) {
+    it('should return error at missing url', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_missingUrl);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
-    it("returns error at missing method", function (done) {
+    it('should return error at missing method', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_missingMethod);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
-    it("returns error at illegal method", function (done) {
+    it('should return error at illegal method', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_illegalMethod);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });    
 
-    it("returns error at content wrong type", function (done) {
+    it('should return error at content wrong type', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_wrongType);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
-    it("returns error at content empty context", function (done) {
+    it('should return error at content empty context', function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingContext);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });  
 
-    it("returns error at content missing type", function (done) {
+    it('should return error at content missing type', function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingType);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });  
 
-    it("returns error at content missing binding", function (done) {
+    it('should return error at content missing binding', function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingBinding);
-        testReqNode(amsProxy, strMessage, inputValidationErrorMsg, null, done);
+        testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });  
 });
 
@@ -332,7 +407,7 @@ describe("IPS->AMS API Test", function () {
  */
 function setupNocks(config) {
     var amsNock = nock(config.amsBaseUrl);
-    amsNock.post("/seqnode")
+    amsNock.post('/seqnode')
         .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
         .matchHeader('Hub­-Session', 'AmazingHubSession')
         .reply(200, JSON.stringify(seqNodeBody));
@@ -356,15 +431,15 @@ function getConfig() {
  *       will fail with ECONNREFUSED error message.
  */
 function createRedisServer( callback ) { 
-     redisserver = spawn("redis-server", ["test/redis.conf"] );
-     redisserver.stderr.setEncoding("utf8");
-     redisserver.stderr.on("data", function(data){
-         console.log( "stderr: ", data );
+     redisserver = spawn('redis-server', ['test/redis.conf'] );
+     redisserver.stderr.setEncoding('utf8');
+     redisserver.stderr.on('data', function(data){
+         console.log( 'stderr: ', data );
      });
-     redisserver.stdout.setEncoding("utf8");
-     redisserver.stdout.on("data", function(data){
+     redisserver.stdout.setEncoding('utf8');
+     redisserver.stdout.on('data', function(data){
          if (/Server started/.test(data)) {
-             if ( "function" == typeof callback ) {
+             if ( 'function' == typeof callback ) {
                  callback();
              }
          }
