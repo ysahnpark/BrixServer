@@ -174,7 +174,6 @@ function getConfig() {
 	return {
 		"amsBaseUrl": "http://127.0.0.1",
 		"hubBaseUrl": "http://127.0.0.2",
-		"mobileBaseUrl": "http://127.0.0.3",
 	};
 }
 

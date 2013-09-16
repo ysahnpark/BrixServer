@@ -3,22 +3,51 @@
 	"description": "Message for requesting sequence node from PAF Hub",
 	"type": "object",
 	"properties": {
-		"@context": {
-			"description": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-			"type": "string"
+
+		"header": {
+			"type": "object",
+			"properties": {
+				"Hub­-Session": {
+					"type": "string"
+				},
+				"Content­-Type": {
+					"type": "string"
+				}
 			},
-		"@type": {
-			"description": "Must contain the word: SequenceNode",
-			"type": "string"
+			"required": ["Hub­-Session", "Content­-Type"]
+		},
+
+		"content": {
+			"type": "object",
+			"properties": {
+				"@context": {
+					"description": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+					"type": "string"
+					},
+				"@type": {
+					"description": "Must contain the word: SequenceNode",
+					"type": "string"
+					},
+				"nodeIndex": {
+					"description": "Numeric index of the node",
+					"type": "integer"
+					},
+				"targetBinding": {
+					"description": "URI of the binding",
+					"type": "string"
+					}
 			},
-		"nodeIndex": {
-			"description": "Numeric index of the node",
-			"type": "integer"
-			},
-		"targetBinding": {
-			"description": "URI of the binding",
+			"required": ["@context", "@type", "targetBinding"]
+		},
+
+		"url": {
+			"description": "The URL to query/submit with the above http headers and body (Content)",
 			"type": "string"
-			}
+		},
+		"method": {
+			"description": "// The http method that should be used against AMS/PAF",
+			"enum": [ "GET", "POST" ]
+		}
 	},
-	"required": ["@context", "@type", "targetBinding"]
+	"required": ["header", "content", "url", "method"]
 }
