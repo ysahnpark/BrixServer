@@ -137,8 +137,7 @@ describe ('IPS Controller', function(){
 				assert(replyValue, 'the handler should reply');
 
 				// @todo I'm honestly not sure how best to handle this here.  Ideally
-				// we'd just want to fake both the request and reply...perhaps
-				// the above is enough.
+				// we'd just want to fake both the request and reply.
 				
 				//assert.deepEqual(replyValue, getExpectedSuccessResponse());
 				done();
