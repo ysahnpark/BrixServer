@@ -25,15 +25,10 @@ describe('IPS General Message Handling Test', function() {
         var ips = new Ips(config);
     });
 
-    it('returns error: Bad Hub-Session', function (done) {
+    it('returns error: Expired Hub-Session', function (done) {
         done();
     });
-    it('returns error: Empty Request Body', function (done) {
-        done();
-    });
-    it('returns error: SequenceNodeKey Not Found', function (done) {
-        done();
-    });
+     
 });
 
 describe('IPS retrieveSequenceNode Test', function () {
@@ -47,6 +42,8 @@ describe('IPS retrieveSequenceNode Test', function () {
     it('returns the Sanitized SequenceNode', function (done) {
         done();
     });
+    
+    //@todo sequenceNodeIdentifier not found in AMS
 });
 
 /**
