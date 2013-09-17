@@ -26,7 +26,10 @@ function validateMessage(json, messageSchema, done) {
 }
 
 
-describe('Brix Message Schema Validations', function () {
+describe('Brix Message Schema', function () {
+
+    var MESSAGE_SCHEMA_FILENAME = 'message.schema.json';
+    var REQSEQNODE_SCHEMA_FILENAME = 'reqseqnode.schema.json';
 
     var schemaRootDir =  __dirname + '/../../schema/';
     describe('Brix IPC-IPS Messages', function () {
@@ -36,26 +39,26 @@ describe('Brix Message Schema Validations', function () {
 
         before(function () {
             // Add the test route with the handler
-            messageSchema = JSON.parse(fs.readFileSync(schemaRootDir + 'message.schema.json', 'utf8'));
+            messageSchema = JSON.parse(fs.readFileSync(schemaRootDir + MESSAGE_SCHEMA_FILENAME, 'utf8'));
         });
 
-        it('validates schema', function () {
+        it('should load and validate ' + MESSAGE_SCHEMA_FILENAME + ' schema file', function () {
             var zschema = new ZSchema();
             var validationResult = zschema.validateSchema(messageSchema);
             expect(validationResult.valid).to.equal(true);
         });
 
-        it('validates answer-feedback', function (done) {
+        it('should validate answer-feedback', function (done) {
             var message = JSON.parse(fs.readFileSync(sampleRootDir + 'test_message_ans_feedback.json', 'utf8'));
             validateMessage(message, messageSchema, done);
         });
 
-        it('validates sequence-node request', function (done) {
+        it('should validate sequence-node request', function (done) {
             var message = JSON.parse(fs.readFileSync(sampleRootDir + 'test_message_req_seq_node.json', 'utf8'));
             validateMessage(message, messageSchema, done);
         });
 
-        it('validates sequence-node response', function (done) {
+        it('should validate sequence-node response', function (done) {
             var message = JSON.parse(fs.readFileSync(sampleRootDir + 'test_message_resp_seq_node.json', 'utf8'));
             validateMessage(message, messageSchema, done);
         });
@@ -68,16 +71,16 @@ describe('Brix Message Schema Validations', function () {
 
         before(function () {
             // Add the test route with the handler
-            messageSchema = JSON.parse(fs.readFileSync(schemaRootDir + 'reqseqnode.schema.json', 'utf8'));
+            messageSchema = JSON.parse(fs.readFileSync(schemaRootDir + REQSEQNODE_SCHEMA_FILENAME, 'utf8'));
         });
 
-        it('validates schema', function () {
+        it('should load and validate ' + REQSEQNODE_SCHEMA_FILENAME + ' schema file', function () {
             var zschema = new ZSchema();
             var validationResult = zschema.validateSchema(messageSchema);
             expect(validationResult.valid).to.equal(true);
         });
 
-        it('validates AMS sequence-node request', function (done) {
+        it('should validate AMS sequence-node request', function (done) {
             var correctReqMessage = {
                 header : {
                     "Hub­-Session" : "AmazingHubSession",
