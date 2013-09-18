@@ -58,10 +58,10 @@ describe('IPC -> IPS Posting Interaction', function() {
         // operations: post interaction and submission. 
         request(server.listener)
             .post('/sequencenodes')
-            .send({"test":"data"})
+            .send(HubMock.testSeqNodeReqMessage)
             .expect('Content-Type', /json/) // Verify the content type
             .expect('hello world') // Verify the body
-            .expect(201) // Verify the result code (200=OK)
+            .expect(200) // Verify the result code (200=OK)
             .end(function(err, result){
                 if (err) return done(err);
                 seqNodeKey = result.body.sequenceNodeKey;

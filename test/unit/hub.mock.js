@@ -119,6 +119,23 @@ module.exports.testSeqNodeBody = {
     };
 
 /**
+ * A test (successful) node result response message for Submission
+ * @todo : Confirm with PAF documentation
+ * @type {Object}
+ */
+module.exports.testSubmissionNodeResultBody = {
+    "NodeResult": "Something"
+};
+
+/**
+ * A test (successful) node result response message for interaction
+ * @todo : Confirm with PAF documentation
+ * @type {Object}
+ */
+module.exports.testInteractionNodeResultBody = {
+};
+
+/**
  * The constructor function that encapsulates the Nock which intercepts HTTP requests
  */
 module.exports.HubNock = function() {
@@ -139,6 +156,41 @@ module.exports.HubNock = function() {
             .matchHeader('Hub­-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(module.exports.testSeqNodeBody));
     };
+
+    /**
+     * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
+     * This particular Nock will intercept AMS call and return code 200 with the 
+     * body as specified in the global variable seqNodeBody
+     *
+     * @param {String} baseUrl  - The url that this nock should listen to.
+     */
+    this.setupInteractionNock = function(baseUrl) {
+
+        // Nock for the sequencenode retrieval
+        var hubNock = nock(baseUrl);
+        hubNock.post('/interactions')
+            .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+            .matchHeader('Hub­-Session', module.exports.testHubSession)
+            .reply(200, JSON.stringify(module.exports.testInteractionNodeResultBody));
+    };
+
+    /**
+     * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
+     * This particular Nock will intercept AMS call and return code 200 with the 
+     * body as specified in the global variable seqNodeBody
+     *
+     * @param {String} baseUrl  - The url that this nock should listen to.
+     */
+    this.setupSubmissionNock = function(baseUrl) {
+
+        // Nock for the sequencenode retrieval
+        var hubNock = nock(baseUrl);
+        hubNock.post('/submissions')
+            .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+            .matchHeader('Hub­-Session', module.exports.testHubSession)
+            .reply(200, JSON.stringify(module.exports.testSubmissionNodeResultBody));
+    };
+
 
     /**
      * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
