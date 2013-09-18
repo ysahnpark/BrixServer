@@ -36,6 +36,13 @@ var nock = require('nock');
  * A test Hub session
  * @type {String}
  */
+module.exports.testHubBaseUrl = 'http://hub.pearson.com';
+
+
+/**
+ * A test Hub session
+ * @type {String}
+ */
 module.exports.testHubSession = 'HUB_SESSION';
 
 /**
@@ -52,7 +59,7 @@ module.exports.testSeqNodeReqMessage = {
              "@type": "SequenceNode",
              "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
         },
-        url: "http://hub.pearson.com/seqnode",
+        url: module.exports.testHubBaseUrl + "/seqnode",
         method: "POST"
     };
 
@@ -136,6 +143,16 @@ module.exports.testInteractionNodeResultBody = {
 };
 
 /**
+ * Message returned from Hub when session was expiired 
+ * @type {Object}
+ */
+module.exports.testHubSessionInvalid = {
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeProcessResponse",
+    "@type" : "NodeProcessResponse",
+    "error": "Invalid Hub-Session"
+};
+
+/**
  * The constructor function that encapsulates the Nock which intercepts HTTP requests
  */
 module.exports.HubNock = function() {
@@ -164,14 +181,18 @@ module.exports.HubNock = function() {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
-    this.setupInteractionNock = function(baseUrl) {
+    this.setupInteractionNock = function(baseUrl, opt_responseData) {
 
-        // Nock for the sequencenode retrieval
+        var responseData = (opt_responseData !== undefined)
+                                ? opt_responseData
+                                : module.exports.testInteractionNodeResultBody;
+
+        // Nock for the interactions retrieval
         var hubNock = nock(baseUrl);
         hubNock.post('/interactions')
-            .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
-            .matchHeader('Hub­-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(module.exports.testInteractionNodeResultBody));
+            //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub­-Session', module.exports.testHubSession)
+            .reply(200, JSON.stringify(responseData));
     };
 
     /**
@@ -181,13 +202,17 @@ module.exports.HubNock = function() {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
-    this.setupSubmissionNock = function(baseUrl) {
+    this.setupSubmissionNock = function(baseUrl, opt_responseData) {
 
-        // Nock for the sequencenode retrieval
+        var responseData = (opt_responseData !== undefined)
+                                ? opt_responseData
+                                : module.exports.testInteractionNodeResultBody;
+
+        // Nock for the submissions retrieval
         var hubNock = nock(baseUrl);
         hubNock.post('/submissions')
-            .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
-            .matchHeader('Hub­-Session', module.exports.testHubSession)
+            //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub­-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(module.exports.testSubmissionNodeResultBody));
     };
 

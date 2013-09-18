@@ -50,7 +50,7 @@ describe('IPC -> IPS Posting Interaction', function() {
         server = appStartUp(config);
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
+        hubnock.setupNocks(HubMock.testHubBaseUrl);
 
         seqNodeReqMessage = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
@@ -71,6 +71,8 @@ describe('IPC -> IPS Posting Interaction', function() {
     });
 
     it('should return a valid Node Result given correct request message', function (done) {
+
+        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
 
         var url = '/sequencenodes/' + seqNodeKey + '/interactions';
