@@ -179,6 +179,7 @@ describe('IPS Posting Submission', function() {
             done();
         });
     });
+     
 });
 
 describe('IPS retrieveSequenceNode Test', function () {
@@ -192,6 +193,8 @@ describe('IPS retrieveSequenceNode Test', function () {
     it('returns the Sanitized SequenceNode', function (done) {
         done();
     });
+    
+    //@todo sequenceNodeIdentifier not found in AMS
 });
 
 /**
