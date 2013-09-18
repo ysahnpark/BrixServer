@@ -72,9 +72,8 @@ describe('IPS Posting Interaction', function() {
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage);
         ips.postInteraction(param, function(err, result) {
             expect(err).to.equal(null);
-            expect(result.code).to.equal(201);
-            expect(result.data).to.be.an('object');
-            expect(result.status).to.equal('success');
+            expect(result).to.be.an('object');
+            expect(result).to.equal({});
             done();
         });
     });
@@ -87,9 +86,6 @@ describe('IPS Posting Interaction', function() {
         ips.postInteraction(param, function(err, result) {
             expect(err).to.equal(expectedErrorMessage);
 
-            expect(result.code).to.equal(404);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
             done();
         });
     });
@@ -102,9 +98,6 @@ describe('IPS Posting Interaction', function() {
         ips.postInteraction(param, function(err, result) {
             expect(err).to.equal(expectedErrorMessage);
 
-            expect(result.code).to.equal(400);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
             done();
         });
     });
@@ -142,10 +135,8 @@ describe('IPS Posting Submission', function() {
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage);
         ips.postSubmission(param, function(err, result) {
             expect(err).to.equal(null);
-            expect(result.code).to.equal(201);
-            expect(result.data).to.be.an('object');
-            expect(result.status).to.equal('success');
-            // @todo validate the result against a schema
+            expect(result).to.be.an('object');
+            // @todo validate the result against a ResultNode schema
             done();
         });
     });
@@ -157,10 +148,6 @@ describe('IPS Posting Submission', function() {
         var expectedErrorMessage = 'SequenceNodeKey not found';
         ips.postSubmission(param, function(err, result) {
             expect(err).to.equal(expectedErrorMessage);
-
-            expect(result.code).to.equal(404);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
             done();
         });
     });
@@ -172,10 +159,6 @@ describe('IPS Posting Submission', function() {
         var expectedErrorMessage = 'Hub-Session expired';
         ips.postSubmission(param, function(err, result) {
             expect(err).to.equal('Hub-Session expired');
-
-            expect(result.code).to.equal(400);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
             done();
         });
     });
@@ -190,7 +173,7 @@ describe('IPS retrieveSequenceNode Test', function () {
         var ips = new Ips(config);
     });
 
-    it('returns the Sanitized SequenceNode', function (done) {
+    it('should return the Sanitized SequenceNode', function (done) {
         done();
     });
     
