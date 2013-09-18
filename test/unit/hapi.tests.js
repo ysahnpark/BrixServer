@@ -19,7 +19,7 @@ describe('Sample Hapi app: GET /hello', function () {
             method: 'POST',
             path: '/hello',
 			handler: function (request) {
-				console.log(request.payload);
+				//console.log(request.payload);
 			    request.reply(resultData).type("application/json");;
 			}
 		});

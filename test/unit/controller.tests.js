@@ -179,7 +179,7 @@ describe ('IPS Controller', function(){
 				}
 			};
 			var err = Joi.validate(payload,controller.joiSchema());
-			console.log(err);
+			//console.log(err);
 			expect(err.message).to.equal('the key (sequenceNodeFantastico) is not allowed');
 			done();
 		});

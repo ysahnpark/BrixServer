@@ -12,13 +12,13 @@
  *
  * **************************************************************************/
 
-var Ips = require('../../lib/ips.js'),
-    nock = require('nock'),
-    expect = require('chai').expect;
-var utils = require('../../lib/utils.js');
+var nock = require('nock');
+var expect = require('chai').expect;
 
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js');
+var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
+var Ips = require('../../lib/ips.js');
 
 /**
  * Correctly formed interaction request message.
@@ -46,6 +46,7 @@ describe('IPS Posting Interaction', function() {
     var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
+    var sequenceNodeIdentifierString = null;
 
     before(function () {
         ips = new Ips(config);
@@ -54,7 +55,8 @@ describe('IPS Posting Interaction', function() {
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
 
-        seqNodeReqMessage = JSON.stringify(HubMock.testSeqNodeReqMessage);
+        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+        sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -69,7 +71,7 @@ describe('IPS Posting Interaction', function() {
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage);
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
         ips.postInteraction(param, function(err, result) {
             expect(err).to.equal(null);
             expect(result).to.be.an('object');
@@ -109,6 +111,7 @@ describe('IPS Posting Submission', function() {
     var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
+    var sequenceNodeIdentifier = null;
 
     before(function () {
         ips = new Ips(config);
@@ -117,7 +120,8 @@ describe('IPS Posting Submission', function() {
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
 
-        seqNodeReqMessage = JSON.stringify(HubMock.testSeqNodeReqMessage);
+        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+        sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -132,7 +136,7 @@ describe('IPS Posting Submission', function() {
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage);
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
         ips.postSubmission(param, function(err, result) {
             expect(err).to.equal(null);
             expect(result).to.be.an('object');
@@ -165,23 +169,51 @@ describe('IPS Posting Submission', function() {
      
 });
 
-describe('IPS retrieveSequenceNode Test', function () {
+describe('IPS retrieveSequenceNode', function () {
     var ips = null;
     var config = getConfig();
+    var hubnock = null;
+    var seqNodeProvider = null;
+    var seqNodeReqMessage = null;
+    var sequenceNodeIdentifier = null;
+
+    var sequenceNodeKey = null;
 
     before(function () {
-        var ips = new Ips(config);
+
+
+        // NOTE: I really wish I could get this to work (using https://github.com/jhnns/rewire 
+        // to re-write getSequenceNode) because
+        // then I wouldn't have to mock the getSequenceNode API call to the AMS.
+/*        Ips.__set__("SequenceNodeProvider", {
+            getSequenceNode: function (sequenceNodeIdentifier, callback) {
+                var retVal = {"success": "rewire!"};
+                callback(null, retVal);
+            }
+        });
+*/
+
+        ips = new Ips(config);
+        seqNodeProvider = new SequenceNodeProvider(config);
+
+        hubnock = new HubMock.HubNock();
+        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
+
+        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+        sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
+
     });
 
+    it('should return a sequenceNode', function (done) {
+        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+            sequenceNodeKey = result.sequenceNodeKey;
+            expect(sequenceNodeKey).to.be.not.null;
+            expect(sequenceNodeKey).to.be.a('string');
+            expect(result.brixConfig).to.be.an('object');
 
-    //@todo use this: https://github.com/jhnns/rewire
-    //you'll be able to rewrite sequencenodeprovider stuff
-    //and you might be able to leak local variables that are functions for unit testing
-    it('should return the Sanitized SequenceNode', function (done) {
-        done();
+            done();
+        });
     });
-
-    //@todo sequenceNodeIdentifier not found in AMS
 });
 
 /**

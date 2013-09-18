@@ -45,7 +45,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
     // Make sure that the cache does not have the key yet (before the proxy call)
     var redisClient = redis.createClient();
 
-    seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifier);
+    seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(JSON.stringify(sequenceNodeIdentifier));
 
     // Delete the cache entry prior calling the getSequenceNode()
     redisClient.del('SEQN:' + seqNodeKey, function(error, body) {
@@ -60,7 +60,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
                 }
                 catch( e )
                 {
-                    done( e ) // failure: call done with an error Object to indicate that it() failed
+                    done( e ); // failure: call done with an error Object to indicate that it() failed
                     return;
                 }
 
@@ -245,7 +245,7 @@ describe('SequenceNodeProvider', function () {
         // The Mocks will intercept the HTTP call and return without requiring the actual server. 
         var hubnock = new HubMock.HubNock();
         hubnock.setupNocks('http://hub.pearson.com');
-        var strMessage = JSON.stringify(correctReqMessage);
+        var strMessage = correctReqMessage;
         var expectData = JSON.stringify(HubMock.testSeqNodeBody);
         
         testReqNode(seqNodeProvider, strMessage, null, expectData, done);
@@ -272,46 +272,46 @@ describe('SequenceNodeProvider', function () {
 
     it('should return error at missing Hub-session', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
-        var strMessage = JSON.stringify(incorrectReqMessage_missingHubSession);
+        var strMessage = incorrectReqMessage_missingHubSession;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at missing url', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
-        var strMessage = JSON.stringify(incorrectReqMessage_missingUrl);
+        var strMessage = incorrectReqMessage_missingUrl;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at missing method', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
-        var strMessage = JSON.stringify(incorrectReqMessage_missingMethod);
+        var strMessage = incorrectReqMessage_missingMethod;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at illegal method', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
-        var strMessage = JSON.stringify(incorrectReqMessage_illegalMethod);
+        var strMessage = incorrectReqMessage_illegalMethod;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at content wrong type', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
-        var strMessage = JSON.stringify(incorrectReqMessage_wrongType);
+        var strMessage = incorrectReqMessage_wrongType;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at content empty context', function (done) {
-        var strMessage = JSON.stringify(incorrectReqMessage_missingContext);
+        var strMessage = incorrectReqMessage_missingContext;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at content missing type', function (done) {
-        var strMessage = JSON.stringify(incorrectReqMessage_missingType);
+        var strMessage = incorrectReqMessage_missingType;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at content missing binding', function (done) {
-        var strMessage = JSON.stringify(incorrectReqMessage_missingBinding);
+        var strMessage = incorrectReqMessage_missingBinding;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 });
