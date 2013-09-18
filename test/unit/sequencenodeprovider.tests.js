@@ -17,7 +17,6 @@
  * **************************************************************************/
 
 var fs = require('fs');
-var nock = require('nock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js');
 var spawn = require('child_process').spawn;
 var redis = require('redis');

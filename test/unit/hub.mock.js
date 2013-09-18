@@ -5,8 +5,23 @@
  * @fileoverview This file contains Hub Mock module that intercepts HTTP
  *               requests targeted to PAF Hub.
  *               Intercepted paths are:
- *               /seeqnode/ - for the sequence node retrieval 
- *               
+ *               /seqnode/ - for the sequence node retrieval 
+ *
+ * Usage:
+ * 1. Include the require in the javascript file:
+ *   var HubMock = require('./hub.mock.js');
+ * 2. Instantiate Nock class and setup nocks with the base url of the remote server:
+ *   var hubnock = new HubMock.HubNock();
+ *   hubnock.setupNocks('http://hub.pearson.com');
+ * 3. Subsequent call to that URL with /seqnode path will be intercepted by the nock.
+ *
+ * You can also use pre-defined test messages in the module:
+ * HubMock.testHubSession        - The session used by the sequence node request message
+ * HubMock.testSeqNodeReqMessage - The sequence node request message (aka sequence node identifier)
+ * HubMock.testSeqNodeBody       - The sequence node content returned by the mock.
+ *
+ * If you wantto get the sequence node key, you may call the 
+ * SequenceNodeProvider.obtainSequenceNodeKey (HubMock.testSeqNodeReqMessage)
  *
  * Created on       Sept 16, 2013
  * @author          Young-Suk Ahn Park
