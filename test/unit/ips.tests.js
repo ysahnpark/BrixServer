@@ -15,6 +15,7 @@
 var Ips = require('../../lib/ips.js'),
     nock = require('nock'),
     expect = require('chai').expect;
+var utils = require('../../lib/utils.js');
 
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js');
 var HubMock = require('./hub.mock.js');
@@ -42,7 +43,7 @@ function cloneObject(obj)
 describe('IPS Posting Interaction', function() {
     var ips = null;
     var config = getConfig();
-    var hubmock = null;
+    var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
 
@@ -50,10 +51,10 @@ describe('IPS Posting Interaction', function() {
         ips = new Ips(config);
         seqNodeProvider = new SequenceNodeProvider(config);
 
-        hubmock = new HubMock();
-        hubmock.setupNocks(hubmock.seqNodeReqMessage.url);
+        hubnock = new HubMock.HubNock();
+        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
 
-        seqNodeReqMessage = JSON.stringify(hubmock.seqNodeReqMessage);
+        seqNodeReqMessage = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -78,34 +79,6 @@ describe('IPS Posting Interaction', function() {
         });
     });
 
-    it('should return error at empty sequenceNodeKey', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = '';
-        var expectedErrorMessage = 'Invalid SequenceNodeKey';
-        ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            expect(result.code).to.equal(400);
-            expect(result.message).to.equal('Invalid SequenceNodeKey');
-            expect(result.status).to.equal('error');
-            done();
-        });
-    });
-    
-    it('should return error at Empty Request Body', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = sequenceNodeKey;
-        param.body = '';
-        var expectedErrorMessage = 'Invalid body';
-        ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            expect(result.code).to.equal(400);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
-            done();
-        });
-    });
 
     it('should return error at SequenceNodeKey not found', function (done) {
         var param = cloneObject(interactionMessage);
@@ -140,7 +113,7 @@ describe('IPS Posting Interaction', function() {
 describe('IPS Posting Submission', function() {
     var ips = null;
     var config = getConfig();
-    var hubmock = null;
+    var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
 
@@ -148,10 +121,10 @@ describe('IPS Posting Submission', function() {
         ips = new Ips(config);
         seqNodeProvider = new SequenceNodeProvider(config);
 
-        hubmock = new HubMock();
-        hubmock.setupNocks(hubmock.seqNodeReqMessage.url);
+        hubnock = new HubMock.HubNock();
+        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
 
-        seqNodeReqMessage = JSON.stringify(hubmock.seqNodeReqMessage);
+        seqNodeReqMessage = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -177,34 +150,6 @@ describe('IPS Posting Submission', function() {
         });
     });
 
-    it('should return error at empty sequenceNodeKey', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = '';
-        var expectedErrorMessage = 'Invalid SequenceNodeKey';
-        ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            expect(result.code).to.equal(400);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
-            done();
-        });
-    });
-    
-    it('should return error at Empty Request Body', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = sequenceNodeKey;
-        param.body = '';
-        var expectedErrorMessage = 'Invalid body';
-        ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            expect(result.code).to.equal(400);
-            expect(result.message).to.equal(expectedErrorMessage);
-            expect(result.status).to.equal('error');
-            done();
-        });
-    });
 
     it('should return error at SequenceNodeKey not found', function (done) {
         var param = cloneObject(interactionMessage);
@@ -258,5 +203,6 @@ describe('IPS retrieveSequenceNode Test', function () {
 function getConfig() {
     return {
         "amsBaseUrl": "http://localhost",
+        "hubBaseUrl": "http://localhost"
     };
 }
