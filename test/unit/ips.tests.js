@@ -47,7 +47,7 @@ describe('IPS Posting Interaction', function() {
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
 
-    before(function () {
+    before(function (done) {
         ips = new Ips(config);
         seqNodeProvider = new SequenceNodeProvider(config);
 
@@ -62,6 +62,7 @@ describe('IPS Posting Interaction', function() {
             // there must be no errors
             //console.log(result);
             sequenceNodeKey = result.sequenceNodeKey;
+            done();
         });
     });
 
@@ -71,10 +72,17 @@ describe('IPS Posting Interaction', function() {
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage);
         ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(null);
-            expect(result).to.be.an('object');
-            expect(result).to.equal({});
-            done();
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(result).to.equal({});
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
         });
     });
 
@@ -84,9 +92,14 @@ describe('IPS Posting Interaction', function() {
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'SequenceNodeKey not found';
         ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            done();
+            try {
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
         });
     });
 
@@ -96,9 +109,14 @@ describe('IPS Posting Interaction', function() {
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'Hub-Session expired';
         ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            done();
+            try {
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
         });
     });
 });
@@ -110,7 +128,7 @@ describe('IPS Posting Submission', function() {
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
 
-    before(function () {
+    before(function (done) {
         ips = new Ips(config);
         seqNodeProvider = new SequenceNodeProvider(config);
 
@@ -125,6 +143,7 @@ describe('IPS Posting Submission', function() {
             // there must be no errors
             //console.log(result);
             sequenceNodeKey = result.sequenceNodeKey;
+            done();
         });
     });
 
@@ -134,10 +153,18 @@ describe('IPS Posting Submission', function() {
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage);
         ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal(null);
-            expect(result).to.be.an('object');
-            // @todo validate the result against a ResultNode schema
-            done();
+
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                // @todo validate the result against a ResultNode schema
+                done();
+            }
+            catch ( e )
+            {
+                done(e);
+            }
+            
         });
     });
 
@@ -147,8 +174,16 @@ describe('IPS Posting Submission', function() {
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'SequenceNodeKey not found';
         ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-            done();
+            try
+            {
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+            
         });
     });
 
@@ -158,8 +193,14 @@ describe('IPS Posting Submission', function() {
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'Hub-Session expired';
         ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal('Hub-Session expired');
-            done();
+            try {
+                expect(err).to.equal('Hub-Session expired');
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
         });
     });
      
@@ -173,10 +214,14 @@ describe('IPS retrieveSequenceNode Test', function () {
         var ips = new Ips(config);
     });
 
+
+    //@todo use this: https://github.com/jhnns/rewire
+    //you'll be able to rewrite sequencenodeprovider stuff
+    //and you might be able to leak local variables that are functions for unit testing
     it('should return the Sanitized SequenceNode', function (done) {
         done();
     });
-    
+
     //@todo sequenceNodeIdentifier not found in AMS
 });
 

@@ -199,6 +199,7 @@ module.exports.HubNock = function() {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
+
     this.setupNocks = function(baseUrl) {
 
         this.setupSequenceNodeNock(baseUrl);
