@@ -173,10 +173,14 @@ describe('IPS retrieveSequenceNode Test', function () {
         var ips = new Ips(config);
     });
 
+
+    //@todo use this: https://github.com/jhnns/rewire
+    //you'll be able to rewrite sequencenodeprovider stuff
+    //and you might be able to leak local variables that are functions for unit testing
     it('should return the Sanitized SequenceNode', function (done) {
         done();
     });
-    
+
     //@todo sequenceNodeIdentifier not found in AMS
 });
 
