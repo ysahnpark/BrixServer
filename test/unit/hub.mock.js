@@ -50,20 +50,34 @@ module.exports.testHubSession = 'HUB_SESSION';
  * @type {Object}
  */
 module.exports.testSeqNodeReqMessage = {
-        header : {
-            "Hub­-Session": this.testHubSession,
-            "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
-        },
-        content : {
-             "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-             "@type": "SequenceNode",
-             "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-        },
-        url: module.exports.testHubBaseUrl + "/seqnode",
-        method: "POST"
-    };
+    header : {
+        "Hub­-Session": this.testHubSession,
+        "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+    },
+    content : {
+         "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+         "@type": "SequenceNode",
+         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+    },
+    url: "http://hub.pearson.com/seqnode",
+    method: "POST"
+};
 
-    // @todo: a more "realistic" value for targetActivity field
+/**
+ * A test Initialization envelop, containing testSeqNodeReqMessage as the 
+ * sequenceNodeIdentifier
+ * @type {Object}
+ */
+module.exports.testInitializationEnvelope = {
+    sequenceNodeIdentifier: this.testSeqNodeReqMessage,
+    timestamp: "2013-09-17T06:44Z",
+    type: "initialization",
+    body: {
+        targetID: "thingy123"
+    }
+};
+
+// @todo: a more "realistic" value for targetActivity field
 module.exports.testTargetActivityBody = {
         "brixConfig":"...bunch of brix config goes here..."
     };
@@ -130,8 +144,8 @@ module.exports.testSeqNodeBody = {
  * @todo : Confirm with PAF documentation
  * @type {Object}
  */
-module.exports.testSubmissionNodeResultBody = {
-    "NodeResult": "Something"
+module.exports.testSubmissionResponseBody = {
+    "feedback": "Something"
 };
 
 /**
@@ -139,7 +153,7 @@ module.exports.testSubmissionNodeResultBody = {
  * @todo : Confirm with PAF documentation
  * @type {Object}
  */
-module.exports.testInteractionNodeResultBody = {
+module.exports.testInteractionResponseBody = {
 };
 
 /**
@@ -185,7 +199,7 @@ module.exports.HubNock = function() {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
-                                : module.exports.testInteractionNodeResultBody;
+                                : module.exports.testInteractionResponseBody;
 
         // Nock for the interactions retrieval
         var hubNock = nock(baseUrl);
@@ -206,14 +220,14 @@ module.exports.HubNock = function() {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
-                                : module.exports.testInteractionNodeResultBody;
+                                : module.exports.testSubmissionResponseBody;
 
         // Nock for the submissions retrieval
         var hubNock = nock(baseUrl);
         hubNock.post('/submissions')
             //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub­-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(module.exports.testSubmissionNodeResultBody));
+            .reply(200, JSON.stringify(responseData));
     };
 
 
