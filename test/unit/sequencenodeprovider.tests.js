@@ -23,6 +23,7 @@ var spawn = require('child_process').spawn;
 var redis = require('redis');
 var expect = require('chai').expect;
 
+var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
 
 
@@ -54,82 +55,70 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
         
             if (expectError === null) {
                 // No error means we should be able to retrieve it from cache as well.
-                try 
+                try
                 {
                     expect(error).to.equal(null);
-                } 
-                catch( e ) 
+                }
+                catch( e )
                 {
                     done( e ) // failure: call done with an error Object to indicate that it() failed
                     return;
-                } 
+                }
 
                 // Check cache as well
                 seqNodeProvider.getSequenceNode(sequenceNodeIdentifier, function(error, body){
-                    try 
+                    try
                     {
                         expect(error).to.equal(null);
                         expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                         expect(body.sequenceNodeKey).to.equal(seqNodeKey);
                         expect(body.fromCache).to.equal(true);
-                    } 
-                    catch( e ) 
+                    }
+                    catch( e )
                     {
                         done( e ) // failure: call done with an error Object to indicate that it() failed
                         return;
-                    } 
+                    }
                 });
-            } 
+            }
             else // An error was expected 
             {
-                try 
+                try
                 {
                     expect(error).to.equal(expectError);
                 } 
-                catch( e ) 
+                catch( e )
                 {
                     done( e ) // failure: call done with an error Object to indicate that it() failed
                     return;
-                } 
+                }
                 
             }
 
             // Compare against expected Data
             if (expectData !== null) {
-                try 
+                try
                 {
                     expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                 }
-                catch( e ) 
+                catch( e )
                 {
                     done( e ) // failure: call done with an error Object to indicate that it() failed
                     return;
-                } 
+                }
             }
 
             done();
         });
-    }); 
+    });
 }
 
 
 describe('SequenceNodeProvider', function () {
 
-    var HUB_SESSION = "AmazingHubSession";
+    var HUB_SESSION = HubMock.testHubSession;
     // Define different test input messages (sequence node ID as sent from AMS)
-    var correctReqMessage = {
-            header : {
-                "Hub­-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNode",
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode",
-            method: "POST"
-        };
+    var correctReqMessage = utils.cloneObject(HubMock.testSeqNodeReqMessage);
 
     var incorrectReqMessage_missingHubSession = {
             header : {
@@ -255,17 +244,17 @@ describe('SequenceNodeProvider', function () {
 
     it('should return the SequenceNode given sequence node identifier', function (done) {
         // The Mocks will intercept the HTTP call and return without requiring the actual server. 
-        var hubmock = new HubMock();
-        hubmock.setupNocks(config.amsBaseUrl);
+        var hubnock = new HubMock.HubNock();
+        hubnock.setupNocks('http://hub.pearson.com');
         var strMessage = JSON.stringify(correctReqMessage);
-        var expectData = JSON.stringify(hubmock.seqNodeBody);
+        var expectData = JSON.stringify(HubMock.testSeqNodeBody);
         
         testReqNode(seqNodeProvider, strMessage, null, expectData, done);
     });
 
     it('should return the SequenceNode (from cache) given sequence node key', function (done) {
-        var hubmock = new HubMock();
-        var expectData = JSON.stringify(hubmock.seqNodeBody);
+        var hubnock = new HubMock.HubNock();
+        var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
         var seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(JSON.stringify(correctReqMessage));
         seqNodeProvider.getSequenceNodeByKey(seqNodeKey, function(error, body){
@@ -304,7 +293,7 @@ describe('SequenceNodeProvider', function () {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
         var strMessage = JSON.stringify(incorrectReqMessage_illegalMethod);
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
-    });    
+    });
 
     it('should return error at content wrong type', function (done) {
         // No need to setupNocks because the validation will fail and there will be no HTTP request at all
@@ -315,34 +304,19 @@ describe('SequenceNodeProvider', function () {
     it('should return error at content empty context', function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingContext);
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
-    });  
+    });
 
     it('should return error at content missing type', function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingType);
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
-    });  
+    });
 
     it('should return error at content missing binding', function (done) {
         var strMessage = JSON.stringify(incorrectReqMessage_missingBinding);
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
-    });  
+    });
 });
 
-/**
- * A HTTP server mock that intercepts HTTP call and returns as configured.
- * This particular Nock will intercept AMS call and return code 200 with the 
- * body as specified in the global variable seqNodeBody
- *
- * @param {object} config  - Should contain config.amsBaseUrl.
-function setupNocks(config) {
-    var amsNock = nock(config.amsBaseUrl);
-    amsNock.post('/seqnode')
-        .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
-        .matchHeader('Hub­-Session', 'AmazingHubSession')
-        .reply(200, JSON.stringify(seqNodeBody));
-        
-}
- */
 
 /**
  * Returns a config object with only those fields used in this test. 
@@ -352,7 +326,6 @@ function getConfig() {
         "amsBaseUrl": "http://localhost",
     };
 }
-
 
 /**
  * start the Redis server.
