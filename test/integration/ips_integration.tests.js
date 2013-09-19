@@ -43,43 +43,41 @@ describe('IPC -> IPS Posting Interaction', function() {
     var server = null;
     var config = getConfig();
     var hubnock = null;
-    var seqNodeReqMessage = null;
     var seqNodeKey  = null;
+    var url = null;
 
     before(function (done) {
         server = appStartUp(config);
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
-
-        seqNodeReqMessage = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
         request(server.listener)
             .post('/sequencenodes')
-            .send(HubMock.testSeqNodeReqMessage)
+            .send(HubMock.testInitializationEnvelope)
             .expect('Content-Type', /json/) // Verify the content type
-            .expect('hello world') // Verify the body
+            //.expect(HubMock.testSeqNodeBody) // Verify the body
             .expect(200) // Verify the result code (200=OK)
 
             .end(function(err, result){
                 if (err) return done(err);
+                // @todo: retrieve the sequenceNodeKey
                 seqNodeKey = result.body.sequenceNodeKey;
+                url = '/sequencenodes/' + seqNodeKey + '/interactions';
                 done();
             });
     });
 
     it('should return a valid Node Result given correct request message', function (done) {
-
         hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
-        var param = cloneObject(interactionMessage);
-
-        var url = '/sequencenodes/' + seqNodeKey + '/interactions';
+        var envelop = cloneObject(interactionMessage);
         
-        param.sequenceNodeKey = seqNodeKey;
+        envelop.sequenceNodeKey = seqNodeKey;
         request(server.listener)
             .post(url)
+            .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
             .expect(201) // Verify the result code (200=OK)
@@ -94,72 +92,71 @@ describe('IPC -> IPS Posting Interaction', function() {
     });
 
     it('should return error at empty sequenceNodeKey', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = '';
-        var expectedErrorMessage = 'Invalid SequenceNodeKey';
+        var envelop = cloneObject(interactionMessage);
+        envelop.sequenceNodeKey = '';
+        var expectedErrorMessage = 'the value of sequenceNodeKey is not allowed to be empty';
 
         request(server.listener)
             .post(url)
+            .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(201) // Verify the result code (200=OK)
+            .expect(400) // Verify the result code (200=OK)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);
-                expect(result.body.status).to.equal('error');
                 done();
             });
     });
     
     it('should return error at Empty Request Body', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = sequenceNodeKey;
-        param.body = '';
-        var expectedErrorMessage = 'Invalid body';
+        var envelop = cloneObject(interactionMessage);
+        envelop.sequenceNodeKey = seqNodeKey;
+        envelop.body = '';
+        var expectedErrorMessage = 'the value of body must be an object';
         request(server.listener)
             .post(url)
+            .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(201) // Verify the result code (200=OK)
+            .expect(400) // Verify the result code (200=OK)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);
-                expect(result.body.status).to.equal('error');
                 done();
             });
     });
 
     it('should return error at SequenceNodeKey not found', function (done) {
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = 'ABC';
+        var envelop = cloneObject(interactionMessage);
+        envelop.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'SequenceNodeKey not found';
         request(server.listener)
             .post(url)
+            .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(201) // Verify the result code (200=OK)
+            .expect(404) // Verify the result code (200=OK)
             .end(function(err, result){
                 if (err) return done(err);
-                expect(result.body.message).to.equal(expectedErrorMessage);
-                expect(result.body.status).to.equal('error');
                 done();
             });
     });
 
-    it('should return error at Hub-Session expired', function (done) {
-        // How can we explicitly expire hub session?
-        var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'Hub-Session expired';
+    it('should return error at invalid Hub-Session (e.g. expired)', function (done) {
+        hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        var envelop = cloneObject(interactionMessage);
+        envelop.sequenceNodeKey = seqNodeKey;
+        var expectedErrorMessage = 'Invalid Hub-Session';
         request(server.listener)
             .post(url)
+            .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(201) // Verify the result code (200=OK)
+            .expect(400) // Verify the result code (200=OK)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);
-                expect(result.body.status).to.equal('error');
                 done();
             });
     });
