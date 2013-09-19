@@ -36,7 +36,7 @@ var nock = require('nock');
  * A test Hub session
  * @type {String}
  */
-module.exports.testHubBaseUrl = 'http://hub.pearson.com';
+module.exports.testHubBaseUrl = 'http://hub.paf.pearson.com';
 
 
 /**
