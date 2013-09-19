@@ -32,7 +32,8 @@
     "nodemon": "~0.7.10"
   },
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "start": "node app.js"
   },
   "keywords": [
     "brix",

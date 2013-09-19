@@ -29,7 +29,8 @@ var	appStartUp = function() {
 		},
 		router: {
 			isCaseSensitive: false
-		}
+		},
+		cors: true
 	};
 
 	server = new Hapi.Server(config.host, config.port, serverOptions);
