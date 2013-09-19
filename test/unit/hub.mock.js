@@ -36,6 +36,13 @@ var nock = require('nock');
  * A test Hub session
  * @type {String}
  */
+module.exports.testHubBaseUrl = 'http://hub.pearson.com';
+
+
+/**
+ * A test Hub session
+ * @type {String}
+ */
 module.exports.testHubSession = 'HUB_SESSION';
 
 /**
@@ -133,6 +140,33 @@ module.exports.testSeqNodeBody = {
     };
 
 /**
+ * A test (successful) node result response message for Submission
+ * @todo : Confirm with PAF documentation
+ * @type {Object}
+ */
+module.exports.testSubmissionResponseBody = {
+    "feedback": "Something"
+};
+
+/**
+ * A test (successful) node result response message for interaction
+ * @todo : Confirm with PAF documentation
+ * @type {Object}
+ */
+module.exports.testInteractionResponseBody = {
+};
+
+/**
+ * Message returned from Hub when session was expiired 
+ * @type {Object}
+ */
+module.exports.testHubSessionInvalid = {
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeProcessResponse",
+    "@type" : "NodeProcessResponse",
+    "error": "Invalid Hub-Session"
+};
+
+/**
  * The constructor function that encapsulates the Nock which intercepts HTTP requests
  */
 module.exports.HubNock = function() {
@@ -161,6 +195,50 @@ module.exports.HubNock = function() {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
+    this.setupInteractionNock = function(baseUrl, opt_responseData) {
+
+        var responseData = (opt_responseData !== undefined)
+                                ? opt_responseData
+                                : module.exports.testInteractionResponseBody;
+
+        // Nock for the interactions retrieval
+        var hubNock = nock(baseUrl);
+        hubNock.post('/interactions')
+            //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub­-Session', module.exports.testHubSession)
+            .reply(200, JSON.stringify(responseData));
+    };
+
+    /**
+     * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
+     * This particular Nock will intercept AMS call and return code 200 with the 
+     * body as specified in the global variable seqNodeBody
+     *
+     * @param {String} baseUrl  - The url that this nock should listen to.
+     */
+    this.setupSubmissionNock = function(baseUrl, opt_responseData) {
+
+        var responseData = (opt_responseData !== undefined)
+                                ? opt_responseData
+                                : module.exports.testSubmissionResponseBody;
+
+        // Nock for the submissions retrieval
+        var hubNock = nock(baseUrl);
+        hubNock.post('/submissions')
+            //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub­-Session', module.exports.testHubSession)
+            .reply(200, JSON.stringify(responseData));
+    };
+
+
+    /**
+     * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
+     * This particular Nock will intercept AMS call and return code 200 with the 
+     * body as specified in the global variable seqNodeBody
+     *
+     * @param {String} baseUrl  - The url that this nock should listen to.
+     */
+
     this.setupNocks = function(baseUrl) {
 
         this.setupSequenceNodeNock(baseUrl);

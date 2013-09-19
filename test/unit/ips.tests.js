@@ -48,12 +48,12 @@ describe('IPS Posting Interaction', function() {
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifierString = null;
 
-    before(function () {
+    before(function (done) {
         ips = new Ips(config);
         seqNodeProvider = new SequenceNodeProvider(config);
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
+        hubnock.setupNocks(HubMock.testHubBaseUrl);
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
         sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
@@ -64,19 +64,29 @@ describe('IPS Posting Interaction', function() {
             // there must be no errors
             //console.log(result);
             sequenceNodeKey = result.sequenceNodeKey;
+            done();
         });
     });
 
-    it('should return a valid Node Result given correct request message', function (done) {
+    it('should return an empty object given correct request message', function (done) {
+        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
         ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(null);
-            expect(result).to.be.an('object');
-            expect(result).to.equal({});
-            done();
+            try {
+                //console.log(JSON.stringify(err));
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
         });
     });
 
@@ -86,21 +96,34 @@ describe('IPS Posting Interaction', function() {
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'SequenceNodeKey not found';
         ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            done();
+            try {
+                //console.log("ERR: "+err);
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
         });
     });
 
-    it('should return error at Hub-Session expired', function (done) {
+    it('should return error at invalid Hub-Session (e.g. expired)', function (done) {
         // How can we explicitly expire hub session?
+        hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'Hub-Session expired';
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
+        var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postInteraction(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-
-            done();
+            try {
+                //console.log(JSON.stringify(err));
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
         });
     });
 });
@@ -113,12 +136,12 @@ describe('IPS Posting Submission', function() {
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifier = null;
 
-    before(function () {
+    before(function (done) {
         ips = new Ips(config);
         seqNodeProvider = new SequenceNodeProvider(config);
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
+        hubnock.setupNocks(HubMock.testHubBaseUrl);
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
         sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
@@ -129,19 +152,28 @@ describe('IPS Posting Submission', function() {
             // there must be no errors
             //console.log(result);
             sequenceNodeKey = result.sequenceNodeKey;
+            done();
         });
     });
 
     it('should return a valid Node Result given correct request message', function (done) {
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
         ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal(null);
-            expect(result).to.be.an('object');
-            // @todo validate the result against a ResultNode schema
-            done();
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
         });
     });
 
@@ -151,19 +183,35 @@ describe('IPS Posting Submission', function() {
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'SequenceNodeKey not found';
         ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal(expectedErrorMessage);
-            done();
+            try
+            {
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+            
         });
     });
 
-    it('should return error at Hub-Session expired', function (done) {
+    it('should return error at invalid Hub-Session (i.e. expired)', function (done) {
         // How can we explicitly expire hub session?
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'Hub-Session expired';
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
+        var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postSubmission(param, function(err, result) {
-            expect(err).to.equal('Hub-Session expired');
-            done();
+            try {
+                //console.log(JSON.stringify(err));
+                expect(err).to.equal(expectedErrorMessage);
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
         });
     });
      
@@ -222,6 +270,6 @@ describe('IPS retrieveSequenceNode', function () {
 function getConfig() {
     return {
         "amsBaseUrl": "http://localhost",
-        "hubBaseUrl": "http://localhost"
+        "hubBaseUrl": HubMock.testHubBaseUrl
     };
 }
