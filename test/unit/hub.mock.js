@@ -70,7 +70,7 @@ module.exports.testSeqNodeReqMessage = {
  */
 module.exports.testInitializationEnvelope = {
     sequenceNodeIdentifier: this.testSeqNodeReqMessage,
-    timestamp: "2013-09-17T06:44Z",
+    timestamp: "2013-09-17T06:44:32Z",
     type: "initialization",
     body: {
         targetID: "thingy123"
