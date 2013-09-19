@@ -11,10 +11,11 @@ Directory Structure
 -------------------
 - lib    - Contains the application source code
   - aggregation.js - 
-  - amsproxy.js    - AMS Proxy
+  - sequencenodeprovider.js    - The component that provides sequence node (from either AMS or Hub)
   - controller.js  - The controller that includes the routes
   - hubproxy.js    - Hub Proxy
   - ips.js         - The IPS component
+  - utils.js       - File that contains utility functions
 - sample - Sample REST server application using Hapi and Redis 
 - schema - Message validation schema
 - test
