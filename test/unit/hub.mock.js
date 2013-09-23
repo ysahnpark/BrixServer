@@ -79,7 +79,7 @@ module.exports.testInitializationEnvelope = {
 
 // @todo: a more "realistic" value for targetActivity field
 module.exports.testTargetActivityBody = {
-        "brixConfig":"...bunch of brix config goes here..."
+        "brixConfig":"...bunch of brix config goes here.b.."
     };
 
 /**
@@ -168,8 +168,14 @@ module.exports.testHubSessionInvalid = {
 
 /**
  * The constructor function that encapsulates the Nock which intercepts HTTP requests
+ *
+ * @param {boolean=} opt_persist  Setting it to true makes the nock persistent, i.e.  
+ *                                It will live after a call. Otherwise the call will
+ *                                be used and subsequent calls will produce errors.
  */
-module.exports.HubNock = function() {
+module.exports.HubNock = function(opt_persist) {
+
+    var persist_ = (opt_persist) ? opt_persist : false;
 
     /**
      * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
@@ -182,6 +188,10 @@ module.exports.HubNock = function() {
 
         // Nock for the sequencenode retrieval
         var hubNock = nock(baseUrl);
+        if (persist_)
+        {
+            hubNock.persist();
+        }
         hubNock.post('/seqnode')
             .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
             .matchHeader('Hub­-Session', module.exports.testHubSession)
@@ -203,6 +213,10 @@ module.exports.HubNock = function() {
 
         // Nock for the interactions retrieval
         var hubNock = nock(baseUrl);
+        if (persist_)
+        {
+            hubNock.persist();
+        }
         hubNock.post('/interactions')
             //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub­-Session', module.exports.testHubSession)
@@ -224,6 +238,10 @@ module.exports.HubNock = function() {
 
         // Nock for the submissions retrieval
         var hubNock = nock(baseUrl);
+        if (persist_)
+        {
+            hubNock.persist();
+        }
         hubNock.post('/submissions')
             //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub­-Session', module.exports.testHubSession)

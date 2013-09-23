@@ -10,5 +10,5 @@ module.exports = {
     "amsBaseUrl":	     	Joi.Types.String().required(),
     "amsCaching":           Joi.Types.Boolean().required(),
     "hubBaseUrl":	     	Joi.Types.String().required(),
-    "bipsUrl":               Joi.Types.String().required()
+    "bipsBaseUrl":          Joi.Types.String().required()
 };

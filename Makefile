@@ -6,11 +6,15 @@ install:
 
 update:
 	make clean && rm -rf npm-shrinkwrap.json && npm install . && npm shrinkwrap
-	 
+
+# Run test brix server. It runs with mock(nock) for the external servers:  AMS & Hub
+testsvr:
+	@NODE_ENV=test node ./test/testapp.js
+
 test:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter tap --timeout 3000 test/unit
 	 
-testspec:
+test-spec:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter spec --timeout 3000 test/unit
 
 # "Watch" mode runs your tests each time it seems a file change under the base directory.

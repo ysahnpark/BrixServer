@@ -2,11 +2,19 @@
  * $Workfile:: ips.tests.js                                             $
  * *********************************************************************/ /**
  *
- * @fileoverview Contains unit tests for ips.js
+ * @fileoverview Contains communication tests for ips.js
+ *
+ * This test simulates the remote call to the Brix IPS Server. It tests the
+ * REST service: the complete hhtp call from Hapi route settings for the endpoints: 
+ * - sequencenodes/
+ * - sequencenodes/<seqNodeKey>/interactions
+ * - sequencenodes/<seqNodeKey>/submissions
+ *
+ * The call to external components (Hub) are mocked using nock. 
  *
  *
- * Created on       Sept 12, 2013
- * @author          Seann Ives
+ * Created on       Sept 16, 2013
+ * @author          Young-Suk Ahn Park
  *
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
