@@ -1,3 +1,6 @@
+
+
+var bunyan = require('bunyan');
 var http = require('http'),
 	//pMan = require('prsn.process-manager'),
 	Hapi = require('hapi'),
@@ -14,6 +17,16 @@ var error = Joi.validate(config, configSchema);
 if(error) {
 	throw new Error('Application config did not match the schema: ' + error);
 }
+
+config.logger = bunyan.createLogger({
+    name:"brix-server",
+    streams: [{
+        type: 'rotating-file',
+        path: './brix-server.log',
+        period: '1d',   // daily rotation
+        count: 3        // keep 3 back copies
+    }]
+});
 
 var getAppStatus = function() {
 	//return info about the app
