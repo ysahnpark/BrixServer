@@ -20,12 +20,20 @@ if(error) {
 
 config.logger = bunyan.createLogger({
     name:"brix-server",
-    streams: [{
-        type: 'rotating-file',
-        path: './brix-server.log',
-        period: '1d',   // daily rotation
-        count: 3        // keep 3 back copies
-    }]
+    level: 'debug',
+    streams: [
+		{
+			level: "debug",
+			stream: process.stdout
+		},
+		{
+			level: "info",
+			type: 'rotating-file',
+			path: './brix-server.log',
+			period: '1d',   // daily rotation
+			count: 3        // keep 3 back copies
+		}
+    ]
 });
 
 var getAppStatus = function() {
@@ -71,6 +79,6 @@ var pManOptions = {
 
 // to help debug and only use a single process, uncomment this line:
 
-var app = appStartUp();app.settings.port=config.port;console.log("Listening to port "+app.settings.port);app.start();
+var app = appStartUp();app.settings.port=config.port; config.logger.info('Listening to port ' + app.settings.port); app.start();
 // and comment out the line below
 //pMan(pManOptions);
