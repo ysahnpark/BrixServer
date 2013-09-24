@@ -20,10 +20,10 @@
  *
  * **************************************************************************/
 
-var Controller = require('../../lib/controller.js');
+var Controller = require('../../lib/controller');
 var expect = require('chai').expect;
-var HubMock = require('../unit/hub.mock.js');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js');
+var HubMock = require('../unit/hub.mock');
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
 var request = require('supertest');  // HTTP testing  
 var Hapi = require('hapi');
 
