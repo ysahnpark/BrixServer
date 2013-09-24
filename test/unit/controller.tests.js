@@ -19,7 +19,7 @@
 var assert = require('assert');
 var nock = require('nock');
 var _ = require('underscore');
-var Controller = require('../../lib/controller.js');
+var Controller = require('../../lib/controller');
 var Joi = require('joi');
 var expect = require('chai').expect;
 
