@@ -73,7 +73,7 @@ describe('IPS Posting Interaction', function() {
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         ips.postInteraction(param, function(err, result) {
             try {
                 //console.log(JSON.stringify(err));
@@ -112,7 +112,7 @@ describe('IPS Posting Interaction', function() {
         // How can we explicitly expire hub session?
         hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postInteraction(param, function(err, result) {
             try {
@@ -161,7 +161,7 @@ describe('IPS Posting Submission', function() {
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         ips.postSubmission(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
@@ -200,7 +200,7 @@ describe('IPS Posting Submission', function() {
         // How can we explicitly expire hub session?
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifierString);
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postSubmission(param, function(err, result) {
             try {

@@ -45,7 +45,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
     // Make sure that the cache does not have the key yet (before the proxy call)
     var redisClient = redis.createClient();
 
-    seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(JSON.stringify(sequenceNodeIdentifier));
+    seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifier);
 
     // Delete the cache entry prior calling the getSequenceNode()
     redisClient.del('SEQN:' + seqNodeKey, function(error, body) {
@@ -255,7 +255,7 @@ describe('SequenceNodeProvider', function () {
         var hubnock = new HubMock.HubNock();
         var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
-        var seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(JSON.stringify(correctReqMessage));
+        var seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(correctReqMessage);
         seqNodeProvider.getSequenceNodeByKey(seqNodeKey, function(error, body){
             try {
                 expect(error).to.equal(null);
