@@ -17,13 +17,14 @@
  * **************************************************************************/
 
 var fs = require('fs');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js');
 var spawn = require('child_process').spawn;
 var redis = require('redis');
 var expect = require('chai').expect;
 
 var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
+
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js').SequenceNodeProvider;
 
 
 /**

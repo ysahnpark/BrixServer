@@ -17,7 +17,7 @@ var expect = require('chai').expect;
 
 var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips.js').Ips;
 
 /**
@@ -71,11 +71,12 @@ describe('IPS Posting Interaction', function() {
     it('should return an empty object given correct request message', function (done) {
         hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
-        // Assign the correct 
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+console.log('*1');
         ips.postInteraction(param, function(err, result) {
             try {
+console.log('*2');
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
