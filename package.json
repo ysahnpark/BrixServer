@@ -30,7 +30,8 @@
     "mocha": "~1.12.0",
     "nock": "~0.22.1",
     "should": "~1.2.2",
-    "nodemon": "~0.7.10"
+    "nodemon": "~0.7.10",
+    "sinon": "~1.7.3"
   },
   "scripts": {
     "test": "make test",

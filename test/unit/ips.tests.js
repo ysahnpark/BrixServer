@@ -18,7 +18,7 @@ var expect = require('chai').expect;
 var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
-var Ips = require('../../lib/ips.js');
+var Ips = require('../../lib/ips.js').Ips;
 
 /**
  * Correctly formed interaction request message.
@@ -76,7 +76,6 @@ describe('IPS Posting Interaction', function() {
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         ips.postInteraction(param, function(err, result) {
             try {
-                //console.log(JSON.stringify(err));
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
