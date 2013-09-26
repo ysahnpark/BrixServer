@@ -24,7 +24,8 @@
     "should": "~1.2.2",
     "tracer": "~0.5.1",
     "q": "~0.9.7",
-    "bunyan": "~0.21.4"
+    "bunyan": "~0.21.4",
+    "config": "~0.4.30"
   },
   "devDependencies": {
     "mocha": "~1.12.0",

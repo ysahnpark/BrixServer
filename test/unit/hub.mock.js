@@ -31,12 +31,14 @@
  * **************************************************************************/
 
 var nock = require('nock');
+var config = require('config');
 
 /**
  * A test Hub session
  * @type {String}
  */
-module.exports.testHubBaseUrl = 'http://hub.paf.pearson.com';
+// @todo - is this the way we want to do this?
+module.exports.testHubBaseUrl = config.hubBaseUrl;
 
 
 /**

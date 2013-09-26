@@ -11,14 +11,17 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
+//force test environment
+process.env.NODE_ENV = 'test';
 
 var nock = require('nock');
 var expect = require('chai').expect;
+var config = require('config');
 
-var utils = require('../../lib/utils.js');
-var HubMock = require('./hub.mock.js');
+var utils = require('../../lib/utils');
+var HubMock = require('./hub.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
-var Ips = require('../../lib/ips.js').Ips;
+var Ips = require('../../lib/ips').Ips;
 
 /**
  * Correctly formed interaction request message.
@@ -42,15 +45,14 @@ function cloneObject(obj)
 
 describe('IPS Posting Interaction', function() {
     var ips = null;
-    var config = getConfig();
     var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifierString = null;
 
     before(function (done) {
-        ips = new Ips(config);
-        seqNodeProvider = new SequenceNodeProvider(config);
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
@@ -130,15 +132,14 @@ console.log('*2');
 
 describe('IPS Posting Submission', function() {
     var ips = null;
-    var config = getConfig();
     var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifier = null;
 
     before(function (done) {
-        ips = new Ips(config);
-        seqNodeProvider = new SequenceNodeProvider(config);
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
@@ -219,7 +220,6 @@ describe('IPS Posting Submission', function() {
 
 describe('IPS retrieveSequenceNode', function () {
     var ips = null;
-    var config = getConfig();
     var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
@@ -241,8 +241,8 @@ describe('IPS retrieveSequenceNode', function () {
         });
 */
 
-        ips = new Ips(config);
-        seqNodeProvider = new SequenceNodeProvider(config);
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
@@ -263,13 +263,3 @@ describe('IPS retrieveSequenceNode', function () {
         });
     });
 });
-
-/**
- * Returns a config object with only those fields used in this test. 
- */
-function getConfig() {
-    return {
-        "amsBaseUrl": "http://localhost",
-        "hubBaseUrl": HubMock.testHubBaseUrl
-    };
-}

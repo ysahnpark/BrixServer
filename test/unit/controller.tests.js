@@ -15,13 +15,17 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
+//force test environment
+process.env.NODE_ENV = 'test';
 
 var assert = require('assert');
 var nock = require('nock');
 var _ = require('underscore');
-var Controller = require('../../lib/controller');
 var Joi = require('joi');
 var expect = require('chai').expect;
+var config = require('config');
+var utils = require('../../lib/utils');
+var Controller = require('../../lib/controller');
 
 describe ('IPS Controller', function(){
 
@@ -30,10 +34,9 @@ describe ('IPS Controller', function(){
 		it ('should return a Controller object', function(done) {
 
 			//Arrange
-			var config = getConfig();
 			
 			//Act
-			var controller = new Controller(config);
+			var controller = new Controller();
 
 			//Arrange
 			assert(controller);
@@ -48,8 +51,7 @@ describe ('IPS Controller', function(){
 		it ('should return an array of routes', function(done) {
 
 			//Arrange
-			var config = getConfig();
-			var controller = new Controller(config);
+			var controller = new Controller();
 
 			
 			//Act
@@ -82,8 +84,7 @@ describe ('IPS Controller', function(){
 		it ('should work', function(done) {
 			
 			//Arrange
-			var config = getConfig();
-			var controller = new Controller(config);
+			var controller = new Controller();
 			var handler = controller.routes[0].handler;
 			var request = new RequestMock(onReplyCallback);
 			setupNocks(config);
@@ -103,12 +104,14 @@ describe ('IPS Controller', function(){
 		it ('should handle an error appropriately', function(done) {
 			
 			//Arrange
-			var config = getConfig();
-			config.amsBaseUrl = "baddomain.ecollege.net";
-			var controller = new Controller(config);
+			var controller = new Controller();
 			var handler = controller.routes[0].handler;
 			var request = new RequestMock(onReplyCallback);
-			setupNocks(config);
+			// @todo - refactor this
+			var tmpConfig = utils.cloneObject(config);
+			tmpConfig.amsBaseUrl = "baddomain.ecollege.net";
+			tmpConfig.hubBaseUrl = "http://127.0.0.2";
+			setupNocks(tmpConfig);
 			
 			//Act
 			handler(request);
@@ -126,10 +129,9 @@ describe ('IPS Controller', function(){
 
 	describe ('joi schema validation', function () {
 		//Arrange
-		var config = getConfig();
 		var controller = null;
 		before(function () {
-			controller = new Controller(config);
+			controller = new Controller();
 		});
 
 		it ('should accept a proper initialization payload', function(done) {
@@ -212,19 +214,12 @@ describe ('IPS Controller', function(){
 	
 });
 
-function getConfig() {
-	return {
-		"amsBaseUrl": "http://127.0.0.1",
-		"hubBaseUrl": "http://127.0.0.2",
-	};
-}
-
-function setupNocks(config) {
-	var amsNock = nock(config.amsBaseUrl);
+function setupNocks(tmpConfig) {
+	var amsNock = nock(tmpConfig.amsBaseUrl);
 	amsNock.get('/ams/health')
 		.reply(200, {"test": "test"});
 
-	var hubNock = nock(config.hubBaseUrl);
+	var hubNock = nock(tmpConfig.hubBaseUrl);
 	hubNock.get('/health')
 		.reply(200, {"test": "test"});
 		
