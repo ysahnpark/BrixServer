@@ -3,6 +3,9 @@
  * The HTTP request is done through Supertest
  */
 
+//force test environment
+process.env.NODE_ENV = 'test';
+
 var Hapi = require('hapi');
 var request = require('supertest');  // HTTP testing  
 

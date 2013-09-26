@@ -13,6 +13,7 @@
  *
  * **************************************************************************/
 var bunyan = require('bunyan');
+var config = require('config');
 var WebService = require('../lib/webservice');
 
 webservice = new WebService("TESTBrixApp");
@@ -24,7 +25,7 @@ hubnock = new HubMock.HubNock(true);
 hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
 hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
 hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
-setupHealthNocks(webservice.getConfig());
+setupHealthNocks();
 
 // Start the server
 var app = webservice.appStartUp(); app.start();
@@ -34,7 +35,7 @@ var app = webservice.appStartUp(); app.start();
  * Function that nocks the AMS and HUB health service
  * @param  {Object} config contains base urls for AMS and Hub
  */
-function setupHealthNocks(config) {
+function setupHealthNocks() {
     var amsNock = nock(config.amsBaseUrl).persist();
     amsNock.get('/ams/health')
         .reply(200, {"test": "test"});

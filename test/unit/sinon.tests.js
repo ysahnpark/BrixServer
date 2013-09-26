@@ -15,8 +15,12 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
+//force test environment
+process.env.NODE_ENV = 'test';
+
 var sinon = require('sinon');
 var expect = require('chai').expect;
+var config = require('config');
 
 var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
@@ -26,7 +30,6 @@ var Ips = require('../../lib/ips.js').Ips;
 
 
 describe('Sinon for IPS retrieveSequenceNode', function () {
-    var config = getConfig();
     var ips = null;
     //var hubnock = null;
     //var seqNodeProvider = null;
@@ -37,7 +40,7 @@ describe('Sinon for IPS retrieveSequenceNode', function () {
 
     before(function () {
 
-        ips = new Ips(config);
+        ips = new Ips();
         // mockery #1 - mocking the function
         var stub = sinon.stub(ips.sequenceNodeProvider, "getSequenceNode", function (sequenceNodeIdentifier, callback) {
                 console.log("I'M IN THE SINON STUB");
@@ -77,12 +80,3 @@ describe('Sinon for IPS retrieveSequenceNode', function () {
     });
 });
 
-/**
- * Returns a config object with only those fields used in this test. 
- */
-function getConfig() {
-    return {
-        "amsBaseUrl": "http://localhost",
-        "hubBaseUrl": HubMock.testHubBaseUrl
-    };
-}
