@@ -14,6 +14,7 @@
 //force test environment
 process.env.NODE_ENV = 'test';
 
+var sinon = require('sinon');
 var nock = require('nock');
 var expect = require('chai').expect;
 var config = require('config');
@@ -220,46 +221,75 @@ describe('IPS Posting Submission', function() {
 
 describe('IPS retrieveSequenceNode', function () {
     var ips = null;
-    var hubnock = null;
-    var seqNodeProvider = null;
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifier = null;
 
     var sequenceNodeKey = null;
+    var targetActivity = null;
 
     before(function () {
-
-
-        // NOTE: I really wish I could get this to work (using https://github.com/jhnns/rewire 
-        // to re-write getSequenceNode) because
-        // then I wouldn't have to mock the getSequenceNode API call to the AMS.
-/*        Ips.__set__("SequenceNodeProvider", {
-            getSequenceNode: function (sequenceNodeIdentifier, callback) {
-                var retVal = {"success": "rewire!"};
-                callback(null, retVal);
-            }
-        });
-*/
-
         ips = new Ips();
-        seqNodeProvider = new SequenceNodeProvider();
-
-        hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
-
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
         sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
-
     });
 
+    // We sandbox our sinon stubs within each 'it'.  Otherwise the method wrapper we write in on lasts indefinitely.
+    var sandbox;
+    beforeEach(function () {
+        sandbox = sinon.sandbox.create();
+    });
+    afterEach(function () {
+        sandbox.restore();
+    });
+
+
     it('should return a sequenceNode', function (done) {
+
+        var stub = sandbox.stub(ips.sequenceNodeProvider, "getSequenceNode", function (sequenceNodeIdentifier, callback) {
+            var sequenceNodeKey = '123';
+            var data = {"targetActivity": {
+                "yay": "100"}
+            };
+            
+            callback(null, {sequenceNodeKey: sequenceNodeKey, sequenceNodeContent: data, fromCache:false});
+        });
+
         ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
             sequenceNodeKey = result.sequenceNodeKey;
+            targetActivity = result.brixConfig;
+            var expectedTargetActivity = {"yay": "100"};
             expect(sequenceNodeKey).to.be.not.null;
             expect(sequenceNodeKey).to.be.a('string');
-            expect(result.brixConfig).to.be.an('object');
+            expect(sequenceNodeKey).to.be.equal('123');
+            expect(targetActivity).to.be.an('object');
+            expect(targetActivity).to.deep.equal({ yay: '100' });
 
+            // calledOnce is property of sinon.spy which is super class of sinon.stub.
+            expect(ips.sequenceNodeProvider.getSequenceNode.calledOnce).to.be.true;
             done();
         });
     });
+
+    it('should handle an error', function (done) {
+
+        var stub = sandbox.stub(ips.sequenceNodeProvider, "getSequenceNode", function (sequenceNodeIdentifier, callback) {
+            var error = "DANGER!  DANGER!  GET ON THE FLOOR...";
+            var errorBody ={};
+            errorBody.statusCode = 500;
+            errorBody.error = error;
+            
+            callback(error, errorBody);
+        });
+
+        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+            expect(error).to.be.equal('DANGER!  DANGER!  GET ON THE FLOOR...');
+            expect(result).to.deep.equal({statusCode: 500, error: 'DANGER!  DANGER!  GET ON THE FLOOR...'});
+
+            // calledOnce is property of sinon.spy which is super class of sinon.stub.
+            expect(ips.sequenceNodeProvider.getSequenceNode.calledOnce).to.be.true;
+            done();
+        });
+    });
+
+
 });
