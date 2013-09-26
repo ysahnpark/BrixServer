@@ -1,13 +1,14 @@
 /**
  * This tests Redis
  */
+var os = require("os");
 var expect = require('chai').expect;
 var redis = require("redis");
 
 describe('Redis', function () {
 
     var KEY = '_redis_test_key_';
-    var VAL = '_redis_test_val_';
+    var VAL = '_redis_test_val_(from: ' + os.hostname() + ')';
     var REDIS_PORT = null;
     var REDIS_SERVER = 'localhost';
 
