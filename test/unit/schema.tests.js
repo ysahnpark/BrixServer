@@ -10,7 +10,8 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
-
+//force test environment
+process.env.NODE_ENV = 'test';
 
 var fs = require('fs'),
     ZSchema = require('z-schema'),

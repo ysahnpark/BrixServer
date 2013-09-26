@@ -19,13 +19,16 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
+//force test environment
+process.env.NODE_ENV = 'test';
 
-var Controller = require('../../lib/controller');
-var expect = require('chai').expect;
-var HubMock = require('../unit/hub.mock');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
 var request = require('supertest');  // HTTP testing  
 var Hapi = require('hapi');
+var expect = require('chai').expect;
+var config = require('config');
+var HubMock = require('../unit/hub.mock');
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
+var Controller = require('../../lib/controller');
 
 /**
  * Correctly formed interaction request message.
@@ -58,13 +61,12 @@ function cloneObject(obj)
 
 describe('IPC -> IPS Posting Interaction', function() {
     var server = null;
-    var config = getConfig();
     var hubnock = null;
     var seqNodeKey  = null;
     var url = null;
 
     before(function (done) {
-        server = appStartUp(config);
+        server = appStartUp();
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
@@ -191,13 +193,12 @@ describe('IPC -> IPS Posting Interaction', function() {
 
 describe('IPC -> IPS Posting Submission', function() {
     var server = null;
-    var config = getConfig();
     var hubnock = null;
     var seqNodeKey  = null;
     var url = null;
 
     before(function (done) {
-        server = appStartUp(config);
+        server = appStartUp();
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
@@ -325,17 +326,8 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
     
 });
 
-/**
- * Returns a config object with only those fields used in this test. 
- */
-function getConfig() {
-    return {
-        "amsBaseUrl": "http://localhost",
-        "hubBaseUrl": "http://hub.paf.pearson.com",
-    };
-}
 
-var appStartUp = function(config) {
+var appStartUp = function() {
 
     serverOptions = {
         debug: {
@@ -348,7 +340,7 @@ var appStartUp = function(config) {
 
     server = new Hapi.Server(config.host, config.port, serverOptions);
 
-    var controller = new Controller(config);
+    var controller = new Controller();
     server.route(controller.routes);
     
     return server;

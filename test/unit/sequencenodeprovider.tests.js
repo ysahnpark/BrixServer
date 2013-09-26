@@ -15,11 +15,14 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
+//force test environment
+process.env.NODE_ENV = 'test';
 
 var fs = require('fs');
 var spawn = require('child_process').spawn;
 var redis = require('redis');
 var expect = require('chai').expect;
+var config = require('config');
 
 var utils = require('../../lib/utils.js');
 var HubMock = require('./hub.mock.js');
@@ -235,11 +238,10 @@ describe('SequenceNodeProvider', function () {
         };
 
     var seqNodeProvider = null;
-    var config = getConfig();
     var inputValidationErrorMsg = 'Input validation error';
 
     before(function () {
-        seqNodeProvider = new SequenceNodeProvider(config);
+        seqNodeProvider = new SequenceNodeProvider();
     });
 
     it('should return the SequenceNode given sequence node identifier', function (done) {
@@ -317,15 +319,6 @@ describe('SequenceNodeProvider', function () {
     });
 });
 
-
-/**
- * Returns a config object with only those fields used in this test. 
- */
-function getConfig() {
-    return {
-        "amsBaseUrl": "http://localhost",
-    };
-}
 
 /**
  * start the Redis server.
