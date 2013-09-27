@@ -5,6 +5,9 @@
 # jsdoc output files when run in the js folder
 js/out/*
 
+# blanket coverage files
+test/coverage.html
+
 # Compiled source #
 ###################
 *.com
