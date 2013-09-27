@@ -40,64 +40,71 @@
                             "configFixup":
                                 [
                                 ],
-                            "answer":
+                            "answerKey":
                                 {
                                     "type":"multiplechoice",
-                                    "scoringMatrix": 
-                                        [
-                                            {
-                                                optionKey: "option000" 
-                                                response: "Growth rate stays constant.",
+                                    "answers": 
+                                        {
+                                            "option000": {
+                                                response: "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
                                                 score: 1,
                                             },
-                                            {
-                                                optionKey: "option001"
+                                            "option001": {
                                                 response: "Does the growth rate change with population size?",
                                                 score: 0,
                                             },
-                                            {
-                                                optionKey: "option002"
+                                            "option002": {
                                                 response: "Does the fertility rate change with population size?",
                                                 score: 0,
                                             },
-                                            {
-                                                optionKey: "option003"
+                                            "option003": {
                                                 response: "This might happen but is it something is necessarily occurs?",
                                                 score: 0,
                                             }
-                                        ]
+                                        }
                                     /*
-                                    Another possibility for MULTISELECT:
+                                    
+                                    Another possibility for MULTIPLECHOICE:
+                                    "type":"multiplechoice",
+                                    "answers": 
+                                        {
+                                            "option000": {
+                                                response: "Growth rate stays constant.",
+                                                score: 1,
+                                            },
+                                            "__else__": { /* this is a special kewyord
+                                                response: "Your answer <%= studAnsValue %> is not correct.",
+                                                score: 0,
+                                            }
+                                        }
+
+                                    Another (possible) example for MULTISELECT:
                                     "type":"multiselect",
                                     "numRequiredAnswers": 2, /* Two out of three is sufficient to get it correct *
-                                    "scoringMatrix": 
-                                        [
-                                            {
-                                                optionKey: "option000" 
+                                    "answers": 
+                                        {
+                                            "option000": {
                                                 response: "South Korea is an Asian country.",
                                                 score: 1,
                                             },
-                                            {
-                                                optionKey: "option001"
+                                            "option001": {
                                                 response: "Thailand is an Asian country",
                                                 score: 1,
                                             },
-                                            {
-                                                optionKey: "option002"
+                                            "option002": {
                                                 response: "Brazil is in South America.",
                                                 score: 0,
                                             },
-                                            {
-                                                optionKey: "option003"
+                                            "option003": {
                                                 response: "Japan is an Asian country",
                                                 score: 1,
                                             }
-                                        ]
+                                        }
 
-                                    Another possibility for NUMER (or any exact match string):
+                                    Another (possible) example for NUMBER (or any exact match string):
                                     "type":"numeric",
-                                    "scoringMatrix": 
-                                        [
+                                    "answers": 
+                                        {
                                             {
                                                 value: "6", 
                                                 response: "Yes that the correct answer for 3 factorial.",
@@ -108,12 +115,12 @@
                                                 response: "That is incorrect.",
                                                 score: 0,
                                             }
-                                        ]
+                                        }
 
-                                    Another possibility for NUMBER:
+                                    Another (possible) example for NUMBER:
                                     "type":"numeric",
-                                    "scoringMatrix": 
-                                        [
+                                    "answers": 
+                                        {
                                             {
                                                 inclusiveRange:"true"
                                                 valueRangeUpper: "37", 
@@ -140,7 +147,7 @@
                                                 response: "Maybe aliens has those temperatures!",
                                                 score: -1,
                                             }
-                                        ]
+                                        }
                                     */
                                 }
                         }

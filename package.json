@@ -39,7 +39,7 @@
     "test": "make test",
     "start": "node app.js",
     "blanket": {
-      "pattern": "//^((?!\/node_modules\/)(?!\/test\/).)*$/ig",
+      "pattern": "//^((?!/node_modules/)(?!/test/).)*$/ig",
       "onlyCwd": true,
       "data-cover-flags": {
         "branchTracking": true
