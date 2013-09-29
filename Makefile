@@ -31,5 +31,8 @@ test-cov-html:
 
 test-int:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter spec --timeout 3000 test/integration
+	 
+test-xunit:
+	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter xunit --timeout 3000 test/unit
 
 .PHONY: test test-cov test-cov-html test-int

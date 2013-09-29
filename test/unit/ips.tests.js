@@ -65,12 +65,19 @@ describe('IPS Posting Interaction', function() {
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
-            // there must be no errors
-            //console.log(result);
-            sequenceNodeKey = result.sequenceNodeKey;
-            done();
+        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+
+            ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+
+                // there must be no errors
+                //console.log(result);
+                sequenceNodeKey = result.sequenceNodeKey;
+                done();
+            });
         });
+        
     });
 
     it('should return an empty object given correct request message', function (done) {
@@ -78,10 +85,9 @@ describe('IPS Posting Interaction', function() {
         var param = cloneObject(interactionMessage);
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
-console.log('*1');
+
         ips.postInteraction(param, function(err, result) {
             try {
-console.log('*2');
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
@@ -258,7 +264,7 @@ describe('IPS retrieveSequenceNode', function () {
 
         ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
             sequenceNodeKey = result.sequenceNodeKey;
-            targetActivity = result.brixConfig;
+            targetActivity = result.containerConfig;
             var expectedTargetActivity = {"yay": "100"};
             expect(sequenceNodeKey).to.be.not.null;
             expect(sequenceNodeKey).to.be.a('string');
@@ -299,7 +305,6 @@ describe('IPS retrieveSequenceNode', function () {
         // Verify that the original does contain the answerKey
         sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
             containerItem.brixConfig.forEach(function(val, key){
-                console.log("POST: "+JSON.stringify(val.brixConfig));
                 if(val.bricType === 'MultipleChoiceQuestion')
                     expect(val).to.have.property('answerKey') ;
                 expect(val).to.have.property('bricId');
@@ -314,7 +319,6 @@ describe('IPS retrieveSequenceNode', function () {
         result.containerConfig.forEach(function(containerItem, key){
 
             containerItem.brixConfig.forEach(function(val, key){
-                console.log("POST: "+JSON.stringify(val.brixConfig));
                 expect(val).to.not.have.property('answerKey');
                 // But should retain the rest of the sections 
                 expect(val).to.have.property('bricId');
@@ -329,7 +333,7 @@ describe('IPS retrieveSequenceNode', function () {
     it('should correctly obtain the container by id (private func)', function () {
 
         var containerId = 'assessment25';
-        var result = ips.obtainContainer__(sampleMcpConfig, containerId);
+        var result = ips.obtainContainerItem__(sampleMcpConfig, containerId);
         
         var hasContainer = false;
         // Verify that the original does contain the container
