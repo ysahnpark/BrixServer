@@ -110,7 +110,7 @@ describe ('IPS Controller', function(){
 			// @todo - refactor this
 			var tmpConfig = utils.cloneObject(config);
 			tmpConfig.amsBaseUrl = "baddomain.ecollege.net";
-			tmpConfig.hubBaseUrl = "http://127.0.0.2";
+			tmpConfig.hubBaseUrl = "http://hub.paf.pearson.com";
 			setupNocks(tmpConfig);
 			
 			//Act

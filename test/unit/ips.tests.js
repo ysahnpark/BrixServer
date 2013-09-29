@@ -14,6 +14,7 @@
 //force test environment
 process.env.NODE_ENV = 'test';
 
+var sinon = require('sinon');
 var nock = require('nock');
 var expect = require('chai').expect;
 var config = require('config');
@@ -22,6 +23,8 @@ var utils = require('../../lib/utils');
 var HubMock = require('./hub.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips').Ips;
+
+var sampleMcpConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
 
 /**
  * Correctly formed interaction request message.
@@ -62,12 +65,19 @@ describe('IPS Posting Interaction', function() {
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
-            // there must be no errors
-            //console.log(result);
-            sequenceNodeKey = result.sequenceNodeKey;
-            done();
+        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+
+            ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+
+                // there must be no errors
+                //console.log(result);
+                sequenceNodeKey = result.sequenceNodeKey;
+                done();
+            });
         });
+        
     });
 
     it('should return an empty object given correct request message', function (done) {
@@ -75,10 +85,9 @@ describe('IPS Posting Interaction', function() {
         var param = cloneObject(interactionMessage);
         
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
-console.log('*1');
+
         ips.postInteraction(param, function(err, result) {
             try {
-console.log('*2');
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
@@ -220,46 +229,141 @@ describe('IPS Posting Submission', function() {
 
 describe('IPS retrieveSequenceNode', function () {
     var ips = null;
-    var hubnock = null;
-    var seqNodeProvider = null;
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifier = null;
 
     var sequenceNodeKey = null;
+    var targetActivity = null;
 
     before(function () {
-
-
-        // NOTE: I really wish I could get this to work (using https://github.com/jhnns/rewire 
-        // to re-write getSequenceNode) because
-        // then I wouldn't have to mock the getSequenceNode API call to the AMS.
-/*        Ips.__set__("SequenceNodeProvider", {
-            getSequenceNode: function (sequenceNodeIdentifier, callback) {
-                var retVal = {"success": "rewire!"};
-                callback(null, retVal);
-            }
-        });
-*/
-
         ips = new Ips();
-        seqNodeProvider = new SequenceNodeProvider();
-
-        hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testSeqNodeReqMessage.url);
-
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
         sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
+    });
+
+    // We sandbox our sinon stubs within each 'it'.  Otherwise the method wrapper we write in on lasts indefinitely.
+    var sandbox;
+    beforeEach(function () {
+        sandbox = sinon.sandbox.create();
+    });
+    afterEach(function () {
+        sandbox.restore();
+    });
+
+
+    it('should return a sequenceNode', function (done) {
+
+        var stub = sandbox.stub(ips.sequenceNodeProvider, "getSequenceNode", function (sequenceNodeIdentifier, callback) {
+            var sequenceNodeKey = '123';
+            var data = {"targetActivity": {
+                "yay": "100"}
+            };
+            
+            callback(null, {sequenceNodeKey: sequenceNodeKey, sequenceNodeContent: data, fromCache:false});
+        });
+
+        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+            sequenceNodeKey = result.sequenceNodeKey;
+            targetActivity = result.containerConfig;
+            var expectedTargetActivity = {"yay": "100"};
+            expect(sequenceNodeKey).to.be.not.null;
+            expect(sequenceNodeKey).to.be.a('string');
+            expect(sequenceNodeKey).to.be.equal('123');
+            expect(targetActivity).to.be.an('object');
+            expect(targetActivity).to.deep.equal({ yay: '100' });
+
+            // calledOnce is property of sinon.spy which is super class of sinon.stub.
+            expect(ips.sequenceNodeProvider.getSequenceNode.calledOnce).to.be.true;
+            done();
+        });
+    });
+
+    it('should handle an error', function (done) {
+
+        var stub = sandbox.stub(ips.sequenceNodeProvider, "getSequenceNode", function (sequenceNodeIdentifier, callback) {
+            var error = "DANGER!  DANGER!  GET ON THE FLOOR...";
+            var errorBody ={};
+            errorBody.statusCode = 500;
+            errorBody.error = error;
+            
+            callback(error, errorBody);
+        });
+
+        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+            expect(error).to.be.equal('DANGER!  DANGER!  GET ON THE FLOOR...');
+            expect(result).to.deep.equal({statusCode: 500, error: 'DANGER!  DANGER!  GET ON THE FLOOR...'});
+
+            // calledOnce is property of sinon.spy which is super class of sinon.stub.
+            expect(ips.sequenceNodeProvider.getSequenceNode.calledOnce).to.be.true;
+            done();
+        });
+    });
+
+    it('should correctly sanitize targetActivity', function () {
+        var result = ips.sanitizeBrixConfig__(sampleMcpConfig);
+        
+        // Verify that the original does contain the answerKey
+        sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
+            containerItem.brixConfig.forEach(function(val, key){
+                if(val.bricType === 'MultipleChoiceQuestion')
+                    expect(val).to.have.property('answerKey') ;
+                expect(val).to.have.property('bricId');
+                expect(val).to.have.property('bricType');
+                expect(val).to.have.property('config');
+                expect(val).to.have.property('configFixup');
+            });
+        });
+
+        // Verify that the result does NOT contain the answerKey, 
+        // but contains the rest of the sections
+        result.containerConfig.forEach(function(containerItem, key){
+
+            containerItem.brixConfig.forEach(function(val, key){
+                expect(val).to.not.have.property('answerKey');
+                // But should retain the rest of the sections 
+                expect(val).to.have.property('bricId');
+                expect(val).to.have.property('bricType');
+                expect(val).to.have.property('config');
+                expect(val).to.have.property('configFixup');
+            });
+        });
+        
+    });
+
+    it('should correctly obtain the container by id (private func)', function () {
+
+        var containerId = 'assessment25';
+        var result = ips.obtainContainerItem__(sampleMcpConfig, containerId);
+        
+        var hasContainer = false;
+        // Verify that the original does contain the container
+        sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
+            if (containerItem.containerId === containerId)
+                hasContainer = true;
+        });
+        expect(hasContainer).to.be.true;
+
+        // Verify that the result does NOT contain the answerKey, 
+        // but contains the rest of the sections
+        expect(result.containerId).to.equal(containerId);
+        expect(result).to.have.property('brixConfig');
+
 
     });
 
-    it('should return a sequenceNode', function (done) {
-        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
-            sequenceNodeKey = result.sequenceNodeKey;
-            expect(sequenceNodeKey).to.be.not.null;
-            expect(sequenceNodeKey).to.be.a('string');
-            expect(result.brixConfig).to.be.an('object');
+    it('should correctly obtain answer part (private func)', function () {
 
-            done();
-        });
+        var containerId = 'assessment25';
+
+        // omitting second parameter returns first answerKey
+        var result = ips.obtainAnswerPart__(sampleMcpConfig);
+        
+        expect(result).to.deep.equal(sampleMcpConfig.containerConfig[0].brixConfig[0].answerKey);
+
+        result = ips.obtainAnswerPart__(sampleMcpConfig, containerId);
+        expect(result).to.deep.equal(sampleMcpConfig.containerConfig[0].brixConfig[0].answerKey);
+
+        result = ips.obtainAnswerPart__(sampleMcpConfig, 'dummyContainerX');
+        expect(result).to.be.null;
     });
 });
