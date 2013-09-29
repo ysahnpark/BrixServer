@@ -24,6 +24,8 @@ var HubMock = require('./hub.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips').Ips;
 
+var sampleMcpConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
+
 /**
  * Correctly formed interaction request message.
  */
@@ -291,5 +293,73 @@ describe('IPS retrieveSequenceNode', function () {
         });
     });
 
+    it('should correctly sanitize targetActivity', function () {
+        var result = ips.sanitizeBrixConfig__(sampleMcpConfig);
+        
+        // Verify that the original does contain the answerKey
+        sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
+            containerItem.brixConfig.forEach(function(val, key){
+                console.log("POST: "+JSON.stringify(val.brixConfig));
+                if(val.bricType === 'MultipleChoiceQuestion')
+                    expect(val).to.have.property('answerKey') ;
+                expect(val).to.have.property('bricId');
+                expect(val).to.have.property('bricType');
+                expect(val).to.have.property('config');
+                expect(val).to.have.property('configFixup');
+            });
+        });
 
+        // Verify that the result does NOT contain the answerKey, 
+        // but contains the rest of the sections
+        result.containerConfig.forEach(function(containerItem, key){
+
+            containerItem.brixConfig.forEach(function(val, key){
+                console.log("POST: "+JSON.stringify(val.brixConfig));
+                expect(val).to.not.have.property('answerKey');
+                // But should retain the rest of the sections 
+                expect(val).to.have.property('bricId');
+                expect(val).to.have.property('bricType');
+                expect(val).to.have.property('config');
+                expect(val).to.have.property('configFixup');
+            });
+        });
+        
+    });
+
+    it('should correctly obtain the container by id (private func)', function () {
+
+        var containerId = 'assessment25';
+        var result = ips.obtainContainer__(sampleMcpConfig, containerId);
+        
+        var hasContainer = false;
+        // Verify that the original does contain the container
+        sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
+            if (containerItem.containerId === containerId)
+                hasContainer = true;
+        });
+        expect(hasContainer).to.be.true;
+
+        // Verify that the result does NOT contain the answerKey, 
+        // but contains the rest of the sections
+        expect(result.containerId).to.equal(containerId);
+        expect(result).to.have.property('brixConfig');
+
+
+    });
+
+    it('should correctly obtain answer part (private func)', function () {
+
+        var containerId = 'assessment25';
+
+        // omitting second parameter returns first answerKey
+        var result = ips.obtainAnswerPart__(sampleMcpConfig);
+        
+        expect(result).to.deep.equal(sampleMcpConfig.containerConfig[0].brixConfig[0].answerKey);
+
+        result = ips.obtainAnswerPart__(sampleMcpConfig, containerId);
+        expect(result).to.deep.equal(sampleMcpConfig.containerConfig[0].brixConfig[0].answerKey);
+
+        result = ips.obtainAnswerPart__(sampleMcpConfig, 'dummyContainerX');
+        expect(result).to.be.null;
+    });
 });

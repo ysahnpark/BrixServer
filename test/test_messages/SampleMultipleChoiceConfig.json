@@ -1,184 +1,103 @@
 {
     "sequenceNodeKey": "39b0706e-8587-447e-a598-ecc5e9a1b883",
-    "containerConfig":
-        [
-            {
-                "containerId": "assessment25",
-                "brixConfig":
-                    [
-                        {
-                            "bricId": "mcqQ1",
-                            "bricType": "MultipleChoiceQuestion",
-                            "config":
-                                {
-                                    "id": "Q1",
-                                    "questionId": "SanVan001",
-                                    "question": "Why does it take less and less time to add each additional billion people to the planet?",
-                                    "choices": [
-                                        {
-                                            content: "Because as the population increases, the absolute number of births increases even though the growth rate stays constant.",
-                                            optionKey: "option000" /* changed answerKey to optionKey to not avoid confusion with the actual answer */
-                                        },
-                                        {
-                                            content: "Because the growth rate increases as the population rises.",
-                                            optionKey: "option001"
-                                        },
-                                        {
-                                            content: "Because the total fertility rate increases with population.",
-                                            optionKey: "option002"
-                                    
-                                        },
-                                        {
-                                            content: "Because social behaviors change and people decide to have more children.",
-                                            optionKey: "option003"
-                                        }
-                                        ],
-                                    "order": "randomized",
-                                    "widget": "RadioGroup",
-                                    "widgetConfig": { "numberFormat": "latin-upper" },
-                                },
-                            "configFixup":
-                                [
-                                ],
-                            "answerKey":
-                                {
-                                    "type":"multiplechoice",
-                                    "answers": 
-                                        {
-                                            "option000": {
-                                                response: "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
-                                                score: 1,
-                                            },
-                                            "option001": {
-                                                response: "Does the growth rate change with population size?",
-                                                score: 0,
-                                            },
-                                            "option002": {
-                                                response: "Does the fertility rate change with population size?",
-                                                score: 0,
-                                            },
-                                            "option003": {
-                                                response: "This might happen but is it something is necessarily occurs?",
-                                                score: 0,
-                                            }
-                                        }
-                                    /*
-                                    
-                                    Another possibility for MULTIPLECHOICE:
-                                    "type":"multiplechoice",
-                                    "answers": 
-                                        {
-                                            "option000": {
-                                                response: "Growth rate stays constant.",
-                                                score: 1,
-                                            },
-                                            "__else__": { /* this is a special kewyord
-                                                response: "Your answer <%= studAnsValue %> is not correct.",
-                                                score: 0,
-                                            }
-                                        }
-
-                                    Another (possible) example for MULTISELECT:
-                                    "type":"multiselect",
-                                    "numRequiredAnswers": 2, /* Two out of three is sufficient to get it correct *
-                                    "answers": 
-                                        {
-                                            "option000": {
-                                                response: "South Korea is an Asian country.",
-                                                score: 1,
-                                            },
-                                            "option001": {
-                                                response: "Thailand is an Asian country",
-                                                score: 1,
-                                            },
-                                            "option002": {
-                                                response: "Brazil is in South America.",
-                                                score: 0,
-                                            },
-                                            "option003": {
-                                                response: "Japan is an Asian country",
-                                                score: 1,
-                                            }
-                                        }
-
-                                    Another (possible) example for NUMBER (or any exact match string):
-                                    "type":"numeric",
-                                    "answers": 
-                                        {
-                                            {
-                                                value: "6", 
-                                                response: "Yes that the correct answer for 3 factorial.",
-                                                score: 1,
-                                            },
-                                            {
-                                                valueElse: "", /* Any other value wthi *
-                                                response: "That is incorrect.",
-                                                score: 0,
-                                            }
-                                        }
-
-                                    Another (possible) example for NUMBER:
-                                    "type":"numeric",
-                                    "answers": 
-                                        {
-                                            {
-                                                inclusiveRange:"true"
-                                                valueRangeUpper: "37", 
-                                                valueRangeLower: "36", 
-                                                response: "That's the correct human body temperature.",
-                                                score: 1,
-                                            },
-                                            {
-                                                inclusiveRange:"false"
-                                                valueRangeUpper: "36"
-                                                valueRangeLower: "37"
-                                                response: "Do you think Frosty is human?",
-                                                score: 0,
-                                            },
-                                            {
-                                                inclusiveRange:"false"
-                                                valueRangeUpper: "1000"
-                                                valueRangeLower: "37"
-                                                response: "That would be a self-immolating person!",
-                                                score: 0,
-                                            },
-                                            {
-                                                valueElse: "", /* Any other value wthi *
-                                                response: "Maybe aliens has those temperatures!",
-                                                score: -1,
-                                            }
-                                        }
-                                    */
-                                }
+    "containerConfig": [
+        {
+            "containerId": "assessment25",
+            "brixConfig": [
+                {
+                    "bricId": "mcqQ1",
+                    "bricType": "MultipleChoiceQuestion",
+                    "config": {
+                        "id": "Q1",
+                        "questionId": "SanVan001",
+                        "question": "Why does it take less and less time to add each additional billion people to the planet?",
+                        "choices": [
+                            {
+                                "content": "Because as the population increases, the absolute number of births increases even though the growth rate stays constant.",
+                                "optionKey": "option000"
+                            },
+                            {
+                                "content": "Because the growth rate increases as the population rises.",
+                                "optionKey": "option001"
+                            },
+                            {
+                                "content": "Because the total fertility rate increases with population.",
+                                "optionKey": "option002"
+                            },
+                            {
+                                "content": "Because social behaviors change and people decide to have more children.",
+                                "optionKey": "option003"
+                            }
+                        ],
+                        "order": "randomized",
+                        "widget": "RadioGroup",
+                        "widgetConfig": {
+                            "numberFormat": "latin-upper"
                         }
-                    ],
-                "mortarConfig":
-                    [
-                        {
-                            "mortarId": "submitMgrQ1",
-                            "mortarType": "SubmitManager",
-                            "config":
-                                {
-                                    "answerManType": "Default" /* It could also be Polling */
-                                }
+                    },
+                    "configFixup": [],
+                    "answerKey": {
+                        "type": "multiplechoice",
+                        "answers": {
+                            "option000": {
+                                "response": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
+                                "score": 1
+                            },
+                            "option001": {
+                                "response": "Does the growth rate change with population size?",
+                                "score": 0
+                            },
+                            "option002": {
+                                "response": "Does the fertility rate change with population size?",
+                                "score": 0
+                            },
+                            "option003": {
+                                "response": "This might happen but is it something is necessarily occurs?",
+                                "score": 0
+                            }
                         }
-                    ],
-                "hookupActions":
-                    [
-                        {
-                            "actionType": "method-call", /* the method-call handles a lot of the actions needed, but I expect there are other types of actions */
-                            "config":
-                                {
-                                    "domain": "mortar",
-                                    "id": "submitMgrQ1",
-                                    "methodName": "handleRequestsFrom",
-                                    "args":
-                                        [
-                                            { "type": "ref", "domain": "brix", "id": "mcqQ1" },
-                                        ]
-                                }
-                        }
-                    ]
-            }
-        ]
-};
+                    }
+                }
+            ],
+            "mortarConfig": [
+                {
+                    "mortarId": "submitMgrQ1",
+                    "mortarType": "SubmitManager",
+                    "config": {
+                        "answerManType": "Default"
+                    }
+                }
+            ],
+            "hookupActions": [
+                {
+                    "actionType": "method-call",
+                    "config": {
+                        "domain": "mortar",
+                        "id": "submitMgrQ1",
+                        "methodName": "handleRequestsFrom",
+                        "args": [
+                            {
+                                "type": "ref",
+                                "domain": "brix",
+                                "id": "mcqQ1"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "containerId": "dummyContainerX",
+            "brixConfig": [
+                {
+                    "bricId": "dummyBric",
+                    "bricType": "DummyBricType",
+                    "config": "dummyConfig",
+                    "configFixup": "configFixup"
+                }
+                ],
+            "mortarConfig":{} ,
+            "hookupActions":{}
+        }
+    ]
+}
