@@ -61,7 +61,7 @@ module.exports.testSeqNodeReqMessage = {
          "@type": "SequenceNode",
          "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
     },
-    url: "http://hub.pearson.com/seqnode",
+    url: "http://hub.paf.pearson.com/seqnode",
     method: "POST"
 };
 
@@ -81,7 +81,18 @@ module.exports.testInitializationEnvelope = {
 
 // @todo: a more "realistic" value for targetActivity field
 module.exports.testTargetActivityBody = {
-        "brixConfig":"...bunch of brix config goes here.b.."
+    "containerConfig": [
+        {
+            "containerId": "assessment25",
+            "brixConfig": [
+                {
+                    "bricId": "mcqQ1",
+                    "bricType": "MultipleChoiceQuestion",
+                    "config": {}
+                }
+                ]
+        }
+        ]
     };
 
 /**

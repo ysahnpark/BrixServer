@@ -330,7 +330,7 @@ function createRedisServer( callback ) {
      redisserver = spawn('redis-server', ['test/redis.conf'] );
      redisserver.stderr.setEncoding('utf8');
      redisserver.stderr.on('data', function(data){
-         console.log( 'stderr: ', data );
+         //console.log( 'stderr: ', data );
      });
      redisserver.stdout.setEncoding('utf8');
      redisserver.stdout.on('data', function(data){
