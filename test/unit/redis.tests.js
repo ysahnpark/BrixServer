@@ -24,7 +24,7 @@ describe('Redis', function () {
         // Add the test route with the handler
         // Redis error check
         redisClient.on("error", function(err) {
-            console.log("Redis client initialization error. " + err);
+            //console.log("Redis client initialization error. " + err);
         });
         done();
     });
