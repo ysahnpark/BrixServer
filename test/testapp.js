@@ -12,6 +12,9 @@
  * @copyright (c) 2013 Pearson, All rights reserved.
  *
  * **************************************************************************/
+//force test environment
+process.env.NODE_ENV = 'testsvr';
+
 var bunyan = require('bunyan');
 var config = require('config');
 var WebService = require('../lib/webservice');

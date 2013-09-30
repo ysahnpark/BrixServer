@@ -51,7 +51,6 @@ describe('IPS Posting Interaction', function() {
     var hubnock = null;
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
-    var sequenceNodeIdentifierString = null;
 
     before(function (done) {
         ips = new Ips();
@@ -61,7 +60,6 @@ describe('IPS Posting Interaction', function() {
         hubnock.setupNocks(HubMock.testHubBaseUrl);
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
-        sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -154,7 +152,6 @@ describe('IPS Posting Submission', function() {
         hubnock.setupNocks(HubMock.testHubBaseUrl);
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
-        sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -235,10 +232,15 @@ describe('IPS retrieveSequenceNode', function () {
     var sequenceNodeKey = null;
     var targetActivity = null;
 
-    before(function () {
+    before(function (done) {
         ips = new Ips();
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
-        sequenceNodeIdentifierString = JSON.stringify(HubMock.testSeqNodeReqMessage);
+
+        var seqNodeProvider = new SequenceNodeProvider();
+        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            done();
+        });
     });
 
     // We sandbox our sinon stubs within each 'it'.  Otherwise the method wrapper we write in on lasts indefinitely.
@@ -253,24 +255,39 @@ describe('IPS retrieveSequenceNode', function () {
 
     it('should return a sequenceNode', function (done) {
 
+        var stubTargetActivity = {
+                "containerConfig": [
+                    {
+                        "containerId": "assessment25",
+                        "brixConfig": [
+                            {
+                                "bricId": "dummyStubBricId",
+                                "bricType": "dummyStubBricType",
+                                "config": {},
+                                "answerKey": {}
+                            }]
+                    }]
+                };
         var stub = sandbox.stub(ips.sequenceNodeProvider, "getSequenceNode", function (sequenceNodeIdentifier, callback) {
             var sequenceNodeKey = '123';
-            var data = {"targetActivity": {
-                "yay": "100"}
+            var data = {"targetActivity": stubTargetActivity
             };
             
             callback(null, {sequenceNodeKey: sequenceNodeKey, sequenceNodeContent: data, fromCache:false});
         });
 
+        // Expected is sanitized
+        var expectedTargetActivity = utils.cloneObject(stubTargetActivity);
+        delete expectedTargetActivity.containerConfig[0].brixConfig[0].answerKey;
+
         ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
             sequenceNodeKey = result.sequenceNodeKey;
             targetActivity = result.containerConfig;
-            var expectedTargetActivity = {"yay": "100"};
             expect(sequenceNodeKey).to.be.not.null;
             expect(sequenceNodeKey).to.be.a('string');
             expect(sequenceNodeKey).to.be.equal('123');
             expect(targetActivity).to.be.an('object');
-            expect(targetActivity).to.deep.equal({ yay: '100' });
+            expect(targetActivity).to.deep.equal(expectedTargetActivity);
 
             // calledOnce is property of sinon.spy which is super class of sinon.stub.
             expect(ips.sequenceNodeProvider.getSequenceNode.calledOnce).to.be.true;
