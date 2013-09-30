@@ -38,6 +38,7 @@ test/coverage.html
 # Logs and databases #
 ######################
 *.log
+*.log.xml
 *.sql
 *.sqlite
 
