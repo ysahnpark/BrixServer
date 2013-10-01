@@ -33,6 +33,10 @@ setupHealthNocks();
 // Start the server
 var app = webservice.appStartUp(); app.start();
 
+// Handle Ctrl+C
+process.on('SIGINT', function() {
+    webservice.appShutDown('SIGINT', null);
+});
 
 /**
  * Function that nocks the AMS and HUB health service
@@ -45,6 +49,5 @@ function setupHealthNocks() {
 
     var hubNock = nock(config.hubBaseUrl).persist();
     hubNock.get('/health')
-        .reply(200, {"test": "test"});
-        
+        .reply(200, {"test": "test"});  
 }
