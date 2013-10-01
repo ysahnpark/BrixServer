@@ -225,6 +225,7 @@ describe('IPC -> IPS Posting Submission', function() {
     });
 
     it('should return a valid Result given correct request message', function (done) {
+        // @todo: si - this'll have to change when we add in the CE stuff
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var envelop = cloneObject(submissionMessage);
         

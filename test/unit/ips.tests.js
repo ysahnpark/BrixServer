@@ -137,7 +137,27 @@ describe('IPS Posting Interaction', function() {
     });
 });
 
-describe('IPS Posting Submission', function() {
+describe('IPS Posting Submission using a stub AMS and stub CE', function() {
+    it('should return a valid response given a good request message', function (done) {
+        expect(false).to.be.ok;
+        done();
+    });
+
+    it('should return a valid error response given a bad request message', function (done) {
+        expect(false).to.be.ok;
+        done();
+    });
+
+    it('should calculate isLastAttempt (private func)', function (done) {
+        expect(false).to.be.ok;
+        done();
+    });
+});
+
+/*
+    These test /js/amsproxy.js and /js/ceproxy.js in an "integrationy" kind of way.
+ */
+describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
@@ -163,8 +183,11 @@ describe('IPS Posting Submission', function() {
         });
     });
 
-    it('should return a valid Node Result given correct request message', function (done) {
+    it('should return a valid response given a good request message', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        // @todo: si - we'll have add the nock to the CE here
+        
+        // @todo: si - change this to a submissionMessage, maybe grab it from CEMock.
         var param = cloneObject(interactionMessage);
         // Assign the correct 
         
@@ -173,6 +196,7 @@ describe('IPS Posting Submission', function() {
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
+                // @todo: si - we may want to change this to a CEMock.response
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
                 done();
             }
@@ -182,6 +206,11 @@ describe('IPS Posting Submission', function() {
             }
 
         });
+    });
+
+    it('should return a valid error response given a bad request message', function (done) {
+        expect(false).to.be.ok;
+        done();
     });
 
 
