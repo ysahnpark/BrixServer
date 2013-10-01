@@ -34,7 +34,7 @@ var nock = require('nock');
 var config = require('config');
 
 /**
- * A test Hub session
+ * A test Hub URL
  * @type {String}
  */
 // @todo - is this the way we want to do this?
