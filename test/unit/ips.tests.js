@@ -20,7 +20,7 @@ var expect = require('chai').expect;
 var config = require('config');
 
 var utils = require('../../lib/utils');
-var HubMock = require('./hub.mock');
+var HubMock = require('../mock/hub.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips').Ips;
 

@@ -23,7 +23,7 @@ webservice = new WebService("TESTBrixApp");
 
 // Setting Mocks prior web service startup
 var nock = require('nock');
-var HubMock = require('./unit/hub.mock');
+var HubMock = require('./mock/hub.mock');
 hubnock = new HubMock.HubNock(true);
 hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
 hubnock.setupInteractionNock(HubMock.testHubBaseUrl);

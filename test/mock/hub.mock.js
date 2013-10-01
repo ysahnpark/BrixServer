@@ -9,7 +9,7 @@
  *
  * Usage:
  * 1. Include the require in the javascript file:
- *   var HubMock = require('./hub.mock.js');
+ *   var HubMock = require('../mock/hub.mock.js');
  * 2. Instantiate Nock class and setup nocks with the base url of the remote server:
  *   var hubnock = new HubMock.HubNock();
  *   hubnock.setupNocks('http://hub.pearson.com');

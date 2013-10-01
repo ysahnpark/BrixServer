@@ -25,7 +25,7 @@ var expect = require('chai').expect;
 var config = require('config');
 
 var utils = require('../../lib/utils.js');
-var HubMock = require('./hub.mock.js');
+var HubMock = require('../mock/hub.mock.js');
 
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js').SequenceNodeProvider;
 
