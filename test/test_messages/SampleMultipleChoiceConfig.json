@@ -37,7 +37,7 @@
                     },
                     "configFixup": [],
                     "answerKey": {
-                        "type": "multiplechoice",
+                        "assessmentType": "multiplechoice",
                         "answers": {
                             "option000": {
                                 "response": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
