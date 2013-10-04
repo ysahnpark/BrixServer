@@ -21,6 +21,7 @@ var config = require('config');
 
 var utils = require('../../lib/utils');
 var HubMock = require('../mock/hub.mock');
+var CEMock = require('../mock/ce.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips').Ips;
 
@@ -35,6 +36,18 @@ var interactionMessage = {
     "type": "interaction",
     "body": {
         "interactionData": "...some stuff..."
+    }
+};
+
+/**
+ * Correctly formed submission request message.
+ */
+var submissionMessage = {
+    "sequenceNodeKey": "895af0ae2d8aa5bffba54ab0555d7461",
+    "timestamp": "2013-05-25T13:21:22.001Z",
+    "type": "submission",
+    "body": {
+        "studentSubmission": { "key": "option001" }
     }
 };
 
@@ -169,7 +182,11 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupNocks(HubMock.testHubBaseUrl); // @todo: si - is this necessary?
+
+        // setup mock to catch calls to CorrectnessEngine
+        cenock = new CEMock.CENock();
+        
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
         
@@ -185,18 +202,19 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 
     it('should return a valid response given a good request message', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
-        // @todo: si - we'll have add the nock to the CE here
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
         
-        // @todo: si - change this to a submissionMessage, maybe grab it from CEMock.
-        var param = cloneObject(interactionMessage);
-        // Assign the correct 
-        
+        var param = cloneObject(submissionMessage);
+        // Assign the correct sequenceNodeKey
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        
         ips.postSubmission(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                // @todo: si - we may want to change this to a CEMock.response
+                // @todo: si - we will want to change this to a CEMock.response once the ips returns 
+                // the right thing.  Currently it's returning the return value from amsproxy
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
                 done();
             }
@@ -215,7 +233,8 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 
 
     it('should return error at SequenceNodeKey not found', function (done) {
-        var param = cloneObject(interactionMessage);
+        var param = cloneObject(submissionMessage);
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
         param.sequenceNodeKey = 'ABC';
         var expectedErrorMessage = 'SequenceNodeKey not found';
         ips.postSubmission(param, function(err, result) {
@@ -235,7 +254,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should return error at invalid Hub-Session (i.e. expired)', function (done) {
         // How can we explicitly expire hub session?
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
-        var param = cloneObject(interactionMessage);
+        var param = cloneObject(submissionMessage);
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postSubmission(param, function(err, result) {

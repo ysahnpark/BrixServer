@@ -77,6 +77,44 @@ module.exports.testErrorAssessmentResponseBody = {
     "status": "error"
 };
 
+/**
+ * A test IPS->CE Payload
+ * At this point this is mostly worthwhile as a reference.  It could be used in ceproxy unit tests.
+ * 
+ * NOTE: The studentSubmission is hardcoded in and will probably be more helpful if it (and probably
+ * isLastAttempt) are inserted into the object during tests
+ * NOTE2: The studentSubmission format probably isn't correct...this is just placeholder.
+ * type {Object}
+ */
+module.exports.testCEPayload = {
+    "sequenceNodeKey": "8238fsdfhe9h9shdds",
+    "answerKey": {
+        "assessmentType": "multiplechoice",
+        "answers": {
+            "option000": {
+                "response": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
+                "score": 1
+            },
+            "option001": {
+                "response": "Does the growth rate change with population size?",
+                "score": 0
+            },
+            "option002": {
+                "response": "Does the fertility rate change with population size?",
+                "score": 0
+            },
+            "option003": {
+                "response": "This might happen but is it something is necessarily occurs?",
+                "score": 0
+            }
+        }
+    },
+    "studentSubmission": {
+        "key": "option001"
+    },
+    "isLastAttempt": true
+};
+
 
 /**
  * The constructor function that encapsulates the Nock which intercepts HTTP requests
@@ -100,7 +138,7 @@ module.exports.CENock = function(opt_persist) {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
-                                : module.exports.testInteractionResponseBody;
+                                : module.exports.testAssessmentResponseBody;
 
         // Nock for the assessment retrieval
         var ceNock = nock(baseUrl);
