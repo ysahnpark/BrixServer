@@ -16,6 +16,6 @@
   "timestamp": "blahblah",
   "type": "initialization",
   "body": {
-    "targetID": "thingy123"
+    "containerId": "thingy123"
   }
 }
