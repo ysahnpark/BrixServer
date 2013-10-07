@@ -150,23 +150,6 @@ describe('IPS Posting Interaction', function() {
     });
 });
 
-describe('IPS Posting Submission using a stub AMS and stub CE', function() {
-    it('should return a valid response given a good request message', function (done) {
-        expect(false).to.be.ok;
-        done();
-    });
-
-    it('should return a valid error response given a bad request message', function (done) {
-        expect(false).to.be.ok;
-        done();
-    });
-
-    it('should calculate isLastAttempt (private func)', function (done) {
-        expect(false).to.be.ok;
-        done();
-    });
-});
-
 /*
     These test /js/amsproxy.js and /js/ceproxy.js in an "integrationy" kind of way.
  */
@@ -186,7 +169,6 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
-        
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
         
@@ -198,6 +180,20 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
             sequenceNodeKey = result.sequenceNodeKey;
             done();
         });
+    });
+
+    afterEach(function (done) {
+        // Nocks can bleed from one test to the next, especially if you're testing error conditions.
+        // This cleans them up after each 'it'.
+        nock.cleanAll();
+        done();
+    });
+
+
+    // @todo - ECOURSES-707
+    it('should calculate isLastAttempt (private func)', function (done) {
+        expect(false).to.be.ok;
+        done();
     });
 
     it('should return a valid response given a good request message', function (done) {
@@ -214,7 +210,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
                 // @todo: si - we will want to change this to a CEMock.response once the ips returns 
-                // the right thing.  Currently it's returning the return value from amsproxy
+                // the right thing.  Currently IPS is returning the return value from amsproxy
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
                 done();
             }
@@ -227,8 +223,27 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     });
 
     it('should return a valid error response given a bad request message', function (done) {
-        expect(false).to.be.ok;
-        done();
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        cenock.setupAssessmentErrorNock(CEMock.testCEBaseUrl);
+
+        
+        var param = cloneObject(submissionMessage);
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(result).to.equal(null);
+                // Just the message is being sent via err
+                expect(JSON.stringify(err)).to.equal(JSON.stringify(CEMock.testErrorAssessmentResponseBody.message));
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
+        });
     });
 
 
@@ -254,6 +269,8 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should return error at invalid Hub-Session (i.e. expired)', function (done) {
         // How can we explicitly expire hub session?
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
         var param = cloneObject(submissionMessage);
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         var expectedErrorMessage = 'Invalid Hub-Session';
