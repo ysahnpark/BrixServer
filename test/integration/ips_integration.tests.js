@@ -26,7 +26,7 @@ var request = require('supertest');  // HTTP testing
 var Hapi = require('hapi');
 var expect = require('chai').expect;
 var config = require('config');
-var HubMock = require('../unit/hub.mock');
+var HubMock = require('../mock/hub.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
 var Controller = require('../../lib/controller');
 

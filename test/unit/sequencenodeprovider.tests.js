@@ -125,7 +125,7 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_missingHubSession = {
             header : {
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
                  "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
@@ -139,8 +139,8 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_missingUrl = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+                "Hub-Session" : HUB_SESSION,
+                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
                  "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
@@ -153,8 +153,8 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_missingMethod = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+                "Hub-Session" : HUB_SESSION,
+                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
                  "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
@@ -167,8 +167,8 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_illegalMethod = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+                "Hub-Session" : HUB_SESSION,
+                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
                  "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
@@ -182,7 +182,7 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_wrongType = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
+                "Hub-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -197,7 +197,7 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_missingContext = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
+                "Hub-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -211,7 +211,7 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_missingType = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
+                "Hub-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
@@ -225,7 +225,7 @@ describe('SequenceNodeProvider', function () {
 
     var incorrectReqMessage_missingBinding = {
             header : {
-                "Hub­-Session" : HUB_SESSION,
+                "Hub-Session" : HUB_SESSION,
                 "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
             },
             content : {
