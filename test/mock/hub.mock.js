@@ -351,7 +351,6 @@ module.exports.HubNock = function(opt_persist) {
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
                                 : module.exports.testSubmissionResponseBody;
-
         // Nock for the submissions retrieval
         var hubNock = nock(baseUrl); //.log(console.log);
         if (persist_)

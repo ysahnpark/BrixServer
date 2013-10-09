@@ -27,6 +27,7 @@ var Hapi = require('hapi');
 var expect = require('chai').expect;
 var config = require('config');
 var HubMock = require('../mock/hub.mock');
+var CEMock = require('../mock/ce.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
 var Controller = require('../../lib/controller');
 
@@ -107,7 +108,6 @@ describe('IPC -> IPS Posting Interaction', function() {
             .end(function(err, result){
                 if (err) return done(err);
                 try {
-                    //console.log("@@@:"+JSON.stringify(result.body));
                     expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
                     expect(result.body.status).to.equal('success');
                     done();
@@ -194,6 +194,7 @@ describe('IPC -> IPS Posting Interaction', function() {
 describe('IPC -> IPS Posting Submission', function() {
     var server = null;
     var hubnock = null;
+    var cenock = null;
     var seqNodeKey  = null;
     var url = null;
 
@@ -202,6 +203,8 @@ describe('IPC -> IPS Posting Submission', function() {
 
         hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
+
+        cenock = new CEMock.CENock();
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: posting interaction and submission. 
@@ -227,6 +230,8 @@ describe('IPC -> IPS Posting Submission', function() {
     it('should return a valid Result given correct request message', function (done) {
         // @todo: si - this'll have to change when we add in the CE stuff
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
         var envelop = cloneObject(submissionMessage);
         
         envelop.sequenceNodeKey = seqNodeKey;
@@ -240,7 +245,7 @@ describe('IPC -> IPS Posting Submission', function() {
             .end(function(err, result){
                 if (err) return done(err);
                 try {
-                    //console.log("@@@:"+JSON.stringify(result.body));
+//console.log("**Submission:"+JSON.stringify(result.body));
                     expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
                     expect(result.body.status).to.equal('success');
                     done();
@@ -306,6 +311,8 @@ describe('IPC -> IPS Posting Submission', function() {
 
     it('should return error at invalid Hub-Session (e.g. expired)', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+        
         var envelop = cloneObject(submissionMessage);
         envelop.sequenceNodeKey = seqNodeKey;
         var expectedErrorMessage = 'Invalid Hub-Session';
