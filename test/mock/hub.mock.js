@@ -9,7 +9,7 @@
  *
  * Usage:
  * 1. Include the require in the javascript file:
- *   var HubMock = require('./hub.mock.js');
+ *   var HubMock = require('../mock/hub.mock.js');
  * 2. Instantiate Nock class and setup nocks with the base url of the remote server:
  *   var hubnock = new HubMock.HubNock();
  *   hubnock.setupNocks('http://hub.pearson.com');
@@ -35,7 +35,7 @@ var config = require('config');
 var neffTargetActivity = require('../test_messages/neffreactor_config.json');
 
 /**
- * A test Hub session: eg. http://hub.paf.dev.pearsoncmg.com
+ * A test Hub URL: eg. http://hub.paf.dev.pearsoncmg.com
  * @type {String}
  */
 // @todo - is this the way we want to do this?
@@ -81,7 +81,10 @@ module.exports.testInitializationEnvelope = {
     }
 };
 
-// @todo: a more "realistic" value for targetActivity field
+/**
+ * A test targetActivity for the test SequenceNode (module.exports.testSeqNodeBody) below.
+ * @type {Object}
+ */
 module.exports.testTargetActivityBody = {
     "containerConfig": [
         {
@@ -90,12 +93,100 @@ module.exports.testTargetActivityBody = {
                 {
                     "bricId": "mcqQ1",
                     "bricType": "MultipleChoiceQuestion",
-                    "config": {}
+                    "config": {
+                        "id": "Q1",
+                        "questionId": "SanVan001",
+                        "question": "Why does it take less and less time to add each additional billion people to the planet?",
+                        "choices": [
+                            {
+                                "content": "Because as the population increases, the absolute number of births increases even though the growth rate stays constant.",
+                                "optionKey": "option000"
+                            },
+                            {
+                                "content": "Because the growth rate increases as the population rises.",
+                                "optionKey": "option001"
+                            },
+                            {
+                                "content": "Because the total fertility rate increases with population.",
+                                "optionKey": "option002"
+                            },
+                            {
+                                "content": "Because social behaviors change and people decide to have more children.",
+                                "optionKey": "option003"
+                            }
+                        ],
+                        "order": "randomized",
+                        "widget": "RadioGroup",
+                        "widgetConfig": {
+                            "numberFormat": "latin-upper"
+                        }
+                    },
+                    "configFixup": [],
+                    "answerKey": {
+                        "assessmentType": "multiplechoice",
+                        "answers": {
+                            "option000": {
+                                "response": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
+                                "score": 1
+                            },
+                            "option001": {
+                                "response": "Does the growth rate change with population size?",
+                                "score": 0
+                            },
+                            "option002": {
+                                "response": "Does the fertility rate change with population size?",
+                                "score": 0
+                            },
+                            "option003": {
+                                "response": "This might happen but is it something is necessarily occurs?",
+                                "score": 0
+                            }
+                        }
+                    }
                 }
-                ]
+            ],
+            "mortarConfig": [
+                {
+                    "mortarId": "submitMgrQ1",
+                    "mortarType": "SubmitManager",
+                    "config": {
+                        "answerManType": "Default"
+                    }
+                }
+            ],
+            "hookupActions": [
+                {
+                    "actionType": "method-call",
+                    "config": {
+                        "domain": "mortar",
+                        "id": "submitMgrQ1",
+                        "methodName": "handleRequestsFrom",
+                        "args": [
+                            {
+                                "type": "ref",
+                                "domain": "brix",
+                                "id": "mcqQ1"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "containerId": "dummyContainerX",
+            "brixConfig": [
+                {
+                    "bricId": "dummyBric",
+                    "bricType": "DummyBricType",
+                    "config": "dummyConfig",
+                    "configFixup": "configFixup"
+                }
+                ],
+            "mortarConfig":{} ,
+            "hookupActions":{}
         }
-        ]
-    };
+    ]
+};
 module.exports.neffTargetActivityBody = neffTargetActivity;
 
 /**
@@ -262,7 +353,7 @@ module.exports.HubNock = function(opt_persist) {
                                 : module.exports.testSubmissionResponseBody;
 
         // Nock for the submissions retrieval
-        var hubNock = nock(baseUrl).log(console.log);
+        var hubNock = nock(baseUrl); //.log(console.log);
         if (persist_)
         {
             hubNock.persist();

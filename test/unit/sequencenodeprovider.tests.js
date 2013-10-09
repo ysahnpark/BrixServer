@@ -247,7 +247,7 @@ describe('SequenceNodeProvider', function () {
     it('should return the SequenceNode given sequence node identifier', function (done) {
         // The Mocks will intercept the HTTP call and return without requiring the actual server. 
         var hubnock = new HubMock.HubNock();
-        hubnock.setupNocks('http://hub.pearson.com');
+        hubnock.setupNocks(HubMock.testHubBaseUrl);
         var strMessage = correctReqMessage;
         var expectData = JSON.stringify(HubMock.testSeqNodeBody);
         

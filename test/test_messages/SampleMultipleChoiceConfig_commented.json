@@ -42,7 +42,7 @@
                                 ],
                             "answerKey":
                                 {
-                                    "type":"multiplechoice",
+                                    "assessmentType":"multiplechoice",
                                     "answers": 
                                         {
                                             "option000": {
@@ -65,7 +65,7 @@
                                     /*
                                     
                                     Another possibility for MULTIPLECHOICE:
-                                    "type":"multiplechoice",
+                                    "assessmentType":"multiplechoice",
                                     "answers": 
                                         {
                                             "option000": {
@@ -79,7 +79,7 @@
                                         }
 
                                     Another (possible) example for MULTISELECT:
-                                    "type":"multiselect",
+                                    "assessmentType":"multiselect",
                                     "numRequiredAnswers": 2, /* Two out of three is sufficient to get it correct *
                                     "answers": 
                                         {
@@ -102,7 +102,7 @@
                                         }
 
                                     Another (possible) example for NUMBER (or any exact match string):
-                                    "type":"numeric",
+                                    "assessmentType":"numeric",
                                     "answers": 
                                         {
                                             {
@@ -118,7 +118,7 @@
                                         }
 
                                     Another (possible) example for NUMBER:
-                                    "type":"numeric",
+                                    "assessmentType":"numeric",
                                     "answers": 
                                         {
                                             {
