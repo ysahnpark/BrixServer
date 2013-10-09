@@ -84,8 +84,8 @@ describe('Brix Message Schema', function () {
         it('should validate AMS sequence-node request', function (done) {
             var correctReqMessage = {
                 header : {
-                    "Hub­-Session" : "AmazingHubSession",
-                    "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+                    "Hub-Session" : "AmazingHubSession",
+                    "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
                 },
                 content : {
                      "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",

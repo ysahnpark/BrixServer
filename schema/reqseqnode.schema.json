@@ -7,14 +7,14 @@
 		"header": {
 			"type": "object",
 			"properties": {
-				"Hub­-Session": {
+				"Hub-Session": {
 					"type": "string"
 				},
-				"Content­-Type": {
+				"Content-Type": {
 					"type": "string"
 				}
 			},
-			"required": ["Hub­-Session", "Content­-Type"]
+			"required": ["Hub-Session", "Content-Type"]
 		},
 
 		"content": {

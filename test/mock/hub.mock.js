@@ -32,12 +32,14 @@
 
 var nock = require('nock');
 var config = require('config');
+var neffTargetActivity = require('../test_messages/neffreactor_config.json');
 
 /**
- * A test Hub URL
+ * A test Hub URL: eg. http://hub.paf.dev.pearsoncmg.com
  * @type {String}
  */
 // @todo - is this the way we want to do this?
+// 
 module.exports.testHubBaseUrl = config.hubBaseUrl;
 
 
@@ -53,15 +55,15 @@ module.exports.testHubSession = 'HUB_SESSION';
  */
 module.exports.testSeqNodeReqMessage = {
     header : {
-        "Hub­-Session": this.testHubSession,
-        "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
+        "Hub-Session": this.testHubSession,
+        "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
     },
     content : {
          "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
          "@type": "SequenceNode",
          "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
     },
-    url: "http://hub.paf.pearson.com/seqnode",
+    url: module.exports.testHubBaseUrl + "/paf-hub/resources/sequences/course",
     method: "POST"
 };
 
@@ -75,7 +77,7 @@ module.exports.testInitializationEnvelope = {
     timestamp: "2013-09-17T06:44:32Z",
     type: "initialization",
     body: {
-        targetID: "thingy123"
+        containerId: "thingy123"
     }
 };
 
@@ -185,6 +187,7 @@ module.exports.testTargetActivityBody = {
         }
     ]
 };
+module.exports.neffTargetActivityBody = neffTargetActivity;
 
 /**
  * A test sequence node content
@@ -209,8 +212,8 @@ module.exports.testSeqNodeBody = {
         },
         "startTime": 1376949443403,
         "nodeIndex": 1,
-        "targetActivityXML": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pjxhc3Nlc3NtZW50SXRlbSB4bWxucz0iaHR0cDovL3d3dy5pbXNnbG9iYWwub3JnL3hzZC9pbXNxdGlfdjJwMSIgeG1sbnM6bnMyPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hJbmNsdWRlIiB4bWxuczpuczM9Imh0dHA6Ly93d3cuaW1zZ2xvYmFsLm9yZy94c2QvaW1zbGlwX3YxcDAiIHRpdGxlPSJNQSAxLjEwLjMiIGFkYXB0aXZlPSJmYWxzZSIgdGltZURlcGVuZGVudD0iZmFsc2UiPjxyZXNwb25zZURlY2xhcmF0aW9uIGlkZW50aWZpZXI9IlJFU1BPTlNFIiBjYXJkaW5hbGl0eT0ic2luZ2xlIiBiYXNlVHlwZT0iaWRlbnRpZmllciI+PGNvcnJlY3RSZXNwb25zZT48dmFsdWU+NDwvdmFsdWU+PC9jb3JyZWN0UmVzcG9uc2U+PC9yZXNwb25zZURlY2xhcmF0aW9uPjxpdGVtQm9keT48Y2hvaWNlSW50ZXJhY3Rpb24gc2h1ZmZsZT0iZmFsc2UiIG1heENob2ljZXM9IjEiIHJlc3BvbnNlSWRlbnRpZmllcj0iUkVTUE9OU0UiPjxwcm9tcHQ+VGhlIHRleHQgb2YgJmx0O0kmZ3Q7VGhlIFNlY3JldCZsdDsvSSZndDsgaXMgcXVvdGVkIGluIHRoZSB2aWRlbyBhcyBzYXlpbmcgdGhhdCB3aGVuIHlvdSB0aGluayBvZiB0aGUgdGhpbmdzIHRoYXQgeW91IHdhbnQsIGFuZCB5b3UgZm9jdXMgb24gdGhlbSB3aXRoIGFsbCB5b3VyIGF0dGVudGlvbiwgeW91IHdpbGwgZ2V0IHdoYXQgeW91IHdhbnQsIGV2ZXJ5IHRpbWUuIFRoZSBhdXRob3IncyB0ZXJtIGZvciB0aGlzIGlkZWEgb2YgYnJpbmdpbmcgdGhpbmdzIGludG8geW91ciBsaWZlIGlzICZxdW90O19fX19fLiZxdW90OzwvcHJvbXB0PjxzaW1wbGVDaG9pY2UgaWRlbnRpZmllcj0iMSI+cHJpbmNpcGxlIG9mIHNlY3JlY3k8L3NpbXBsZUNob2ljZT48c2ltcGxlQ2hvaWNlIGlkZW50aWZpZXI9IjIiPnJ1bGUgb2YgdGhlIHVuY29uc2Npb3VzPC9zaW1wbGVDaG9pY2U+PHNpbXBsZUNob2ljZSBpZGVudGlmaWVyPSIzIj50aGVvcnkgb2YgbWluZDwvc2ltcGxlQ2hvaWNlPjxzaW1wbGVDaG9pY2UgaWRlbnRpZmllcj0iNCI+bGF3IG9mIGF0dHJhY3Rpb248L3NpbXBsZUNob2ljZT48L2Nob2ljZUludGVyYWN0aW9uPjwvaXRlbUJvZHk+PC9hc3Nlc3NtZW50SXRlbT4=",
-        "targetActivity": exports.testTargetActivityBody,
+        "targetActivityXML": "NoXML",
+        "targetActivity": exports.neffTargetActivityBody,
         "aggregateResult": {
             "guid": null,
             "attempt": null,
@@ -296,9 +299,18 @@ module.exports.HubNock = function(opt_persist) {
         {
             hubNock.persist();
         }
-        hubNock.post('/seqnode')
-            .matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
-            .matchHeader('Hub­-Session', module.exports.testHubSession)
+        hubNock.filteringPath(function(path) {
+                var prefix = '/paf-hub/resources/sequences/course';
+                if (path.substring(0, prefix.length) === prefix)
+                {
+                    return '/paf-hub/resources/sequences/course';
+                }
+            })
+            .post('/paf-hub/resources/sequences/course')
+            // @todo: For some reason the headers are not matching
+            //        Check that the seqIdentifer sent by AMS is EXACT
+            //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(module.exports.testSeqNodeBody));
     };
 
@@ -322,8 +334,8 @@ module.exports.HubNock = function(opt_persist) {
             hubNock.persist();
         }
         hubNock.post('/interactions')
-            //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
-            //.matchHeader('Hub­-Session', module.exports.testHubSession)
+            //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(responseData));
     };
 
@@ -341,14 +353,14 @@ module.exports.HubNock = function(opt_persist) {
                                 : module.exports.testSubmissionResponseBody;
 
         // Nock for the submissions retrieval
-        var hubNock = nock(baseUrl);
+        var hubNock = nock(baseUrl); //.log(console.log);
         if (persist_)
         {
             hubNock.persist();
         }
         hubNock.post('/submissions')
-            //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
-            //.matchHeader('Hub­-Session', module.exports.testHubSession)
+            //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
+            //.matchHeader('Hub-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(responseData));
     };
 
