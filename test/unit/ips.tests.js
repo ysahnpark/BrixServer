@@ -27,6 +27,10 @@ var Ips = require('../../lib/ips').Ips;
 
 var sampleMcpConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
 
+// @todo - change this with data swap story
+//var sampleDataConfig = require('../test_messages/SampleDataConfig.json');
+var sampleDataConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
+
 /**
  * Correctly formed interaction request message.
  */
@@ -191,7 +195,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 
 
     // @todo - ECOURSES-707
-    it('should calculate isLastAttempt (private func)', function (done) {
+    it.skip('should calculate isLastAttempt (private func)', function (done) {
         expect(false).to.be.ok;
         done();
     });
@@ -285,6 +289,15 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
                 done(e);
             }
         });
+    });
+
+    it.skip('should create a Submission NodeResult', function () {
+
+        var ceResult = cenock.testAssessmentResponseBody;
+
+        var nodeResult = ips.buildSubmissionNodeResult__(ceResult);
+        expect(nodeResult).to.deep.equal(HubMock.testNodeResult);
+
     });
      
 });
@@ -409,7 +422,23 @@ describe('IPS retrieveSequenceNode', function () {
                 expect(val).to.have.property('configFixup');
             });
         });
+    });
+
+    // @todo - add this for data swap story
+    it.skip('should include data object when present', function () {
+        var resultWithNoData = ips.sanitizeBrixConfig__(sampleMcpConfig);
         
+        // Verify that the original does not contain the data object
+        expect(sampleMcpConfig).to.not.have.property('data');
+        // Verify that the result does not contain the data object 
+        expect(resultWithNoData).to.not.have.property('data');
+
+        // @todo - change L32
+        var resultWithData = ips.sanitizeBrixConfig__(sampleDataConfig);
+        // Verify that the original does contain the data object
+        expect(resultWithData).to.have.property('data');
+        // Verify that the result does contain the data object 
+        expect(resultWithData).to.have.property('data');
     });
 
     it('should correctly obtain the container by id (private func)', function () {
