@@ -291,13 +291,39 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         });
     });
 
-    it.skip('should create a Submission NodeResult', function () {
+    it('should create a Submission NodeResult for a correct answer', function () {
 
-        var ceResult = cenock.testAssessmentResponseBody;
+        var ceResult = CEMock.testAssessmentResponseBody;
+        var studentSubmission = { submission: "option000" };
 
-        var nodeResult = ips.buildSubmissionNodeResult__(ceResult);
+        var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission);
+        
+        //console.log(JSON.stringify(nodeResult));
+        
+        expect(nodeResult.timestamp).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d*Z/);
+        // change timestamp on nodeResult to match test ceResult
+        nodeResult.timestamp = "2013-10-25T20:21:21.822Z";
+        // check the nodeResult, minus the timestamp part
         expect(nodeResult).to.deep.equal(HubMock.testNodeResult);
 
+    });
+
+    it('should create a Submission NodeResult for an incorrect answer', function () {
+
+        var ceResult = CEMock.testAssessmentWithIncorrectResponseBody;
+        var studentSubmission = { submission: "option003" };
+
+        var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission);
+        
+        console.log(JSON.stringify(nodeResult));
+        console.log("----");
+        console.log(JSON.stringify(HubMock.testNodeResultIncorrect));
+
+        expect(nodeResult.timestamp).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d*Z/);
+        // change timestamp on nodeResult to match test ceResult
+        nodeResult.timestamp = "2013-10-25T20:21:21.822Z";
+        // check the nodeResult, minus the timestamp part
+        expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrect);
     });
      
 });
@@ -425,6 +451,7 @@ describe('IPS retrieveSequenceNode', function () {
     });
 
     // @todo - add this for data swap story
+    // ECOURSES-768
     it.skip('should include data object when present', function () {
         var resultWithNoData = ips.sanitizeBrixConfig__(sampleMcpConfig);
         

@@ -39,9 +39,9 @@ module.exports.testCEBaseUrl = config.ceBaseUrl;
 module.exports.testAssessmentResponseBody = {
     "code": 200,
     "data": {
-        "correctness": 0,
+        "correctness": 1,
         "feedback": {
-            "text": "Does the growth rate change with population size?"
+            "text": "Your answer is correct. Growth rate stays constant."
         },
         "correctAnswer": {}
     },
@@ -49,10 +49,10 @@ module.exports.testAssessmentResponseBody = {
 };
 
 /**
- * A test (successful) assessment with correct answer response message
+ * A test (successful) assessment with incorrect answer response message
  * @type {Object}
  */
-module.exports.testAssessmentWithCorrectResponseBody = {
+module.exports.testAssessmentWithIncorrectResponseBody = {
     "code": 200,
     "data": {
         "correctness": 0,
@@ -60,7 +60,7 @@ module.exports.testAssessmentWithCorrectResponseBody = {
             "text": "Does the growth rate change with population size?"
         },
         "correctAnswer": {
-            "key": "option000"
+            "key": "option003"
         }
     },
     "status": "success"
@@ -86,6 +86,7 @@ module.exports.testErrorAssessmentResponseBody = {
  * NOTE2: The studentSubmission format probably isn't correct...this is just placeholder.
  * type {Object}
  */
+// @todo - fix this
 module.exports.testCEPayload = {
     "sequenceNodeKey": "8238fsdfhe9h9shdds",
     "answerKey": {
