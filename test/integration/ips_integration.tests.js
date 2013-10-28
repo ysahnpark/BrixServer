@@ -228,7 +228,6 @@ describe('IPC -> IPS Posting Submission', function() {
     });
 
     it('should return a valid Result given correct request message', function (done) {
-        // @todo: si - this'll have to change when we add in the CE stuff
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
 
@@ -246,7 +245,7 @@ describe('IPC -> IPS Posting Submission', function() {
                 if (err) return done(err);
                 try {
 //console.log("**Submission:"+JSON.stringify(result.body));
-                    expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
+                    expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
                     expect(result.body.status).to.equal('success');
                     done();
                 } catch (e) {

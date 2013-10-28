@@ -213,9 +213,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                // @todo: si - we will want to change this to a CEMock.response once the ips returns 
-                // the right thing.  Currently IPS is returning the return value from amsproxy
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testSubmissionResponseBody));
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
                 done();
             }
             catch (e)
@@ -314,10 +312,6 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         var studentSubmission = { submission: "option003" };
 
         var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission);
-        
-        console.log(JSON.stringify(nodeResult));
-        console.log("----");
-        console.log(JSON.stringify(HubMock.testNodeResultIncorrect));
 
         expect(nodeResult.timestamp).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d*Z/);
         // change timestamp on nodeResult to match test ceResult
