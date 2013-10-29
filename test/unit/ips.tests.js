@@ -319,6 +319,19 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         // check the nodeResult, minus the timestamp part
         expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrect);
     });
+
+    it('should correctly update the sequenceNode (private func)', function () {
+        var seqNodeInfo = {};
+        seqNodeInfo.sequenceNodeContent = HubMock.testSeqNodeBody;
+        var nodeResult = HubMock.testNodeResultIncorrect;
+        
+        ips.appendResultToSequenceNode__(seqNodeInfo, nodeResult)
+        .then(function(updatedSequenceNode){
+            expect(updatedSequenceNode).to.be.an('object');
+            expect(updatedSequenceNode.sequenceNodeContent.nodeResult[0]).to.deep.equal(nodeResult);
+            done();
+        });
+    });
      
 });
 

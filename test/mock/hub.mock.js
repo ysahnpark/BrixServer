@@ -93,7 +93,7 @@ module.exports.testNodeResult = {
     "brixState": {},
     "correct": true,
     "rawItemScore": 1,
-    "responseVariables": [ { "submission": "option000" } ],
+    "studentSubmission": { "submission": "option000" },
     "systemResponse": {
         "htmlResponse": "Your answer is correct. Growth rate stays constant."
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
@@ -113,7 +113,7 @@ module.exports.testNodeResultIncorrect = {
     "brixState": {},
     "correct": false,
     "rawItemScore": 0,
-    "responseVariables": [ { "submission": "option003" } ],
+    "studentSubmission": { "submission": "option003" },
     "systemResponse": {
         "htmlResponse": "Does the growth rate change with population size?"
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
