@@ -69,6 +69,9 @@ describe('IPS Posting Interaction', function() {
     var seqNodeProvider = null;
     var seqNodeReqMessage = null;
 
+    var sequenceNodeKey = null;
+    var seqNodeKeyToRemove = null;
+
     before(function (done) {
         ips = new Ips();
         seqNodeProvider = new SequenceNodeProvider();
@@ -80,7 +83,7 @@ describe('IPS Posting Interaction', function() {
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
 
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
 
@@ -93,6 +96,13 @@ describe('IPS Posting Interaction', function() {
             });
         });
         
+    });
+
+    after(function (done) {
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            done();
+        });
     });
 
     it('should return an empty object given correct request message', function (done) {
@@ -164,6 +174,9 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifier = null;
 
+    var sequenceNodeKey = null;
+    var seqNodeKeyToRemove = null;
+
     before(function (done) {
         ips = new Ips();
         seqNodeProvider = new SequenceNodeProvider();
@@ -175,14 +188,20 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         cenock = new CEMock.CENock();
 
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
-        
+
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
-            // there must be no errors
-            //console.log(result);
-            sequenceNodeKey = result.sequenceNodeKey;
-            done();
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+
+            ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+
+                // there must be no errors
+                //console.log(result);
+                sequenceNodeKey = result.sequenceNodeKey;
+                done();
+            });
         });
     });
 
@@ -191,6 +210,13 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         // This cleans them up after each 'it'.
         nock.cleanAll();
         done();
+    });
+
+    after(function (done) {
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            done();
+        });
     });
 
 
@@ -337,18 +363,27 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 
 describe('IPS retrieveSequenceNode', function () {
     var ips = null;
+    var seqNodeProvider = null;
     var seqNodeReqMessage = null;
     var sequenceNodeIdentifier = null;
 
     var sequenceNodeKey = null;
+    var seqNodeKeyToRemove = null;
     var targetActivity = null;
 
     before(function (done) {
         ips = new Ips();
         seqNodeReqMessage = HubMock.testInitializationEnvelope;
 
-        var seqNodeProvider = new SequenceNodeProvider();
-        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        seqNodeProvider = new SequenceNodeProvider();
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            done();
+        });
+    });
+
+    after(function (done) {
+        // clean up after ourselves
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
             done();
         });
