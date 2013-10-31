@@ -73,6 +73,10 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
                     try
                     {
                         expect(error).to.equal(null);
+                        // Check that sequenceNodeKey was added in to brix's targetActivity
+                        expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(seqNodeKey);
+                        // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
+                        delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
                         expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                         expect(body.sequenceNodeKey).to.equal(seqNodeKey);
                         expect(body.fromCache).to.equal(true);
@@ -102,6 +106,10 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
             if (expectData !== null) {
                 try
                 {
+                    // Check that sequenceNodeKey was added in to brix's targetActivity
+                    expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(seqNodeKey);
+                    // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
+                    delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
                     expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                 }
                 catch( e )
@@ -262,6 +270,10 @@ describe('SequenceNodeProvider', function () {
         seqNodeProvider.getSequenceNodeByKey(seqNodeKey, function(error, body){
             try {
                 expect(error).to.equal(null);
+                // Check that sequenceNodeKey was added in to brix's targetActivity
+                expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(seqNodeKey);
+                // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
+                delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
                 expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                 expect(body.hubSession).to.equal(HUB_SESSION);
                 done();
