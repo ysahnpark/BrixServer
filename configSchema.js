@@ -11,5 +11,9 @@ module.exports = {
     "amsCaching":           Joi.Types.Boolean().required(),
     "hubBaseUrl":           Joi.Types.String().required(),
     "bipsBaseUrl":          Joi.Types.String().required(),
-    "ceBaseUrl":            Joi.Types.String().required()
+    "ceBaseUrl":            Joi.Types.String().required(),
+
+    "logLevel":             Joi.Types.String().optional(),
+    "logToScreen":          Joi.Types.Boolean().optional(),
+    "logToFile":            Joi.Types.Boolean().optional(),
 };
