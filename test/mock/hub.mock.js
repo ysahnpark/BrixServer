@@ -82,6 +82,46 @@ module.exports.testInitializationEnvelope = {
 };
 
 /**
+ * A test NodeResult based on ce.mock.testAssessmentResponseBody
+ * @type {Object}
+ */
+module.exports.testNodeResult = {
+    "@context" : [
+        "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
+    ],
+    "doScoreProcessing": true,
+    "brixState": {},
+    "correct": true,
+    "rawItemScore": 1,
+    "studentSubmission": { "submission": "option000" },
+    "systemResponse": {
+        "htmlResponse": "Your answer is correct. Growth rate stays constant."
+        //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
+    },
+    "timestamp": "2013-10-25T20:21:21.822Z"
+};
+
+/**
+ * A test NodeResult based on ce.mock.testAssessmentWithIncorrectResponseBody
+ * @type {Object}
+ */
+module.exports.testNodeResultIncorrect = {
+    "@context" : [
+        "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
+    ],
+    "doScoreProcessing": false,
+    "brixState": {},
+    "correct": false,
+    "rawItemScore": 0,
+    "studentSubmission": { "submission": "option003" },
+    "systemResponse": {
+        "htmlResponse": "Does the growth rate change with population size?"
+        //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
+    },
+    "timestamp": "2013-10-25T20:21:21.822Z"
+};
+
+/**
  * A test targetActivity for the test SequenceNode (module.exports.testSeqNodeBody) below.
  * @type {Object}
  */
