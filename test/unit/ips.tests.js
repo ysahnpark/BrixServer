@@ -828,6 +828,11 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
 
         // Our previous submission
         var originalParam = cloneObject(submissionMessage);
+
+        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
+        var secondAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
+        secondAssessmentResponseBody.attemptsRemaining = 1;
+
         // Make a new submission
         var param = {
             "sequenceNodeKey": "895af0ae2d8aa5bffba54ab0555d7461",
@@ -845,7 +850,8 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(secondAssessmentResponseBody));
                 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 

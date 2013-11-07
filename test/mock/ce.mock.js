@@ -43,7 +43,8 @@ module.exports.testAssessmentResponseBody = {
         "feedback": {
             "text": "Your answer is correct. Growth rate stays constant."
         },
-        "correctAnswer": {}
+        "correctAnswer": {},
+        "attemptsRemaining": 2
     },
     "status": "success"
 };

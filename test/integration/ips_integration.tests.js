@@ -30,6 +30,7 @@ var HubMock = require('../mock/hub.mock');
 var CEMock = require('../mock/ce.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
 var Controller = require('../../lib/controller');
+var Ips = require('../../lib/ips').Ips;
 
 /**
  * Correctly formed interaction request message.
@@ -65,6 +66,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     var hubnock = null;
     var seqNodeKey  = null;
     var url = null;
+    var ips = null;
 
     before(function (done) {
         server = appStartUp();
@@ -91,6 +93,14 @@ describe('IPC -> IPS Posting Interaction', function() {
                     done(e);
                 }
             });
+    });
+
+    after(function (done) {
+        ips = new Ips();
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
     });
 
     it('should return a valid Result given correct request message', function (done) {
@@ -198,6 +208,7 @@ describe('IPC -> IPS Posting Submission', function() {
     var cenock = null;
     var seqNodeKey  = null;
     var url = null;
+    var ips = null;
 
     before(function (done) {
         server = appStartUp();
@@ -226,6 +237,14 @@ describe('IPC -> IPS Posting Submission', function() {
                     done(e);
                 }
             });
+    });
+
+    after(function (done) {
+        ips = new Ips();
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
     });
 
     it('should return a valid Result given correct request message', function (done) {
