@@ -588,7 +588,8 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
 
     it('should save sequenceNode in cache', function (done) {
         // This same test is in sequencenodeprovider.tests.js but here as a baseline
-        var expectData = JSON.stringify(HubMock.testSeqNodeBody);
+        var expectData = HubMock.testSeqNodeBody;
+        expectData.targetActivity.maxAttempts = 3;
 
         seqNodeProvider.getSequenceNodeByKey(sequenceNodeKey, function(error, body){
             try {
@@ -597,7 +598,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
                 expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(sequenceNodeKey);
                 // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
                 delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
-                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
+                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(JSON.stringify(expectData));
                 expect(body.hubSession).to.equal('HUB_SESSION');
 //console.log(body.sequenceNodeContent.nodeResult);
                 //expect(body.sequenceNodeContent.nodeResult[0]).to.be.undefined;
@@ -755,7 +756,8 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
 
     it('should save sequenceNode in cache', function (done) {
         // This same test is in sequencenodeprovider.tests.js but here as a baseline
-        var expectData = JSON.stringify(HubMock.testSeqNodeBody);
+        var expectData = HubMock.testSeqNodeBody;
+        expectData.targetActivity.maxAttempts = 3;
 
         seqNodeProvider.getSequenceNodeByKey(sequenceNodeKey, function(error, body){
             try {
@@ -764,7 +766,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
                 expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(sequenceNodeKey);
                 // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
                 delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
-                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
+                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(JSON.stringify(expectData));
 
                 expect(body.hubSession).to.equal('HUB_SESSION');
                 // The cache should have an empty nodeResult array in it coming from PAF (via AMS)
@@ -953,7 +955,6 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         ips.postSubmission(param, function(err, result) {
             try {
                 expect(result).to.equal(null);
-                console.log(err);
                 expect(err).to.equal('You have already used all of your submit attempts.  Your submission was not accepted.');
                 done();
             }
