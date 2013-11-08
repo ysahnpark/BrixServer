@@ -701,6 +701,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
     });
 });
 
+// NOTE: The tests herein must be run in order and in succession, as they build upon each other.
 describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', function() {
     var ips = null;
     var hubnock = null;
@@ -885,4 +886,81 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         });
     });
 
+    it('should decrement attemptsRemaining', function (done) {
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // Our previous submission
+        var originalParam = cloneObject(submissionMessage);
+
+        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
+        var thirdAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
+        thirdAssessmentResponseBody.attemptsRemaining = 0;
+
+        // Make a new submission
+        var param = {
+            "sequenceNodeKey": "895af0ae2d8aa5bffba54ab0555d7461",
+            "timestamp": "2013-05-25T13:23:42.001Z",
+            "type": "submission",
+            "body": {
+                "studentSubmission": { "key": "option002" }
+            }
+        };
+
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+ 
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(thirdAssessmentResponseBody));
+                
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+        });
+    });
+
+    it('should throw an error if you submit after you had 0 attemptsRemaining', function (done) {
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // Our previous submission
+        var originalParam = cloneObject(submissionMessage);
+
+        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
+        var thirdAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
+        thirdAssessmentResponseBody.attemptsRemaining = 0;
+
+        // Make a new submission
+        var param = {
+            "sequenceNodeKey": "895af0ae2d8aa5bffba54ab0555d7461",
+            "timestamp": "2013-05-25T13:23:42.001Z",
+            "type": "submission",
+            "body": {
+                "studentSubmission": { "key": "option002" }
+            }
+        };
+
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+ 
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(result).to.equal(null);
+                console.log(err);
+                expect(err).to.equal('You have already used all of your submit attempts.  Your submission was not accepted.');
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+        });
+    });
 });
