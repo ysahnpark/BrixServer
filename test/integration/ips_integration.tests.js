@@ -397,8 +397,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     expectedData.maxAttempts = 3;
 
                     // Test return is as expected
-                    expect(result.body.data.containerConfig).to.deep.equal(expectedData);
-                    
+                    expect(result.body.data.activityConfig).to.deep.equal(expectedData);
                     
                     done();
                 } catch (e) {
