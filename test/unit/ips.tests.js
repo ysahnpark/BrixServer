@@ -829,9 +829,9 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         // Our previous submission
         var originalParam = cloneObject(submissionMessage);
 
-        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
+        // Our return message - we have to doctor the mock a bit as # of attempts made is incremented
         var secondAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
-        secondAssessmentResponseBody.attemptsRemaining = 1;
+        secondAssessmentResponseBody.attemptsMade = 2;
 
         // Make a new submission
         var param = {
@@ -885,7 +885,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         });
     });
 
-    it('should decrement attemptsRemaining', function (done) {
+    it('should increment attemptsMade', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
         // NOTE: this correctness engine mock isn't accounting for the fact that typically
@@ -896,7 +896,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
 
         // Our return message - we have to doctor the mock a bit as # of attempts is decremented
         var thirdAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
-        thirdAssessmentResponseBody.attemptsRemaining = 0;
+        thirdAssessmentResponseBody.attemptsMade = 3;
 
         // Make a new submission
         var param = {
@@ -927,16 +927,9 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         });
     });
 
-    it('should throw an error if you submit after you had 0 attemptsRemaining', function (done) {
+    it('should throw an error if you submit after you had 0 attempts remaining', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
-
-        // Our previous submission
-        var originalParam = cloneObject(submissionMessage);
-
-        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
-        var thirdAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
-        thirdAssessmentResponseBody.attemptsRemaining = 0;
 
         // Make a new submission
         var param = {
