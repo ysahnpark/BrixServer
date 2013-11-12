@@ -115,7 +115,7 @@ describe('IPS Posting Interaction', function() {
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
                 done();
             }
             catch (e)
@@ -238,7 +238,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                expect(result).to.deep.equal(CEMock.testAssessmentResponseBody.data);
                 done();
             }
             catch (e)
@@ -262,7 +262,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
             try {
                 expect(result).to.equal(null);
                 // Just the message is being sent via err
-                expect(JSON.stringify(err)).to.equal(JSON.stringify(CEMock.testErrorAssessmentResponseBody.message));
+                expect(err.message).to.equal(CEMock.testErrorAssessmentResponseBody.message);
                 done();
             }
             catch (e)
@@ -350,14 +350,41 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         seqNodeInfo.sequenceNodeContent = cloneObject(HubMock.testSeqNodeBody);
         var nodeResult = HubMock.testNodeResultIncorrect;
         
-        ips.appendResultToSequenceNode__(seqNodeInfo, nodeResult)
-        .then(function(updatedSequenceNode){
-            expect(updatedSequenceNode).to.be.an('object');
-            expect(updatedSequenceNode.sequenceNodeContent.nodeResult[0]).to.deep.equal(nodeResult);
-            done();
-        });
+        var updatedSequenceNode = ips.appendResultToSequenceNode__(seqNodeInfo, nodeResult);
+        
+        expect(updatedSequenceNode).to.be.an('object');
+        expect(updatedSequenceNode.sequenceNodeContent.nodeResult[0]).to.deep.equal(nodeResult);
     });
-     
+
+    it('should correctly update the sequenceNode if PAF/AMS returns sequenceNode without an empty nodeResult (private func)', function () {
+        var seqNodeInfo = {};
+        seqNodeInfo.sequenceNodeContent = cloneObject(HubMock.testSeqNodeBody);
+        var nodeResult = HubMock.testNodeResultIncorrect;
+
+        // Remove the nodeResult from our sequenceNode
+        delete seqNodeInfo.sequenceNodeContent.nodeResult;
+
+        var updatedSequenceNode = ips.appendResultToSequenceNode__(seqNodeInfo, nodeResult);
+        
+        expect(updatedSequenceNode).to.be.an('object');
+        expect(updatedSequenceNode.sequenceNodeContent.nodeResult[0]).to.deep.equal(nodeResult);
+    });
+
+    it('should calculate attempts made with a sequenceNode lacking a nodeResult (private func)', function () {
+        var sequenceNode = cloneObject(HubMock.testSeqNodeBody);
+
+        // Normal case, empty array
+        expect(sequenceNode.nodeResult).to.be.an('array');
+        expect(sequenceNode.nodeResult.length).to.equal(0);
+        var attemptsMade = ips.calculateAttemptsMade__(sequenceNode);
+        expect(attemptsMade).to.be.equal(1);
+
+        // Remove the nodeResult from our sequenceNode
+        delete sequenceNode.nodeResult;
+
+        attemptsMade = ips.calculateAttemptsMade__(sequenceNode);
+        expect(attemptsMade).to.be.equal(1);
+    });
 });
 
 describe('IPS retrieveSequenceNode', function () {
@@ -427,7 +454,7 @@ describe('IPS retrieveSequenceNode', function () {
 
         ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
             sequenceNodeKey = result.sequenceNodeKey;
-            targetActivity = result.containerConfig;
+            targetActivity = result.activityConfig;
             expect(sequenceNodeKey).to.be.not.null;
             expect(sequenceNodeKey).to.be.a('string');
             expect(sequenceNodeKey).to.be.equal('123');
@@ -598,7 +625,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
                 expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(sequenceNodeKey);
                 // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
                 delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
-                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(JSON.stringify(expectData));
+                expect(body.sequenceNodeContent).to.deep.equal(expectData);
                 expect(body.hubSession).to.equal('HUB_SESSION');
 //console.log(body.sequenceNodeContent.nodeResult);
                 //expect(body.sequenceNodeContent.nodeResult[0]).to.be.undefined;
@@ -621,7 +648,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -667,7 +694,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -766,7 +793,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
                 expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(sequenceNodeKey);
                 // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
                 delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
-                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(JSON.stringify(expectData));
+                expect(body.sequenceNodeContent).to.deep.equal(expectData);
 
                 expect(body.hubSession).to.equal('HUB_SESSION');
                 // The cache should have an empty nodeResult array in it coming from PAF (via AMS)
@@ -794,7 +821,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                expect(result).to.deep.equal(CEMock.testAssessmentResponseBody.data);
                 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -832,9 +859,9 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         // Our previous submission
         var originalParam = cloneObject(submissionMessage);
 
-        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
+        // Our return message - we have to doctor the mock a bit as # of attempts made is incremented
         var secondAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
-        secondAssessmentResponseBody.attemptsRemaining = 1;
+        secondAssessmentResponseBody.attemptsMade = 2;
 
         // Make a new submission
         var param = {
@@ -854,7 +881,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
 
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(secondAssessmentResponseBody));
+                expect(result).to.deep.equal(secondAssessmentResponseBody);
                 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -888,16 +915,18 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         });
     });
 
-    it('should decrement attemptsRemaining', function (done) {
+    it('should increment attemptsMade', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+        // NOTE: this correctness engine mock isn't accounting for the fact that typically
+        // the CE will return the "correct answer" when we pass it our last attempt
 
         // Our previous submission
         var originalParam = cloneObject(submissionMessage);
 
         // Our return message - we have to doctor the mock a bit as # of attempts is decremented
         var thirdAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
-        thirdAssessmentResponseBody.attemptsRemaining = 0;
+        thirdAssessmentResponseBody.attemptsMade = 3;
 
         // Make a new submission
         var param = {
@@ -917,7 +946,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
 
-                expect(JSON.stringify(result)).to.equal(JSON.stringify(thirdAssessmentResponseBody));
+                expect(result).to.deep.equal(thirdAssessmentResponseBody);
                 
                 done();
             }
@@ -928,16 +957,9 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         });
     });
 
-    it('should throw an error if you submit after you had 0 attemptsRemaining', function (done) {
+    it('should throw an error if you submit after you had 0 attempts remaining', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
-
-        // Our previous submission
-        var originalParam = cloneObject(submissionMessage);
-
-        // Our return message - we have to doctor the mock a bit as # of attempts is decremented
-        var thirdAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
-        thirdAssessmentResponseBody.attemptsRemaining = 0;
 
         // Make a new submission
         var param = {

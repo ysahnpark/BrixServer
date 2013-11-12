@@ -5,9 +5,13 @@
 	"port": 8088,
 	"maxSockets": 100,
 
-	"amsBaseUrl": "http://localhost",
+	"amsBaseUrl": "http://localhost:9080",
 	"amsCaching": true,
 	"hubBaseUrl": "http://hub.paf.pearson.com",
 	"bipsBaseUrl": "http://localhost:8088",
-	"ceBaseUrl": "http://localhost:8089"
+	"ceBaseUrl": "http://localhost:8089",
+
+	"logLevel": "debug",
+    "logToScreen": true,
+    "logToFile": true
 }
