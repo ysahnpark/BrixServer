@@ -30,6 +30,7 @@ var HubMock = require('../mock/hub.mock');
 var CEMock = require('../mock/ce.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
 var Controller = require('../../lib/controller');
+var Ips = require('../../lib/ips').Ips;
 
 /**
  * Correctly formed interaction request message.
@@ -65,6 +66,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     var hubnock = null;
     var seqNodeKey  = null;
     var url = null;
+    var ips = null;
 
     before(function (done) {
         server = appStartUp();
@@ -91,6 +93,14 @@ describe('IPC -> IPS Posting Interaction', function() {
                     done(e);
                 }
             });
+    });
+
+    after(function (done) {
+        ips = new Ips();
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
     });
 
     it('should return a valid Result given correct request message', function (done) {
@@ -198,6 +208,7 @@ describe('IPC -> IPS Posting Submission', function() {
     var cenock = null;
     var seqNodeKey  = null;
     var url = null;
+    var ips = null;
 
     before(function (done) {
         server = appStartUp();
@@ -226,6 +237,14 @@ describe('IPC -> IPS Posting Submission', function() {
                     done(e);
                 }
             });
+    });
+
+    after(function (done) {
+        ips = new Ips();
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
     });
 
     it('should return a valid Result given correct request message', function (done) {
@@ -331,7 +350,61 @@ describe('IPC -> IPS Posting Submission', function() {
 });
 
 describe('IPC -> IPS retrieveSequenceNode Test', function () {
-    
+    var server = null;
+    var hubnock = null;
+    var cenock = null;
+    var seqNodeKey  = null;
+    var url = null;
+    var ips = null;
+
+    before(function (done) {
+        server = appStartUp();
+
+        hubnock = new HubMock.HubNock();
+        hubnock.setupNocks(HubMock.testHubBaseUrl);
+
+        cenock = new CEMock.CENock();
+        done();
+    });
+
+    after(function (done) {
+        ips = new Ips();
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
+    });
+
+    it('should return a proper initialization package to the IPS', function (done) {
+        // Retrieving sequence node is pre-requisite in the flow for other
+        // operations: posting interaction and submission. 
+        request(server.listener)
+            .post('/sequencenodes')
+            .send(HubMock.testInitializationEnvelope)
+            .expect('Content-Type', /json/) // Verify the content type
+            .expect(200) // Verify the result code (200=OK)
+
+            .end(function(err, result){
+                if (err) return done(err);
+                try {
+                    // Grab the key out of the result, for cleanup in the after() and to ammend the expectedData
+                    seqNodeKey = result.body.data.sequenceNodeKey;
+                    expect(seqNodeKey).to.be.a('string');
+                    
+                    // Make the expected response
+                    var expectedData = cloneObject(HubMock.neffTargetActivityBody);
+                    expectedData.sequenceNodeKey = seqNodeKey;
+                    expectedData.maxAttempts = 3;
+
+                    // Test return is as expected
+                    expect(result.body.data.activityConfig).to.deep.equal(expectedData);
+                    
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
 });
 
 

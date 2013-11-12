@@ -257,14 +257,16 @@ describe('SequenceNodeProvider', function () {
         var hubnock = new HubMock.HubNock();
         hubnock.setupNocks(HubMock.testHubBaseUrl);
         var strMessage = correctReqMessage;
-        var expectData = JSON.stringify(HubMock.testSeqNodeBody);
+        var expectData = HubMock.testSeqNodeBody;
+        expectData.targetActivity.maxAttempts = 3;
         
-        testReqNode(seqNodeProvider, strMessage, null, expectData, done);
+        testReqNode(seqNodeProvider, strMessage, null, JSON.stringify(expectData), done);
     });
 
     it('should return the SequenceNode (from cache) given sequence node key', function (done) {
         var hubnock = new HubMock.HubNock();
-        var expectData = JSON.stringify(HubMock.testSeqNodeBody);
+        var expectData = HubMock.testSeqNodeBody;
+        expectData.targetActivity.maxAttempts = 3;
 
         var seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(correctReqMessage);
         seqNodeProvider.getSequenceNodeByKey(seqNodeKey, function(error, body){
@@ -274,7 +276,7 @@ describe('SequenceNodeProvider', function () {
                 expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(seqNodeKey);
                 // Remove brix's targetActivity.sequenceNodeKey before comparing returned value with expected
                 delete body.sequenceNodeContent.targetActivity.sequenceNodeKey;
-                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
+                expect(JSON.stringify(body.sequenceNodeContent)).to.equal(JSON.stringify(expectData));
                 expect(body.hubSession).to.equal(HUB_SESSION);
                 done();
             }
