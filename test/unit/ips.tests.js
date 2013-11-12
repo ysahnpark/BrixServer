@@ -965,3 +965,84 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         });
     });
 });
+
+describe.only('Submission Posting for non-recordable Assessments', function() {
+    var ips = null;
+    var hubnock = null;
+    var seqNodeProvider = null;
+    var seqNodeReqMessage = null;
+    var sequenceNodeIdentifier = null;
+
+    var sequenceNodeKey = null;
+    var seqNodeKeyToRemove = null;
+
+    before(function (done) {
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
+
+        hubnock = new HubMock.HubNock();
+        hubnock.setupNocks(HubMock.testHubBaseUrl);
+
+        // setup mock to catch calls to CorrectnessEngine
+        cenock = new CEMock.CENock();
+
+        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+
+        // Retrieving sequence node is pre-requisite in the flow for other
+        // operations: post interaction and submission. 
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+
+            ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+                // there must be no errors
+                //console.log(result);
+                sequenceNodeKey = result.sequenceNodeKey;
+                done();
+            });
+        });
+    });
+
+    afterEach(function (done) {
+        // Nocks can bleed from one test to the next, especially if you're testing error conditions.
+        // This cleans them up after each 'it'.
+        nock.cleanAll();
+        done();
+    });
+
+    after(function (done) {
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            done();
+        });
+    });
+
+    it('should trigger the AMS nock when nonRecordable is absent from containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // instead of doing
+        // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        // we set it up manually so we can look to see if it fires
+        var responseData = HubMock.testSubmissionResponseBody;
+        var hubNock = nock(HubMock.testHubBaseUrl);
+        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        
+        var param = cloneObject(submissionMessage);
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
+        });
+    });
+});
