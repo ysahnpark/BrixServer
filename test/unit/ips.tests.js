@@ -355,6 +355,36 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         expect(updatedSequenceNode).to.be.an('object');
         expect(updatedSequenceNode.sequenceNodeContent.nodeResult[0]).to.deep.equal(nodeResult);
     });
+
+    it('should correctly update the sequenceNode if PAF/AMS returns sequenceNode without an empty nodeResult (private func)', function () {
+        var seqNodeInfo = {};
+        seqNodeInfo.sequenceNodeContent = cloneObject(HubMock.testSeqNodeBody);
+        var nodeResult = HubMock.testNodeResultIncorrect;
+
+        // Remove the nodeResult from our sequenceNode
+        delete seqNodeInfo.sequenceNodeContent.nodeResult;
+
+        var updatedSequenceNode = ips.appendResultToSequenceNode__(seqNodeInfo, nodeResult);
+        
+        expect(updatedSequenceNode).to.be.an('object');
+        expect(updatedSequenceNode.sequenceNodeContent.nodeResult[0]).to.deep.equal(nodeResult);
+    });
+
+    it('should calculate attempts made with a sequenceNode lacking a nodeResult (private func)', function () {
+        var sequenceNode = cloneObject(HubMock.testSeqNodeBody);
+
+        // Normal case, empty array
+        expect(sequenceNode.nodeResult).to.be.an('array');
+        expect(sequenceNode.nodeResult.length).to.equal(0);
+        var attemptsMade = ips.calculateAttemptsMade__(sequenceNode);
+        expect(attemptsMade).to.be.equal(1);
+
+        // Remove the nodeResult from our sequenceNode
+        delete sequenceNode.nodeResult;
+
+        attemptsMade = ips.calculateAttemptsMade__(sequenceNode);
+        expect(attemptsMade).to.be.equal(1);
+    });
 });
 
 describe('IPS retrieveSequenceNode', function () {
