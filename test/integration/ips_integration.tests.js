@@ -106,7 +106,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     it('should return a valid Result given correct request message', function (done) {
         hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
         var envelop = cloneObject(interactionMessage);
-        
+
         envelop.sequenceNodeKey = seqNodeKey;
 
         request(server.listener)

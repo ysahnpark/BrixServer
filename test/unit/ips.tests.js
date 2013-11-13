@@ -25,7 +25,7 @@ var CEMock = require('../mock/ce.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips').Ips;
 
-var sampleMcpConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
+var sampleMcpConfig = HubMock.testSeqNodeBodySubmittable.targetActivity;
 
 // @todo - change this with data swap story
 //var sampleDataConfig = require('../test_messages/SampleDataConfig.json');
@@ -538,7 +538,7 @@ describe('IPS retrieveSequenceNode', function () {
 
     it('should correctly obtain the container by id (private func)', function () {
 
-        var containerId = 'assessment25';
+        var containerId = 'target1';
         var result = ips.obtainContainerItem__(sampleMcpConfig, containerId);
         
         var hasContainer = false;
@@ -559,7 +559,7 @@ describe('IPS retrieveSequenceNode', function () {
 
     it('should correctly obtain answer part (private func)', function () {
 
-        var containerId = 'assessment25';
+        var containerId = 'target1';
 
         // omitting second parameter returns first answerKey
         var result = ips.obtainAnswerPart__(sampleMcpConfig);
