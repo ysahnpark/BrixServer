@@ -1,103 +1,107 @@
 {
-    "sequenceNodeKey": "39b0706e-8587-447e-a598-ecc5e9a1b883",
-    "containerConfig": [
-        {
-            "containerId": "assessment25",
-            "brixConfig": [
-                {
-                    "bricId": "mcqQ1",
-                    "bricType": "MultipleChoiceQuestion",
-                    "config": {
-                        "id": "Q1",
-                        "questionId": "SanVan001",
-                        "question": "Why does it take less and less time to add each additional billion people to the planet?",
-                        "choices": [
-                            {
-                                "content": "Because as the population increases, the absolute number of births increases even though the growth rate stays constant.",
-                                "optionKey": "option000"
+        "description": "A Sample Activity containing a single multiple choice bric",
+        "containerConfig": [
+            {
+                "description": "container for the sample multiple choice question",
+                "containerId": "target1",
+                "brixConfig": [
+                    {
+                        "bricId": "Q1",
+                        "bricType": "MultipleChoiceQuestion",
+                        "config": {
+                            "id": "sampleQ1",
+                            "order": "randomized",
+                            "presenterType": "RadioGroup",
+                            "presenterConfig": {
+                                "numberFormat": "latin-upper"
                             },
+                            "question": "Which of the following statements about resource demands is incorrect? (From Nock)",
+                            "choices": [
+                                {
+                                    "content": "We will need 300% more food by 2050",
+                                    "answerKey": "answer1"
+                                },
+                                {
+                                    "content": "We will need 70% more food by 2050",
+                                    "answerKey": "answer2"
+                                },
+                                {
+                                    "content": "We will need 80% more water by 2050",
+                                    "answerKey": "answer3"
+                                },
+                                {
+                                    "content": "We will need 200% more energy by 2050",
+                                    "answerKey": "answer4"
+                                }
+                            ]
+                        },
+                        "configFixup": [
                             {
-                                "content": "Because the growth rate increases as the population rises.",
-                                "optionKey": "option001"
-                            },
-                            {
-                                "content": "Because the total fertility rate increases with population.",
-                                "optionKey": "option002"
-                            },
-                            {
-                                "content": "Because social behaviors change and people decide to have more children.",
-                                "optionKey": "option003"
+                                "type": "set-property",
+                                "name": "questionId",
+                                "value": {
+                                    "type": "ref",
+                                    "domain": "info",
+                                    "refId": "sequenceNodeKey"
+                                }
                             }
                         ],
-                        "order": "randomized",
-                        "widget": "RadioGroup",
-                        "widgetConfig": {
-                            "numberFormat": "latin-upper"
-                        }
-                    },
-                    "configFixup": [],
-                    "answerKey": {
-                        "assessmentType": "multiplechoice",
-                        "answers": {
-                            "option000": {
-                                "response": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
-                                "score": 1
-                            },
-                            "option001": {
-                                "response": "Does the growth rate change with population size?",
-                                "score": 0
-                            },
-                            "option002": {
-                                "response": "Does the fertility rate change with population size?",
-                                "score": 0
-                            },
-                            "option003": {
-                                "response": "This might happen but is it something is necessarily occurs?",
-                                "score": 0
+                        "answerKey": {
+                            "assessmentType": "multiplechoice",
+                            "answers": {
+                                "answer1": {
+                                    "score": 1,
+                                    "response": "We need enough more food to support the increase in population but it isn't going to quadruple by 2050."
+                                },
+                                "answer2": {
+                                    "score": 0,
+                                    "response": ""
+                                },
+                                "answer3": {
+                                    "score": 0,
+                                    "response": ""
+                                },
+                                "answer4": {
+                                    "score": 0,
+                                    "response": "The energy used per person is increasing at the same time the population is increasing so we're going to need three times as much energy."
+                                }
                             }
                         }
                     }
-                }
-            ],
-            "mortarConfig": [
-                {
-                    "mortarId": "submitMgrQ1",
-                    "mortarType": "SubmitManager",
-                    "config": {
-                        "answerManType": "Default"
-                    }
-                }
-            ],
-            "hookupActions": [
-                {
-                    "actionType": "method-call",
-                    "config": {
-                        "domain": "mortar",
-                        "id": "submitMgrQ1",
+                ],
+                "hookupActions": [
+                    {
+                        "description": "Hookup the submit manager to evaluate answers",
+                        "type": "method-call",
+                        "instance": {
+                            "type": "submit-manager"
+                        },
                         "methodName": "handleRequestsFrom",
                         "args": [
                             {
                                 "type": "ref",
                                 "domain": "brix",
-                                "id": "mcqQ1"
+                                "refId": "Q1"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Draw the question",
+                        "type": "method-call",
+                        "instance": {
+                            "type": "ref",
+                            "domain": "brix",
+                            "refId": "Q1"
+                        },
+                        "methodName": "draw",
+                        "args": [
+                            {
+                                "type": "d3select",
+                                "selector": "#target1"
                             }
                         ]
                     }
-                }
-            ]
-        },
-        {
-            "containerId": "dummyContainerX",
-            "brixConfig": [
-                {
-                    "bricId": "dummyBric",
-                    "bricType": "DummyBricType",
-                    "config": "dummyConfig",
-                    "configFixup": "configFixup"
-                }
-                ],
-            "mortarConfig":{} ,
-            "hookupActions":{}
-        }
-    ]
-}
+                ]
+            }
+        ]
+    }
