@@ -287,6 +287,64 @@ module.exports.testSeqNodeBody = {
     };
 
 /**
+ * A test sequence node content of Submittable brix.  The same thing as above (testSeqNodeBody) but pointing
+ * targetActivity at the multiple choice module.exports.testTargetActivityBody instead of neffReactor.
+ * @type {Object}
+ */
+module.exports.testSeqNodeBodySubmittable = {
+        "guid": "course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-46bd-49ee-8f06-47b4421f599b%2Fbindings%2F0",
+        "player": {
+            "guid": null,
+            "contentType": "application/vnd.pearson.qti.v2p1.asi+xml",
+            "widgetFrontend": null,
+            "toolProxy": null,
+            "frameFrontend": {
+                "guid": null,
+                "frameURI": "placeholder"
+            },
+            "preprocessor": null,
+            "postprocessor": null,
+            "@context": null,
+            "@id": null,
+            "@type": null
+        },
+        "startTime": 1376949443403,
+        "nodeIndex": 1,
+        "targetActivityXML": "NoXML",
+        "targetActivity": module.exports.testTargetActivityBody,
+        "aggregateResult": {
+            "guid": null,
+            "attempt": null,
+            "correctOnFirstTry": null,
+            "incorrectSubmissionCount": null,
+            "numLearningAidsUsed": null,
+            "activityBinding": null,
+            "startTime": 1376949443403,
+            "duration": null,
+            "score": null,
+            "numAttempts": null,
+            "endTime": null
+        },
+        "prevNode": null,
+        "targetBinding": null,
+        "parentSequence": {
+            "guid": null,
+            "user": null,
+            "learningContext": "urn:udson:pearson.com/sms/prod:course/jsmith38271",
+            "overallActivity": "OverallActiviy, DO we need it?",
+            "@context": null,
+            "@id": "/paf-hub/resources/sequences/course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1",
+            "@type": null
+        },
+        "resultCollection": "http://hub.paf.dev.pearsoncmg.com/paf-hub/resources/sequences/course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1/nodes/1/results",
+        "endTime": null,
+        "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
+        "@id": "http://hub.paf.dev.pearsoncmg.com/paf-hub/resources/sequences/course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1/nodes/1",
+        "@type": "SequenceNode",
+        "nodeResult": []
+    };
+
+/**
  * A test (successful) node result response message for Submission
  * @todo : Confirm with PAF documentation
  * @type {Object}
@@ -331,7 +389,11 @@ module.exports.HubNock = function(opt_persist) {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
-    this.setupSequenceNodeNock = function(baseUrl) {
+    this.setupSequenceNodeNock = function(baseUrl, opt_responseData) {
+
+        var responseData = (opt_responseData !== undefined)
+                                ? opt_responseData
+                                : module.exports.testSeqNodeBody;
 
         // Nock for the sequencenode retrieval
         var hubNock = nock(baseUrl);
@@ -351,7 +413,7 @@ module.exports.HubNock = function(opt_persist) {
             //        Check that the seqIdentifer sent by AMS is EXACT
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(module.exports.testSeqNodeBody));
+            .reply(200, JSON.stringify(responseData));
     };
 
     /**

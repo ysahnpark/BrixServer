@@ -214,7 +214,7 @@ describe('IPC -> IPS Posting Submission', function() {
         server = appStartUp();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         cenock = new CEMock.CENock();
         

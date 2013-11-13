@@ -182,7 +182,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
@@ -745,7 +745,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
@@ -783,7 +783,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
 
     it('should save sequenceNode in cache', function (done) {
         // This same test is in sequencenodeprovider.tests.js but here as a baseline
-        var expectData = HubMock.testSeqNodeBody;
+        var expectData = HubMock.testSeqNodeBodySubmittable;
         expectData.targetActivity.maxAttempts = 3;
 
         seqNodeProvider.getSequenceNodeByKey(sequenceNodeKey, function(error, body){
@@ -988,7 +988,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
     });
 });
 
-describe.only('Submission Posting for non-recordable Assessments', function() {
+describe('Submission Posting for non-recordable Assessments', function() {
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
@@ -998,12 +998,14 @@ describe.only('Submission Posting for non-recordable Assessments', function() {
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
 
-    before(function (done) {
+    beforeEach(function (done) {
+        // We want to freshly set the sequenceNode with each test so as to avoid # attempts stuff
         ips = new Ips();
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        //hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
@@ -1052,12 +1054,132 @@ describe.only('Submission Posting for non-recordable Assessments', function() {
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
         param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        // Our mock should be available
+        expect(hubNock.isDone()).to.equal(false);
         
         ips.postSubmission(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
                 expect(result).to.be.an('object');
                 expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                // Our mock should now be done (triggered)
+                expect(hubNock.isDone()).to.equal(true);
+
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
+        });
+    });
+
+    it('should trigger the AMS nock when nonRecordable is null within containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // modify the sequenceNode to add nonRecordable: null
+        // @todo
+
+        // instead of doing
+        // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        // we set it up manually so we can look to see if it fires
+        var responseData = HubMock.testSubmissionResponseBody;
+        var hubNock = nock(HubMock.testHubBaseUrl);
+        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        
+        var param = cloneObject(submissionMessage);
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        // Our mock should be available
+        expect(hubNock.isDone()).to.equal(false);
+        
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                // Our mock should now be done (triggered)
+                expect(hubNock.isDone()).to.equal(true);
+
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
+        });
+    });
+
+    it('should trigger the AMS nock when nonRecordable is false within containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // modify the sequenceNode to add nonRecordable: false
+        // @todo
+
+        // instead of doing
+        // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        // we set it up manually so we can look to see if it fires
+        var responseData = HubMock.testSubmissionResponseBody;
+        var hubNock = nock(HubMock.testHubBaseUrl);
+        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        
+        var param = cloneObject(submissionMessage);
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        // Our mock should be available
+        expect(hubNock.isDone()).to.equal(false);
+        
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                // Our mock should now be done (triggered)
+                expect(hubNock.isDone()).to.equal(true);
+
+                done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+
+        });
+    });
+
+    it('should not trigger the AMS nock when nonRecordable is true from containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // modify the sequenceNode to add nonRecordable: true
+        // @todo
+
+        // instead of doing
+        // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        // we set it up manually so we can look to see if it fires
+        var responseData = HubMock.testSubmissionResponseBody;
+        var hubNock = nock(HubMock.testHubBaseUrl);
+        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        
+        var param = cloneObject(submissionMessage);
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+        // Our mock should be available
+        expect(hubNock.isDone()).to.equal(false);
+        
+        ips.postSubmission(param, function(err, result) {
+            try {
+                expect(err).to.equal(null);
+                expect(result).to.be.an('object');
+                expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                // Our mock should now be done (triggered)
+                expect(hubNock.isDone()).to.equal(true);
+
                 done();
             }
             catch (e)
