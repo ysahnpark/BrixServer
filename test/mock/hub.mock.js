@@ -216,7 +216,8 @@ mcqTargetActivity.containerConfig.push({
             "mortarConfig":{} ,
             "hookupActions":{}
         });
-module.exports.testSeqNodeBodySubmittable.targetActivity =  mcqTargetActivity;
+module.exports.testSeqNodeBodySubmittable.targetActivity = mcqTargetActivity;
+module.exports.testSeqNodeBodySubmittable.guid = "course1::abbadabba-dcba-4321-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-abcd-1234-8f06-47b4421f599b%2Fbindings%2F1";
 
 /**
  * A test (successful) node result response message for Submission

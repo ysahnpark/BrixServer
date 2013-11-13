@@ -26,9 +26,10 @@ var request = require('supertest');  // HTTP testing
 var Hapi = require('hapi');
 var expect = require('chai').expect;
 var config = require('config');
+var nock = require('nock');
 var HubMock = require('../mock/hub.mock');
 var CEMock = require('../mock/ce.mock');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
+var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Controller = require('../../lib/controller');
 var Ips = require('../../lib/ips').Ips;
 
@@ -98,6 +99,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     after(function (done) {
         ips = new Ips();
         // clean up after ourselves
+        nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
         });
@@ -242,6 +244,7 @@ describe('IPC -> IPS Posting Submission', function() {
     after(function (done) {
         ips = new Ips();
         // clean up after ourselves
+        nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
         });
@@ -356,6 +359,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
     var seqNodeKey  = null;
     var url = null;
     var ips = null;
+    var seqNodeProvider = null;
 
     before(function (done) {
         server = appStartUp();
@@ -364,12 +368,20 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
         hubnock.setupNocks(HubMock.testHubBaseUrl);
 
         cenock = new CEMock.CENock();
-        done();
+
+        // Make sure we're clean
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
+        seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
     });
 
     after(function (done) {
-        ips = new Ips();
+        //ips = new Ips();
         // clean up after ourselves
+        nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
         });
