@@ -19,16 +19,18 @@ var bunyan = require('bunyan');
 var config = require('config');
 var WebService = require('../lib/webservice');
 
-webservice = new WebService("TESTBrixApp");
+var APP_NAME = "TESTBrixApp";
+webservice = new WebService(APP_NAME);
 
 // Setting Mocks prior web service startup
 var nock = require('nock');
 var HubMock = require('./mock/hub.mock');
 hubnock = new HubMock.HubNock(true);
-hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
+hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
 hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
 setupHealthNocks();
+console.log('[' + APP_NAME + '] Nock base URL: ' + HubMock.testHubBaseUrl);
 
 // Start the server
 var app = webservice.appStartUp(); app.start();
