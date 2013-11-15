@@ -15,5 +15,8 @@
 
     "logLevel": "debug",
     "logToScreen": true,
-    "logToFile": true
+    "logToFile": true,
+
+    "imgDir": "./images",
+    "imgBaseUrl": "http://localhost:8088"
 }

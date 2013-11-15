@@ -13,5 +13,8 @@
 
 	"logLevel": "debug",
     "logToScreen": true,
-    "logToFile": true
+    "logToFile": true,
+
+    "imgDir": "/Users/uivesse/images",
+    "imgBaseUrl": "http://localhost:8088"
 }
