@@ -32,7 +32,9 @@
 
 var nock = require('nock');
 var config = require('config');
+var utils = require('../../lib/utils');
 var neffTargetActivity = require('../test_messages/neffreactor_config.json');
+var mcqTargetActivity = require('../test_messages/SampleMultipleChoiceConfig.json');
 
 /**
  * A test Hub URL: eg. http://hub.paf.dev.pearsoncmg.com
@@ -123,117 +125,17 @@ module.exports.testNodeResultIncorrect = {
 
 /**
  * A test targetActivity for the test SequenceNode (module.exports.testSeqNodeBody) below.
+ * The default is the MultipleChoceQuestion one.
  * @type {Object}
  */
-module.exports.testTargetActivityBody = {
-    "containerConfig": [
-        {
-            "containerId": "assessment25",
-            "brixConfig": [
-                {
-                    "bricId": "mcqQ1",
-                    "bricType": "MultipleChoiceQuestion",
-                    "config": {
-                        "id": "Q1",
-                        "questionId": "SanVan001",
-                        "question": "Why does it take less and less time to add each additional billion people to the planet?",
-                        "choices": [
-                            {
-                                "content": "Because as the population increases, the absolute number of births increases even though the growth rate stays constant.",
-                                "optionKey": "option000"
-                            },
-                            {
-                                "content": "Because the growth rate increases as the population rises.",
-                                "optionKey": "option001"
-                            },
-                            {
-                                "content": "Because the total fertility rate increases with population.",
-                                "optionKey": "option002"
-                            },
-                            {
-                                "content": "Because social behaviors change and people decide to have more children.",
-                                "optionKey": "option003"
-                            }
-                        ],
-                        "order": "randomized",
-                        "widget": "RadioGroup",
-                        "widgetConfig": {
-                            "numberFormat": "latin-upper"
-                        }
-                    },
-                    "configFixup": [],
-                    "answerKey": {
-                        "assessmentType": "multiplechoice",
-                        "answers": {
-                            "option000": {
-                                "response": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant.",
-                                "score": 1
-                            },
-                            "option001": {
-                                "response": "Does the growth rate change with population size?",
-                                "score": 0
-                            },
-                            "option002": {
-                                "response": "Does the fertility rate change with population size?",
-                                "score": 0
-                            },
-                            "option003": {
-                                "response": "This might happen but is it something is necessarily occurs?",
-                                "score": 0
-                            }
-                        }
-                    }
-                }
-            ],
-            "mortarConfig": [
-                {
-                    "mortarId": "submitMgrQ1",
-                    "mortarType": "SubmitManager",
-                    "config": {
-                        "answerManType": "Default"
-                    }
-                }
-            ],
-            "hookupActions": [
-                {
-                    "actionType": "method-call",
-                    "config": {
-                        "domain": "mortar",
-                        "id": "submitMgrQ1",
-                        "methodName": "handleRequestsFrom",
-                        "args": [
-                            {
-                                "type": "ref",
-                                "domain": "brix",
-                                "id": "mcqQ1"
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        {
-            "containerId": "dummyContainerX",
-            "brixConfig": [
-                {
-                    "bricId": "dummyBric",
-                    "bricType": "DummyBricType",
-                    "config": "dummyConfig",
-                    "configFixup": "configFixup"
-                }
-                ],
-            "mortarConfig":{} ,
-            "hookupActions":{}
-        }
-    ]
-};
+module.exports.testTargetActivityBody = mcqTargetActivity;
 module.exports.neffTargetActivityBody = neffTargetActivity;
 
 /**
  * A test sequence node content
  * @type {Object}
  */
-module.exports.testSeqNodeBody = {
+module.exports.seqNodeBodyTemplate = {
         "guid": "course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-46bd-49ee-8f06-47b4421f599b%2Fbindings%2F0",
         "player": {
             "guid": null,
@@ -286,6 +188,37 @@ module.exports.testSeqNodeBody = {
         "nodeResult": []
     };
 
+
+/**
+ * A test sequence node content (Neff Reactor)
+ * @type {Object}
+ */
+module.exports.testSeqNodeBody = utils.cloneObject(module.exports.seqNodeBodyTemplate);
+module.exports.testSeqNodeBody.targetActivity = exports.neffTargetActivityBody;
+
+/**
+ * A test sequence node content of Submittable brix.  The same thing as above (testSeqNodeBody) but pointing
+ * targetActivity at the multiple choice instead of neffReactor.
+ * @type {Object}
+ */
+module.exports.testSeqNodeBodySubmittable = utils.cloneObject(module.exports.seqNodeBodyTemplate);
+// This one is used for the "obtain answer part" test:
+mcqTargetActivity.containerConfig.push({
+            "containerId": "dummyContainerX",
+            "brixConfig": [
+                {
+                    "bricId": "dummyBric",
+                    "bricType": "DummyBricType",
+                    "config": "dummyConfig",
+                    "configFixup": "configFixup"
+                }
+                ],
+            "mortarConfig":{} ,
+            "hookupActions":{}
+        });
+module.exports.testSeqNodeBodySubmittable.targetActivity = mcqTargetActivity;
+module.exports.testSeqNodeBodySubmittable.guid = "course1::abbadabba-dcba-4321-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-abcd-1234-8f06-47b4421f599b%2Fbindings%2F1";
+
 /**
  * A test (successful) node result response message for Submission
  * @todo : Confirm with PAF documentation
@@ -331,7 +264,11 @@ module.exports.HubNock = function(opt_persist) {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
-    this.setupSequenceNodeNock = function(baseUrl) {
+    this.setupSequenceNodeNock = function(baseUrl, opt_responseData) {
+
+        var responseData = (opt_responseData !== undefined)
+                                ? opt_responseData
+                                : module.exports.testSeqNodeBody;
 
         // Nock for the sequencenode retrieval
         var hubNock = nock(baseUrl);
@@ -351,7 +288,7 @@ module.exports.HubNock = function(opt_persist) {
             //        Check that the seqIdentifer sent by AMS is EXACT
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(module.exports.testSeqNodeBody));
+            .reply(200, JSON.stringify(responseData));
     };
 
     /**

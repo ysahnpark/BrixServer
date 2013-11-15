@@ -25,10 +25,8 @@ var CEMock = require('../mock/ce.mock');
 var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
 var Ips = require('../../lib/ips').Ips;
 
-var sampleMcpConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
+var sampleMcpConfig = HubMock.testSeqNodeBodySubmittable.targetActivity;
 
-// @todo - change this with data swap story
-//var sampleDataConfig = require('../test_messages/SampleDataConfig.json');
 var sampleDataConfig = require('../test_messages/SampleMultipleChoiceConfig.json');
 
 /**
@@ -182,7 +180,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
@@ -518,27 +516,9 @@ describe('IPS retrieveSequenceNode', function () {
         });
     });
 
-    // @todo - add this for data swap story
-    // ECOURSES-768
-    it.skip('should include data object when present', function () {
-        var resultWithNoData = ips.sanitizeBrixConfig__(sampleMcpConfig);
-        
-        // Verify that the original does not contain the data object
-        expect(sampleMcpConfig).to.not.have.property('data');
-        // Verify that the result does not contain the data object 
-        expect(resultWithNoData).to.not.have.property('data');
-
-        // @todo - change L32
-        var resultWithData = ips.sanitizeBrixConfig__(sampleDataConfig);
-        // Verify that the original does contain the data object
-        expect(resultWithData).to.have.property('data');
-        // Verify that the result does contain the data object 
-        expect(resultWithData).to.have.property('data');
-    });
-
     it('should correctly obtain the container by id (private func)', function () {
 
-        var containerId = 'assessment25';
+        var containerId = 'target1';
         var result = ips.obtainContainerItem__(sampleMcpConfig, containerId);
         
         var hasContainer = false;
@@ -559,7 +539,7 @@ describe('IPS retrieveSequenceNode', function () {
 
     it('should correctly obtain answer part (private func)', function () {
 
-        var containerId = 'assessment25';
+        var containerId = 'target1';
 
         // omitting second parameter returns first answerKey
         var result = ips.obtainAnswerPart__(sampleMcpConfig);
@@ -745,7 +725,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
@@ -783,7 +763,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
 
     it('should save sequenceNode in cache', function (done) {
         // This same test is in sequencenodeprovider.tests.js but here as a baseline
-        var expectData = HubMock.testSeqNodeBody;
+        var expectData = HubMock.testSeqNodeBodySubmittable;
         expectData.targetActivity.maxAttempts = 3;
 
         seqNodeProvider.getSequenceNodeByKey(sequenceNodeKey, function(error, body){
@@ -979,6 +959,265 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
                 expect(result).to.equal(null);
                 expect(err).to.equal('You have already used all of your submit attempts.  Your submission was not accepted.');
                 done();
+            }
+            catch (e)
+            {
+                done(e);
+            }
+        });
+    });
+});
+
+describe('Submission Posting for non-recordable Assessments', function() {
+    var ips = null;
+    var hubnock = null;
+    var seqNodeProvider = null;
+    var seqNodeReqMessage = null;
+    var sequenceNodeIdentifier = null;
+
+    var seqNodeKey = null;
+    var modifiedCacheNode = null;
+
+    before(function (done) {
+
+        done();
+    });
+
+    beforeEach(function (done) {
+        // We want to freshly set the sequenceNode with each test so as to avoid # attempts stuff
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
+
+        hubnock = new HubMock.HubNock();
+        //hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
+
+        // setup mock to catch calls to CorrectnessEngine
+        cenock = new CEMock.CENock();
+
+        // Fix up our cache node.  This is the sequenceNode we'll modify and use to update redis cache.
+        var cacheContent = cloneObject(HubMock.testSeqNodeBodySubmittable);
+        modifiedCacheNode = {
+            hubSession: 'HUB_SESSION',
+            sequenceNodeContent: cacheContent
+        };
+
+        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+
+        // Retrieving sequence node is pre-requisite in the flow for other
+        // operations: post interaction and submission.  Make sure our cache is clean
+        // and then populate it with a new request to the AMS.
+        seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+
+            ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+                // there must be no errors
+                seqNodeKey = result.sequenceNodeKey;
+                modifiedCacheNode.sequenceNodeContent.targetActivity.maxAttempts = 3;
+                modifiedCacheNode.sequenceNodeContent.targetActivity.sequenceNodeKey = seqNodeKey;
+                done();
+            });
+        });
+    });
+
+    afterEach(function (done) {
+        // Nocks can bleed from one test to the next, especially if you're testing error conditions.
+        // This cleans them up after each 'it'.
+        nock.cleanAll();
+        // clean up after ourselves
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            done();
+        });
+    });
+
+
+    it('should trigger the AMS nock when nonRecordable is absent from containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        seqNodeProvider.getSequenceNodeByKey(seqNodeKey, function(err, result) {
+            try {
+                var sequenceNode = result;
+
+                // Make sure the sequenceNode in cache is what we expect
+                expect(sequenceNode).to.deep.equal(modifiedCacheNode);
+
+                // instead of doing
+                // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+                // we set it up manually so we can look to see if it fires
+                var responseData = HubMock.testSubmissionResponseBody;
+                var hubNock = nock(HubMock.testHubBaseUrl);
+                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                
+                var param = cloneObject(submissionMessage);
+                // Assign the correct sequenceNodeKey
+                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+                // Our mock should be available
+                expect(hubNock.isDone()).to.equal(false);
+                
+                ips.postSubmission(param, function(err, result) {
+                    try {
+                        expect(err).to.equal(null);
+                        expect(result).to.be.an('object');
+                        expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                        // Our mock should now be done (triggered)
+                        expect(hubNock.isDone()).to.equal(true);
+
+                        done();
+                    }
+                    catch (e)
+                    {
+                        done(e);
+                    }
+
+                });
+
+            }
+            catch (e)
+            {
+                done(e);
+            }
+        });
+    });
+
+    it('should trigger the AMS nock when nonRecordable is null within containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // modify the sequenceNode to add nonRecordable: null
+        modifiedCacheNode.sequenceNodeContent.targetActivity.containerConfig[0].brixConfig[0].answerKey.nonRecordable = null;
+        // update that in cache
+        seqNodeProvider.updateSequenceNodeInCache(seqNodeKey, modifiedCacheNode, function(err, result) {
+            try {
+
+                // instead of doing
+                // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+                // we set it up manually so we can look to see if it fires
+                var responseData = HubMock.testSubmissionResponseBody;
+                var hubNock = nock(HubMock.testHubBaseUrl);
+                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                
+                var param = cloneObject(submissionMessage);
+                // Assign the correct sequenceNodeKey
+                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+                // Our mock should be available
+                expect(hubNock.isDone()).to.equal(false);
+                
+                ips.postSubmission(param, function(err, result) {
+                    try {
+                        expect(err).to.equal(null);
+                        expect(result).to.be.an('object');
+                        expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                        // Our mock should now be done (triggered)
+                        expect(hubNock.isDone()).to.equal(true);
+
+                        done();
+                    }
+                    catch (e)
+                    {
+                        done(e);
+                    }
+
+                });
+
+            }
+            catch (e)
+            {
+                done(e);
+            }
+        });
+
+        
+    });
+
+    it('should trigger the AMS nock when nonRecordable is false within containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // modify the sequenceNode to add nonRecordable: false
+        modifiedCacheNode.sequenceNodeContent.targetActivity.containerConfig[0].brixConfig[0].answerKey.nonRecordable = false;
+        // update that in cache
+        seqNodeProvider.updateSequenceNodeInCache(seqNodeKey, modifiedCacheNode, function(err, result) {
+            try {
+
+                // instead of doing
+                // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+                // we set it up manually so we can look to see if it fires
+                var responseData = HubMock.testSubmissionResponseBody;
+                var hubNock = nock(HubMock.testHubBaseUrl);
+                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                
+                var param = cloneObject(submissionMessage);
+                // Assign the correct sequenceNodeKey
+                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+                // Our mock should be available
+                expect(hubNock.isDone()).to.equal(false);
+                
+                ips.postSubmission(param, function(err, result) {
+                    try {
+                        expect(err).to.equal(null);
+                        expect(result).to.be.an('object');
+                        expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                        // Our mock should now be done (triggered)
+                        expect(hubNock.isDone()).to.equal(true);
+
+                        done();
+                    }
+                    catch (e)
+                    {
+                        done(e);
+                    }
+
+                });
+
+            }
+            catch (e)
+            {
+                done(e);
+            }
+        });
+    });
+
+    it('should not trigger the AMS nock when nonRecordable is true from containerConfig', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+
+        // modify the sequenceNode to add nonRecordable: true
+        modifiedCacheNode.sequenceNodeContent.targetActivity.containerConfig[0].brixConfig[0].answerKey.nonRecordable = true;
+        // update that in cache
+        seqNodeProvider.updateSequenceNodeInCache(seqNodeKey, modifiedCacheNode, function(err, result) {
+            try {
+
+                // instead of doing
+                // hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+                // we set it up manually so we can look to see if it fires
+                var responseData = HubMock.testSubmissionResponseBody;
+                var hubNock = nock(HubMock.testHubBaseUrl);
+                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                
+                var param = cloneObject(submissionMessage);
+                // Assign the correct sequenceNodeKey
+                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+
+                // Our mock should be available
+                expect(hubNock.isDone()).to.equal(false);
+                
+                ips.postSubmission(param, function(err, result) {
+                    try {
+                        expect(err).to.equal(null);
+                        expect(result).to.be.an('object');
+                        expect(JSON.stringify(result)).to.equal(JSON.stringify(CEMock.testAssessmentResponseBody.data));
+                        // Our mock should NOT be done (triggered) finally proving that we didn't hit the AMS.
+                        expect(hubNock.isDone()).to.equal(false);
+
+                        done();
+                    }
+                    catch (e)
+                    {
+                        done(e);
+                    }
+
+                });
+
             }
             catch (e)
             {
