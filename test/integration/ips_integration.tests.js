@@ -407,6 +407,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     var expectedData = cloneObject(HubMock.neffTargetActivityBody);
                     expectedData.sequenceNodeKey = seqNodeKey;
                     expectedData.maxAttempts = 3;
+                    expectedData.imgBaseUrl = config.imgBaseUrl;
 
                     // Test return is as expected
                     expect(result.body.data.activityConfig).to.deep.equal(expectedData);
