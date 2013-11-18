@@ -18,5 +18,5 @@
     "logToFile": true,
 
     "imgDir": "./images",
-    "imgBaseUrl": "http://localhost:8088"
+    "imgBaseUrl": "http://localhost:8088/images/"
 }
