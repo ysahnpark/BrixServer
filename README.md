@@ -38,6 +38,9 @@ Running the Application
 Redis must be running for the application to be started.  Locally, redis can be started using:
 'redis-server'.
 
+You must create (or copy) a config/local.json.USERNAME file and create a config/local.json symlink as
+$ ln -s local.json.USERNAME local.json 
+
 To run the application:
 'node brixapp.js'.
 Prior running the server, make sure that the port as defined in config.js is not in use.
