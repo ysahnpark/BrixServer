@@ -39,7 +39,7 @@ Redis must be running for the application to be started.  Locally, redis can be 
 'redis-server'.
 
 To run the application:
-'node app.js'.
+'node brixapp.js'.
 Prior running the server, make sure that the port as defined in config.js is not in use.
 
 Alternately, in development, nodemon can be used to run the application, watch files under the
