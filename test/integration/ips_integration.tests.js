@@ -104,7 +104,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     });
 
     it('should return a valid Result given correct request message', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var envelop = cloneObject(interactionMessage);
 
         envelop.sequenceNodeKey = seqNodeKey;
@@ -183,7 +183,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     });
 
     it('should return a valid result even with error at invalid Hub-Session (e.g. expired)', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var envelop = cloneObject(interactionMessage);
         envelop.sequenceNodeKey = seqNodeKey;
         request(server.listener)
