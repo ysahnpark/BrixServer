@@ -8,11 +8,11 @@
     //"amsBaseUrl": "http://127.0.0.1",
     "amsBaseUrl": "http://localhost",
     "amsCaching": true,
-    //"hubBaseUrl": "http://127.0.0.2",
-    "hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",
+    "hubBaseUrl": "http://localtest",
+    //"hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",
     "bipsBaseUrl": "http://localhost:8088",
     "ceBaseUrl": "http://localhost:8089",
 
-    "logLevel": "info",
+    "logLevel": "warn",
     "logToScreen": true
 }

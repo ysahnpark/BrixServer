@@ -80,6 +80,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
                         expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                         expect(body.sequenceNodeKey).to.equal(seqNodeKey);
                         expect(body.fromCache).to.equal(true);
+                        expect(body.itemCorrelationToken).to.be.not.null;
                     }
                     catch( e )
                     {

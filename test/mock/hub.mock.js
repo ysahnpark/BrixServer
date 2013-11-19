@@ -83,6 +83,9 @@ module.exports.testInitializationEnvelope = {
     }
 };
 
+module.exports.testInitializationEnvelopeSubmittable = utils.cloneObject(module.exports.testInitializationEnvelope);
+module.exports.testInitializationEnvelopeSubmittable.sequenceNodeIdentifier.content.targetBinding = "http://localtest/paf-repo/resources/activities/MCP/bindings/0"; // Some different data to differentiate SequenceNodekey
+
 /**
  * A test NodeResult based on ce.mock.testAssessmentResponseBody
  * @type {Object}
@@ -218,6 +221,11 @@ mcqTargetActivity.containerConfig.push({
         });
 module.exports.testSeqNodeBodySubmittable.targetActivity =  mcqTargetActivity;
 
+
+module.exports.testSeqNodeHeaders = {
+    "itemCorrelationToken": "TEST-ITEM-CORREL-TOKEN"
+};
+
 /**
  * A test (successful) node result response message for Submission
  * @todo : Confirm with PAF documentation
@@ -263,11 +271,15 @@ module.exports.HubNock = function(opt_persist) {
      *
      * @param {String} baseUrl  - The url that this nock should listen to.
      */
-    this.setupSequenceNodeNock = function(baseUrl, opt_responseData) {
+    this.setupSequenceNodeNock = function(baseUrl, opt_responseData, opt_responseHeaders) {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
                                 : module.exports.testSeqNodeBody;
+
+        var responseHeaders = (opt_responseHeaders !== undefined)
+                                ? opt_responseHeaders
+                                : module.exports.testSeqNodeHeaders;
 
         // Nock for the sequencenode retrieval
         var hubNock = nock(baseUrl);
@@ -275,6 +287,7 @@ module.exports.HubNock = function(opt_persist) {
         {
             hubNock.persist();
         }
+        //hubNock.cleanAll(); // Why I cannot do this???
         hubNock.filteringPath(function(path) {
                 var prefix = '/paf-hub/resources/sequences/course';
                 if (path.substring(0, prefix.length) === prefix)
@@ -287,7 +300,8 @@ module.exports.HubNock = function(opt_persist) {
             //        Check that the seqIdentifer sent by AMS is EXACT
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(responseData));
+            .reply(200, JSON.stringify(responseData), responseHeaders);
+        return hubNock;
     };
 
     /**
@@ -313,6 +327,7 @@ module.exports.HubNock = function(opt_persist) {
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(responseData));
+        return hubNock;
     };
 
     /**
@@ -337,6 +352,7 @@ module.exports.HubNock = function(opt_persist) {
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(responseData));
+        return hubNock;
     };
 
 
@@ -352,5 +368,6 @@ module.exports.HubNock = function(opt_persist) {
 
         this.setupSequenceNodeNock(baseUrl);
     };
+
 
 };
