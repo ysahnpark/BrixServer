@@ -77,7 +77,7 @@ describe('IPS Posting Interaction', function() {
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -101,8 +101,8 @@ describe('IPS Posting Interaction', function() {
         });
     });
 
-    it('should return an empty object given correct request message', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+    it('should return non-error empty correct request message', function (done) {
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         
         param.sequenceNodeKey = sequenceNodeKey;
@@ -110,8 +110,7 @@ describe('IPS Posting Interaction', function() {
         ips.postInteraction(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
+                expect(result).to.equal(HubMock.testInteractionResponseBody); // which is ''
                 done();
             }
             catch (e)
@@ -142,7 +141,7 @@ describe('IPS Posting Interaction', function() {
 
     it('should return error at invalid Hub-Session (e.g. expired)', function (done) {
         // How can we explicitly expire hub session?
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var param = cloneObject(interactionMessage);
         param.sequenceNodeKey = sequenceNodeKey;
         var expectedErrorMessage = 'Invalid Hub-Session';
@@ -296,7 +295,6 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postSubmission(param, function(err, result) {
             try {
-                //console.log(JSON.stringify(err));
                 expect(err).to.equal(expectedErrorMessage);
                 done();
             }
@@ -314,7 +312,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 
         var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission);
         
-        //console.log(JSON.stringify(nodeResult));
+//console.log(JSON.stringify(nodeResult));
         
         expect(nodeResult.timestamp).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d*Z/);
         // change timestamp on nodeResult to match test ceResult
@@ -629,7 +627,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
     });
 
     it('should add a NodeResult with the first Interaction', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         
         param.sequenceNodeKey = sequenceNodeKey;
@@ -637,8 +635,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
         ips.postInteraction(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
+                expect(result).to.equal(HubMock.testInteractionResponseBody); // which is ''
 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -673,7 +670,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
     });
 
     it('should update the NodeResult with the next Interaction', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         
         param.sequenceNodeKey = sequenceNodeKey;
@@ -683,8 +680,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
         ips.postInteraction(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
+                expect(result).to.equal(HubMock.testInteractionResponseBody);
 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 

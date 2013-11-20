@@ -231,20 +231,20 @@ module.exports.testSeqNodeHeaders = {
  * @todo : Confirm with PAF documentation
  * @type {Object}
  */
-module.exports.testSubmissionResponseBody = {
-    "feedback": "Something"
-};
+module.exports.testSubmissionResponseBody = '';
+//{
+    //"feedback": "Something" // AMS is returning an empty
+//};
 
 /**
  * A test (successful) node result response message for interaction
  * @todo : Confirm with PAF documentation
  * @type {Object}
  */
-module.exports.testInteractionResponseBody = {
-};
+module.exports.testInteractionResponseBody = '';
 
 /**
- * Message returned from Hub when session was expiired 
+ * Message returned from Hub when session was expired 
  * @type {Object}
  */
 module.exports.testHubSessionInvalid = {
@@ -326,7 +326,7 @@ module.exports.HubNock = function(opt_persist) {
         hubNock.post('/interactions')
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(responseData));
+            .reply(200, responseData);
         return hubNock;
     };
 
@@ -351,7 +351,7 @@ module.exports.HubNock = function(opt_persist) {
         hubNock.post('/submissions')
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(responseData));
+            .reply(200, responseData);
         return hubNock;
     };
 
