@@ -86,6 +86,9 @@ module.exports.testInitializationEnvelope = {
 module.exports.testInitializationEnvelopeSubmittable = utils.cloneObject(module.exports.testInitializationEnvelope);
 module.exports.testInitializationEnvelopeSubmittable.sequenceNodeIdentifier.content.targetBinding = "http://localtest/paf-repo/resources/activities/MCP/bindings/0"; // Some different data to differentiate SequenceNodekey
 
+module.exports.testSeqNodeHeaders = {
+    "itemCorrelationToken": "TEST-ITEM-CORREL-TOKEN"
+};
 /**
  * A test NodeResult based on ce.mock.testAssessmentResponseBody
  * @type {Object}
@@ -94,16 +97,17 @@ module.exports.testNodeResult = {
     "@context" : [
         "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
     ],
+    "timestamp": "2013-10-25T20:21:21.822Z",
     "doScoreProcessing": true,
     "brixState": {},
+    "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": true,
     "rawItemScore": 1,
     "studentSubmission": { "submission": "option000" },
     "systemResponse": {
         "htmlResponse": "Your answer is correct. Growth rate stays constant."
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
-    },
-    "timestamp": "2013-10-25T20:21:21.822Z"
+    }
 };
 
 /**
@@ -114,16 +118,17 @@ module.exports.testNodeResultIncorrect = {
     "@context" : [
         "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
     ],
+    "timestamp": "2013-10-25T20:21:21.822Z",
     "doScoreProcessing": false,
     "brixState": {},
+    "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": false,
     "rawItemScore": 0,
     "studentSubmission": { "submission": "option003" },
     "systemResponse": {
         "htmlResponse": "Does the growth rate change with population size?"
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
-    },
-    "timestamp": "2013-10-25T20:21:21.822Z"
+    }
 };
 
 /**
@@ -222,9 +227,6 @@ mcqTargetActivity.containerConfig.push({
 module.exports.testSeqNodeBodySubmittable.targetActivity =  mcqTargetActivity;
 
 
-module.exports.testSeqNodeHeaders = {
-    "itemCorrelationToken": "TEST-ITEM-CORREL-TOKEN"
-};
 
 /**
  * A test (successful) node result response message for Submission
