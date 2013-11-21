@@ -446,9 +446,10 @@ describe('IPS retrieveSequenceNode', function () {
             callback(null, {sequenceNodeKey: sequenceNodeKey, sequenceNodeContent: data, fromCache:false});
         });
 
-        // Expected is sanitized
+        // Expected is sanitized and config added
         var expectedTargetActivity = utils.cloneObject(stubTargetActivity);
         delete expectedTargetActivity.containerConfig[0].brixConfig[0].answerKey;
+        expectedTargetActivity.imgBaseUrl = config.imgBaseUrl;
 
         ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
             sequenceNodeKey = result.sequenceNodeKey;
@@ -458,7 +459,7 @@ describe('IPS retrieveSequenceNode', function () {
             expect(sequenceNodeKey).to.be.equal('123');
             expect(targetActivity).to.be.an('object');
             expect(targetActivity).to.deep.equal(expectedTargetActivity);
-
+            
             // calledOnce is property of sinon.spy which is super class of sinon.stub.
             expect(ips.sequenceNodeProvider.getSequenceNode.calledOnce).to.be.true;
             done();
