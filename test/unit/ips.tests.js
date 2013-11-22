@@ -581,7 +581,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
@@ -1034,7 +1034,7 @@ describe('Submission Posting for non-recordable Assessments', function() {
         // we set it up manually so we can look to see if it fires
         var responseData = HubMock.testSubmissionResponseBody;
         var hubNock = nock(HubMock.testHubBaseUrl);
-        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
@@ -1072,7 +1072,7 @@ describe('Submission Posting for non-recordable Assessments', function() {
         // we set it up manually so we can look to see if it fires
         var responseData = HubMock.testSubmissionResponseBody;
         var hubNock = nock(HubMock.testHubBaseUrl);
-        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
@@ -1110,7 +1110,7 @@ describe('Submission Posting for non-recordable Assessments', function() {
         // we set it up manually so we can look to see if it fires
         var responseData = HubMock.testSubmissionResponseBody;
         var hubNock = nock(HubMock.testHubBaseUrl);
-        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
@@ -1148,7 +1148,7 @@ describe('Submission Posting for non-recordable Assessments', function() {
         // we set it up manually so we can look to see if it fires
         var responseData = HubMock.testSubmissionResponseBody;
         var hubNock = nock(HubMock.testHubBaseUrl);
-        hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+        hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey

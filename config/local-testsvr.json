@@ -5,8 +5,11 @@
     "port": 8088,
     "maxSockets": 100,
 
-    //"amsBaseUrl": "http://127.0.0.1",
-    "amsBaseUrl": "http://testams",
+    // The AMS base URL, currently pointing to the cloud DEV.
+    "amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com1",
+    // The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/paf-service/ip/brics/nodresult",
+
     "amsCaching": true,
     "hubBaseUrl": "http://localtest",
     //"hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",

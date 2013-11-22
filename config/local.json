@@ -6,6 +6,9 @@
 	"maxSockets": 100,
 
 	"amsBaseUrl": "http://localhost:9080",
+	// The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/paf-service/ip/brics/nodresult",
+    
 	"amsCaching": true,
 	"hubBaseUrl": "http://hub.paf.pearson.com",
 	"bipsBaseUrl": "http://localhost:8088",

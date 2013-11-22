@@ -5,8 +5,9 @@
     "port": 8088,
     "maxSockets": 100,
 
-    //"amsBaseUrl": "http://127.0.0.1",
-    "amsBaseUrl": "http://localhost",
+    "amsBaseUrl": "http://localtest",
+    // The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/paf-service/ip/brics/nodresult",
     "amsCaching": true,
     "hubBaseUrl": "http://localtest",
     //"hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",
