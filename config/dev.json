@@ -1,0 +1,20 @@
+{
+	"numWorkers": 2,
+	"maxDeadWorkerSize": 10,
+	"host": "localhost",
+	"port": 8088,
+	"maxSockets": 100,
+
+	"amsBaseUrl": "http://10.11.30.135:8080/las-paf",
+	"amsCaching": true,
+	"hubBaseUrl": "http://hub.paf.pearson.com",
+	"bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+	"ceBaseUrl": "http://10.11.20.91:8090",
+
+	"logLevel": "info",
+    "logToScreen": false,
+    "logToFile": true,
+
+    "imgDir": "/home/bitnami/Repos/images",
+    "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
+}

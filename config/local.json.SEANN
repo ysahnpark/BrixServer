@@ -9,7 +9,7 @@
 	"amsCaching": true,
 	"hubBaseUrl": "http://hub.paf.pearson.com",
 	"bipsBaseUrl": "http://localhost:8088",
-	"ceBaseUrl": "http://localhost:8089",
+	"ceBaseUrl": "http://localhost:8090",
 
 	"logLevel": "debug",
     "logToScreen": true,
