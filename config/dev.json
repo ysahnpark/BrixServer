@@ -5,6 +5,9 @@
 	"port": 8088,
 	"maxSockets": 100,
 
+    "redisHost": "10.11.29.20",
+    "redisPort": "6379",	
+
 	"amsBaseUrl": "http://10.11.30.135:8080/las-paf",
 	"amsCaching": true,
 	"hubBaseUrl": "http://hub.paf.pearson.com",
