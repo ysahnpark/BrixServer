@@ -1,7 +1,7 @@
 {
 	"numWorkers": 2,
 	"maxDeadWorkerSize": 10,
-	"host": "localhost",
+	"host": "10.11.17.125",
 	"port": 8088,
 	"maxSockets": 100,
 
