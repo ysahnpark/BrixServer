@@ -8,6 +8,7 @@ module.exports = {
     "maxSockets":           Joi.Types.Number().min(1).required(),
 
     "amsBaseUrl":           Joi.Types.String().required(),
+    "amsSubmissionPath":    Joi.Types.String().required(),
     "amsCaching":           Joi.Types.Boolean().required(),
     "hubBaseUrl":           Joi.Types.String().required(),
     "bipsBaseUrl":          Joi.Types.String().required(),

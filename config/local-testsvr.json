@@ -5,10 +5,12 @@
     "port": 8088,
     "maxSockets": 100,
 
-    // The AMS base URL, currently pointing to the cloud DEV.
-    "amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com1",
+    // The AMS base URL, pointing to local test machine.
+    "amsBaseUrl": "http://localhost:9080",
+    // The AMS base URL, pointing to the cloud DEV.
+    //"amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com",
     // The AMS's NodeResult submission endpoint path
-    "amsSubmissionPath": "/las-paf/paf-service/ip/brics/nodresult",
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
     "amsCaching": true,
     "hubBaseUrl": "http://localtest",

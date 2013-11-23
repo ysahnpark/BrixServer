@@ -6,13 +6,14 @@
 	"maxSockets": 100,
 
 	"amsBaseUrl": "http://localhost:9080",
+    //"amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com",
 	// The AMS's NodeResult submission endpoint path
-    "amsSubmissionPath": "/las-paf/paf-service/ip/brics/nodresult",
-    
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+
 	"amsCaching": true,
 	"hubBaseUrl": "http://hub.paf.pearson.com",
 	"bipsBaseUrl": "http://localhost:8088",
-	"ceBaseUrl": "http://localhost:8089",
+	"ceBaseUrl": "http://localhost:8090",
 
 	"logLevel": "debug",
     "logToScreen": true,

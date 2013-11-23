@@ -7,7 +7,7 @@
 
     "amsBaseUrl": "http://localtest",
     // The AMS's NodeResult submission endpoint path
-    "amsSubmissionPath": "/las-paf/paf-service/ip/brics/nodresult",
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
     "amsCaching": true,
     "hubBaseUrl": "http://localtest",
     //"hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",
