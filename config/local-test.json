@@ -15,5 +15,9 @@
     "ceBaseUrl": "http://localhost:8089",
 
     "logLevel": "warn",
-    "logToScreen": true
+    "logToScreen": false,
+    "logToFile": false,
+
+    "imgDir": "./images",
+    "imgBaseUrl": "http://localhost:8088/images/"
 }

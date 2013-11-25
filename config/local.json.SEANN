@@ -17,5 +17,8 @@
 
 	"logLevel": "trace",
     "logToScreen": true,
-    "logToFile": true
+    "logToFile": true,
+
+    "imgDir": "/Users/uivesse/Repos/Images",
+    "imgBaseUrl": "http://localhost:8088/images/"
 }

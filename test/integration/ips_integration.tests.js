@@ -26,9 +26,10 @@ var request = require('supertest');  // HTTP testing
 var Hapi = require('hapi');
 var expect = require('chai').expect;
 var config = require('config');
+var nock = require('nock');
 var HubMock = require('../mock/hub.mock');
 var CEMock = require('../mock/ce.mock');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider');
+var sequencenodeprovider = require('../../lib/sequencenodeprovider');
 var Controller = require('../../lib/controller');
 var Ips = require('../../lib/ips').Ips;
 
@@ -98,6 +99,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     after(function (done) {
         ips = new Ips();
         // clean up after ourselves
+        nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
         });
@@ -211,7 +213,7 @@ describe('IPC -> IPS Posting Submission', function() {
     var ips = null;
 
     before(function (done) {
-        var seqNodeProvider = new SequenceNodeProvider.SequenceNodeProvider();
+        var seqNodeProvider = new sequencenodeprovider.SequenceNodeProvider();
         ips = new Ips();
 
         server = appStartUp();
@@ -250,6 +252,7 @@ describe('IPC -> IPS Posting Submission', function() {
 
     after(function (done) {
         // clean up after ourselves
+        nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
         });
@@ -365,9 +368,10 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
     var seqNodeKey  = null;
     var url = null;
     var ips = null;
+    var seqNodeProvider = null;
 
     before(function (done) {
-        var seqNodeProvider = new SequenceNodeProvider.SequenceNodeProvider();
+        var seqNodeProvider = new sequencenodeprovider.SequenceNodeProvider();
         ips = new Ips();
         server = appStartUp();
 
@@ -378,12 +382,16 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
 
         var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
-            done();
+        seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+                done();
+            });
         });
     });
 
     after(function (done) {
         // clean up after ourselves        
+        nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
         });
@@ -409,6 +417,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     var expectedData = cloneObject(HubMock.testSeqNodeBody.targetActivity);
                     expectedData.sequenceNodeKey = seqNodeKey;
                     expectedData.maxAttempts = 3;
+                    expectedData.imgBaseUrl = config.imgBaseUrl;
 
                     // Test return is as expected
                     expect(result.body.data.activityConfig).to.deep.equal(expectedData);
@@ -418,7 +427,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     done(e);
                 }
             });
-        });
+    });
 });
 
 

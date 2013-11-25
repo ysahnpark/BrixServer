@@ -38,8 +38,11 @@ Running the Application
 Redis must be running for the application to be started.  Locally, redis can be started using:
 'redis-server'.
 
+You must create (or copy) a config/local.json.USERNAME file and create a config/local.json symlink as
+$ ln -s local.json.USERNAME local.json 
+
 To run the application:
-'node app.js'.
+'node brixapp.js'.
 Prior running the server, make sure that the port as defined in config.js is not in use.
 
 Alternately, in development, nodemon can be used to run the application, watch files under the
@@ -49,3 +52,29 @@ main directory, and restart the server after every change.  This is useful durin
 Then to check: Start browser and go to URL http://localhost:8088/seqnode?seqNodeRequestParam=123
 Should display  
 `{"id":"123","binding":"http://binding/123"}`
+
+Config
+------
+What follows is a list of all config variables and a brief descriptions:
+
+  "numWorkers": ie. 2, ...
+  "maxDeadWorkerSize": ie. 10, ...
+  "host": ie. "localhost", the host machine name 
+  "port": ie. 8088, the port the IPS listens on
+  "maxSockets": ie. 100, ...
+
+  "amsBaseUrl": ie. "http://localhost:9080", the base URL of the AMS
+  "amsCaching": ie. true, ...
+  "hubBaseUrl": ie. "http://hub.paf.pearson.com", the base URL of PAF
+  "bipsBaseUrl": ie. "http://localhost:8088", the base URL of this IPS application
+  "ceBaseUrl": ie. "http://localhost:8089", the base URL of the Correctness Engine (CE)
+
+  "logLevel": ie. "debug", log statements set to this level or less will be written/displayed
+  "logToScreen": ie. true, whether to log to console or not
+  "logToFile": ie. true, whether to log to a file or not
+
+  "imgDir": ie. "/Users/uivesse/images", the location of the local clone of the images
+            repo (https://github.com/lbondaryk/images).  This is a temporary measure for 0.9
+  "imgBaseUrl": ie. "http://localhost:8088/images/", the URL sent to the IPC which will be appended
+                to all relative-path images in Brix.  Currently (for 0.9) this points back to the
+                /images/ BIPS endpoint.  It should be an absolute path URL with a trailing slash.

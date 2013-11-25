@@ -17,4 +17,7 @@ module.exports = {
     "logLevel":             Joi.Types.String().optional(),
     "logToScreen":          Joi.Types.Boolean().optional(),
     "logToFile":            Joi.Types.Boolean().optional(),
+
+    "imgDir":               Joi.Types.String().required(),
+    "imgBaseUrl":           Joi.Types.String().required()
 };
