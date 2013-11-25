@@ -7,6 +7,8 @@ module.exports = {
     "port":                 Joi.Types.Number().required(),
     "maxSockets":           Joi.Types.Number().min(1).required(),
 
+    "cacheAllowFlush":      Joi.Types.Boolean().optional(),
+
     "amsBaseUrl":           Joi.Types.String().required(),
     "amsSubmissionPath":    Joi.Types.String().required(),
     "amsCaching":           Joi.Types.Boolean().required(),
