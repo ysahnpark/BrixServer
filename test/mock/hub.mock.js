@@ -96,9 +96,7 @@ module.exports.testSeqNodeHeaders = {
  * @type {Object}
  */
 module.exports.testNodeResult = {
-    "@context" : [
-        "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
-    ],
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeResult",
     "timestamp": "2013-10-25T20:21:21.822Z",
     "doScoreProcessing": true,
     "brixState": {},
@@ -117,9 +115,7 @@ module.exports.testNodeResult = {
  * @type {Object}
  */
 module.exports.testNodeResultIncorrect = {
-    "@context" : [
-        "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
-    ],
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeResult",
     "timestamp": "2013-10-25T20:21:21.822Z",
     "doScoreProcessing": false,
     "brixState": {},
