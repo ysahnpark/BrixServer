@@ -7,6 +7,9 @@ module.exports = {
     "port":                 Joi.Types.Number().required(),
     "maxSockets":           Joi.Types.Number().min(1).required(),
 
+    "redisHost":            Joi.Types.String(),
+    "redisPort":            Joi.Types.String(),
+
     "amsBaseUrl":           Joi.Types.String().required(),
     "amsCaching":           Joi.Types.Boolean().required(),
     "hubBaseUrl":           Joi.Types.String().required(),
