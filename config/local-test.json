@@ -5,6 +5,9 @@
     "port": 8088,
     "maxSockets": 100,
 
+    "redisHost": "127.0.0.1",
+    "redisPort": "6379",
+
     "amsBaseUrl": "http://localtest",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",

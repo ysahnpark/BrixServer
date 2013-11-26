@@ -5,6 +5,9 @@
     "port": 8088,
     "maxSockets": 100,
 
+    "redisHost": "127.0.0.1",
+    "redisPort": "6379",
+
     // The AMS base URL, pointing to local test machine.
     "amsBaseUrl": "http://localhost:9080",
     // The AMS base URL, pointing to the cloud DEV.
