@@ -18,7 +18,7 @@
     "ceBaseUrl": "http://localhost:8089",
 
     "logLevel": "trace",
-    "logToScreen": true,
+    "logToScreen": false,
     "logToFile": false,
 
     "imgDir": "./images",

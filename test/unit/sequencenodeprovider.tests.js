@@ -93,7 +93,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
             {
                 try
                 {
-                    expect(error).to.equal(expectError);
+                    expect(error.message).to.equal(expectError);
                 } 
                 catch( e )
                 {

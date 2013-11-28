@@ -123,11 +123,10 @@ describe('IPS Posting Interaction', function() {
     it('should return error at SequenceNodeKey not found', function (done) {
         var param = cloneObject(interactionMessage);
         param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'SequenceNodeKey not found';
+        var expectedErrorMessage = 'SequenceNodeKey ' + param.sequenceNodeKey + ' not found.';
         ips.postInteraction(param, function(err, result) {
             try {
-                //console.log("ERR: "+err);
-                expect(err).to.equal(expectedErrorMessage);
+                expect(err.message).to.equal(expectedErrorMessage);
                 done();
             }
             catch (e)
@@ -241,7 +240,6 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should return a valid error response given a bad request message', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentErrorNock(CEMock.testCEBaseUrl);
-
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
@@ -251,7 +249,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
             try {
                 expect(result).to.equal(null);
                 // Just the message is being sent via err
-                expect(err.message).to.equal(CEMock.testErrorAssessmentResponseBody.message);
+                expect(err.body.message).to.equal(CEMock.testErrorAssessmentResponseBody.message);
                 done();
             }
             catch (e)
@@ -267,11 +265,11 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         var param = cloneObject(submissionMessage);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
         param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'SequenceNodeKey not found';
+        var expectedErrorMessage = 'SequenceNodeKey ' + param.sequenceNodeKey + ' not found.';
         ips.postSubmission(param, function(err, result) {
             try
             {
-                expect(err).to.equal(expectedErrorMessage);
+                expect(err.message).to.equal(expectedErrorMessage);
                 done();
             }
             catch (e)

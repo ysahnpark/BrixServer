@@ -325,13 +325,13 @@ describe('IPC -> IPS Posting Submission', function() {
     it('should return error at SequenceNodeKey not found', function (done) {
         var envelop = cloneObject(submissionMessage);
         envelop.sequenceNodeKey = 'UnexistentKey';
-        var expectedErrorMessage = 'SequenceNodeKey not found';
+        var expectedErrorMessage = 'SequenceNodeKey '+ envelop.sequenceNodeKey + ' not found.';
         request(server.listener)
             .post(url)
             .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(400) // Verify the result code (400=ERROR)
+            .expect(404) // Verify the result code (400=ERROR)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);
@@ -351,7 +351,7 @@ describe('IPC -> IPS Posting Submission', function() {
             .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(400) // Verify the result code (400=Error)
+            .expect(500) // Verify the result code (500=Error)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);

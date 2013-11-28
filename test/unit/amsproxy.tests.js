@@ -1,13 +1,8 @@
 /* **************************************************************************
- * $Workfile:: sequencenodeprovider.tests.js                                             $
+ * $Workfile:: amsproxy.tests.js                                            $
  * *********************************************************************/ /**
  *
- * @fileoverview Contains unit tests for the sequence node retrieval interface, 
- * basically tests for the behavior of sequencenodeprovider.js
- *
- * NOTE: You will have to start the Redis server manually prior running the
- *       tests, otherwise you will get ECONNREFUSED error and the test will 
- *       fail.
+ * @fileoverview Contains unit tests for the AMS REST requests.
  *
  * Created on       Sept 9, 2013
  * @author          Young-Suk Ahn Park

@@ -73,7 +73,7 @@ module.exports.testAssessmentWithIncorrectResponseBody = {
  */
 module.exports.testErrorAssessmentResponseBody = {
     "code": 400,
-    "data": "Not Found",
+    "data": "Bad Request",
     "message": "Brix assessment type [paintByNumbers] not supported by the Correctness Engine",
     "status": "error"
 };
