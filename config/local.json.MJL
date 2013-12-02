@@ -1,0 +1,23 @@
+{
+	"numWorkers": 2,
+	"maxDeadWorkerSize": 10,
+	"host": "localhost",
+	"port": 8088,
+	"maxSockets": 100,
+
+	"redisHost": "127.0.0.1",
+	"redisPort": "6379",
+
+	"amsBaseUrl": "http://localhost:9080",
+	"amsCaching": true,
+	"hubBaseUrl": "http://hub.paf.pearson.com",
+	"bipsBaseUrl": "http://localhost:8088",
+	"ceBaseUrl": "http://localhost:8090",
+
+	"logLevel": "debug",
+    "logToScreen": true,
+    "logToFile": true,
+
+    "imgDir": "/Users/uivesse/Repos/Images",
+    "imgBaseUrl": "http://localhost:8088/images/"
+}
