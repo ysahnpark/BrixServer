@@ -952,12 +952,18 @@ describe('Submission Posting for Assessments', function() {
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = HubMock.testInitializationEnvelopeSubmittable;
+    var seqNodeReqMessage = utils.cloneObject(HubMock.testInitializationEnvelopeSubmittable);
+    // Force generate a different sequenceNodeKey
+    // Because this test requires sleep
+    seqNodeReqMessage.sequenceNodeIdentifier.content.targetBinding = seqNodeReqMessage.sequenceNodeIdentifier.content.targetBinding + "_subm";
+
 
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
 
-    before(function (done) {
+    var stub = null;
+
+    beforeEach(function (done) {
         ips = new Ips();
         seqNodeProvider = new SequenceNodeProvider();
 
@@ -972,7 +978,6 @@ describe('Submission Posting for Assessments', function() {
         seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
 
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
-
             ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
                 // there must be no errors
                 //console.log(result);
@@ -989,11 +994,12 @@ describe('Submission Posting for Assessments', function() {
         done();
     });
 
-    var verifyPostSubmission = function(param, done) {
-        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
-        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
-
-
+    /**
+     * Makes a submission so we can compare the message sent to amsProxy
+     */
+    var doSubmission = function() {
+        //hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        
         // Our return message - we have to doctor the mock a bit as # of attempts made is incremented
         var secondAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
         secondAssessmentResponseBody.attemptsMade = 2;
@@ -1010,59 +1016,108 @@ describe('Submission Posting for Assessments', function() {
 
         // Assign the correct sequenceNodeKey
         param.sequenceNodeKey = sequenceNodeKey;
- 
+
         ips.postSubmission(param, function(err, result) {
+                // Since we are testing the data passed to AMS,
+                // we don't care about the result. 
+        });
+    };
+
+
+    it('should set doScoreProcessing to true when correct answer provided PRIOR last attempt', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+        var stub = sinon.stub(ips.amsProxy, "sendSubmission", function(param, dummyCallback){
             try {
-                expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-
-                expect(result).to.deep.equal(secondAssessmentResponseBody);
-                
-                var expectData = JSON.stringify(HubMock.testSeqNodeBody);
-
-                seqNodeProvider.getSequenceNodeByKey(sequenceNodeKey, function(error, body){
-                    try {
-                        expect(error).to.equal(null);
-                        // Check that sequenceNodeKey was added in to brix's targetActivity
-                        expect(body.sequenceNodeContent.targetActivity.sequenceNodeKey).to.equal(sequenceNodeKey);
-                        // Check that there's now a single nodeResult on the content
-                        expect(body.sequenceNodeContent.nodeResult).to.be.an('array');
-                        expect(body.sequenceNodeContent.nodeResult[0]).to.be.an('object');
-                        expect(body.sequenceNodeContent.nodeResult[1]).to.be.an('object');
-                        expect(body.sequenceNodeContent.nodeResult[2]).to.be.undefined;
-                        // Check that our saved content's nodeResult matches what was originally submitted
-                        expect(body.sequenceNodeContent.nodeResult[0].studentSubmission).to.deep.equal(originalParam.body.studentSubmission);
-                        // Check that our saved content's nodeResult now also contains the second submission
-                        expect(body.sequenceNodeContent.nodeResult[1].studentSubmission).to.deep.equal(param.body.studentSubmission);
-                        done();
-                    }
-                    catch ( e )
-                    {
-                        done(e);
-                    }
-                });
-            }
-            catch (e)
+                expect(param.nodeResult.doScoreProcessing).to.be.true;
+                ips.amsProxy.sendSubmission.restore();
+                done();
+            } catch (e)
             {
+                ips.amsProxy.sendSubmission.restore();
                 done(e);
             }
         });
-    }
-
-    it.skip('should set doScoreProcessing to true when correct answer provided prior last attempt', function (done) {
-        
+        doSubmission();
     });
 
-    it.skip('should set doScoreProcessing to false when incorrect answer provided prior last attempt', function (done) {
-        done();
+    it('should set doScoreProcessing to false when INcorrect answer provided PRIOR last attempt', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl, CEMock.testAssessmentWithIncorrectResponseBody);
+        sinon.stub(ips.amsProxy, "sendSubmission", function(param, dummyCallback){
+            try {
+                expect(param.nodeResult.doScoreProcessing).to.be.false;
+                ips.amsProxy.sendSubmission.restore();
+                done();
+            } catch (e)
+            {
+                ips.amsProxy.sendSubmission.restore();
+                done(e);        
+            }
+        });
+        doSubmission();
     });
 
-    it.skip('should set doScoreProcessing to true when correct answer provided at last attempt', function (done) {
-        done();
+    it('should set doScoreProcessing to true when correct answer provided at last attempt', function (done) {
+        // setup nock so it handles two calls returning response with incorrect 
+        var scope = cenock.setupAssessmentNock(CEMock.testCEBaseUrl, CEMock.testAssessmentWithIncorrectResponseBody, {times: 2});
+        var submissionCtr = 0;
+        sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+            expect(param.nodeResult.doScoreProcessing).to.be.false;
+            callback(null, {"Test":"OK"});
+        });
+        // Two submission that returns incorrect 
+        doSubmission();
+        setTimeout(function(){
+            doSubmission();
+        },500);
+
+        setTimeout(function(){
+            // Last one returns correct 
+            ips.amsProxy.sendSubmission.restore();
+            sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+                try {
+                    expect(param.nodeResult.doScoreProcessing).to.be.true;
+                    ips.amsProxy.sendSubmission.restore();
+                    done();
+                } catch (e)
+                {
+                    ips.amsProxy.sendSubmission.restore();
+                    done(e);        
+                }
+            });
+            cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+            doSubmission();
+        },1000);
+
     });
 
-    it.skip('should set doScoreProcessing to true when incorrect answer provided at last attempt', function (done) {
-        done();
+    it('should set doScoreProcessing to true when INcorrect answer provided at last attempt', function (done) {
+        // setup nock so it handles three calls returning response with incorrect 
+        var scope = cenock.setupAssessmentNock(CEMock.testCEBaseUrl, CEMock.testAssessmentWithIncorrectResponseBody, {times: 3});
+        var submissionCtr = 0;
+        sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+            expect(param.nodeResult.doScoreProcessing).to.be.false;
+            callback(null, {"Test":"OK"});
+        });
+        doSubmission();
+        setTimeout(function(){
+            doSubmission();
+        },500);
+
+        setTimeout(function(){
+            ips.amsProxy.sendSubmission.restore();
+            sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+                try {
+                    expect(param.nodeResult.doScoreProcessing).to.be.true;
+                    ips.amsProxy.sendSubmission.restore();
+                    done();
+                } catch (e)
+                {
+                    ips.amsProxy.sendSubmission.restore();
+                    done(e);        
+                }
+            });
+            doSubmission();
+        },1000);
     });
 });
 
