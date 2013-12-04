@@ -80,6 +80,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
                         expect(JSON.stringify(body.sequenceNodeContent)).to.equal(expectData);
                         expect(body.sequenceNodeKey).to.equal(seqNodeKey);
                         expect(body.fromCache).to.equal(true);
+                        expect(body.itemCorrelationToken).to.be.not.null;
                     }
                     catch( e )
                     {
@@ -92,7 +93,7 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
             {
                 try
                 {
-                    expect(error).to.equal(expectError);
+                    expect(error.message).to.equal(expectError);
                 } 
                 catch( e )
                 {
@@ -255,7 +256,7 @@ describe('SequenceNodeProvider', function () {
     it('should return the SequenceNode given sequence node identifier', function (done) {
         // The Mocks will intercept the HTTP call and return without requiring the actual server. 
         var hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
         var strMessage = correctReqMessage;
         var expectData = HubMock.testSeqNodeBody;
         expectData.targetActivity.maxAttempts = 3;
@@ -288,31 +289,31 @@ describe('SequenceNodeProvider', function () {
     });
 
     it('should return error at missing Hub-session', function (done) {
-        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        // No need to use nock because the validation will fail and there will be no HTTP request at all
         var strMessage = incorrectReqMessage_missingHubSession;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at missing url', function (done) {
-        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        // No need to use nock because the validation will fail and there will be no HTTP request at all
         var strMessage = incorrectReqMessage_missingUrl;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at missing method', function (done) {
-        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        // No need to use nock because the validation will fail and there will be no HTTP request at all
         var strMessage = incorrectReqMessage_missingMethod;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at illegal method', function (done) {
-        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        // No need to use nock because the validation will fail and there will be no HTTP request at all
         var strMessage = incorrectReqMessage_illegalMethod;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
 
     it('should return error at content wrong type', function (done) {
-        // No need to setupNocks because the validation will fail and there will be no HTTP request at all
+        // No need to use nock because the validation will fail and there will be no HTTP request at all
         var strMessage = incorrectReqMessage_wrongType;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });

@@ -9,8 +9,11 @@ module.exports = {
 
     "redisHost":            Joi.Types.String(),
     "redisPort":            Joi.Types.String(),
+    "cacheAllowFlush":      Joi.Types.Boolean().optional(),
+
 
     "amsBaseUrl":           Joi.Types.String().required(),
+    "amsSubmissionPath":    Joi.Types.String().required(),
     "amsCaching":           Joi.Types.Boolean().required(),
     "hubBaseUrl":           Joi.Types.String().required(),
     "bipsBaseUrl":          Joi.Types.String().required(),

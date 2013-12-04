@@ -73,7 +73,7 @@ module.exports.testAssessmentWithIncorrectResponseBody = {
  */
 module.exports.testErrorAssessmentResponseBody = {
     "code": 400,
-    "data": "Not Found",
+    "data": "Bad Request",
     "message": "Brix assessment type [paintByNumbers] not supported by the Correctness Engine",
     "status": "error"
 };
@@ -134,24 +134,30 @@ module.exports.CENock = function(opt_persist) {
      * This particular Nock will intercept CE call and return code 200 with the 
      * body as specified in the global variable seqNodeBody
      *
-     * @param {String} baseUrl  - The url that this nock should listen to.
+     * @param {String} baseUrl           - The url that this nock should listen to.
+     * @param {Object=} opt_responseData - The optional response data to return.
+     * @param {Object=} options          - Other options
+     * @param {number=} options.times    - Number of times this nock will handle request
      */
-    this.setupAssessmentNock = function(baseUrl, opt_responseData) {
+    this.setupAssessmentNock = function(baseUrl, opt_responseData, options) {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
                                 : module.exports.testAssessmentResponseBody;
 
+        var times = (!options || !options.times) ? 1 : options.times;
         // Nock for the assessment retrieval
         var ceNock = nock(baseUrl);
         if (persist_)
         {
             ceNock.persist();
         }
-        ceNock.post('/assessments')
+        
+        var tt = ceNock.post('/assessments').times(times)
             //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub­-Session', module.exports.testHubSession)
             .reply(200, JSON.stringify(responseData));
+        return ceNock;
     };
 
     /**
@@ -177,5 +183,6 @@ module.exports.CENock = function(opt_persist) {
             //.matchHeader('Content­-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub­-Session', module.exports.testHubSession)
             .reply(400, JSON.stringify(responseData));
+        return ceNock;
     };
 };

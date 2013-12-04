@@ -8,8 +8,13 @@
     "redisHost": "127.0.0.1",
     "redisPort": "6379",
 
-    //"amsBaseUrl": "http://127.0.0.1",
-    "amsBaseUrl": "http://testams",
+    // The AMS base URL, pointing to local test machine.
+    "amsBaseUrl": "http://localhost:9080",
+    // The AMS base URL, pointing to the cloud DEV.
+    //"amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com",
+    // The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+
     "amsCaching": true,
     "hubBaseUrl": "http://localtest",
     //"hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",

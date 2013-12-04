@@ -65,7 +65,7 @@ describe('IPS Posting Interaction', function() {
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelope;
 
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
@@ -75,18 +75,14 @@ describe('IPS Posting Interaction', function() {
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
-
-        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
 
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
-
             ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
-
                 // there must be no errors
                 //console.log(result);
                 sequenceNodeKey = result.sequenceNodeKey;
@@ -103,17 +99,16 @@ describe('IPS Posting Interaction', function() {
         });
     });
 
-    it('should return an empty object given correct request message', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+    it('should return non-error empty correct request message', function (done) {
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
 
         ips.postInteraction(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
+                expect(result).to.equal(HubMock.testInteractionResponseBody); // which is ''
                 done();
             }
             catch (e)
@@ -128,11 +123,10 @@ describe('IPS Posting Interaction', function() {
     it('should return error at SequenceNodeKey not found', function (done) {
         var param = cloneObject(interactionMessage);
         param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'SequenceNodeKey not found';
+        var expectedErrorMessage = 'SequenceNodeKey ' + param.sequenceNodeKey + ' not found.';
         ips.postInteraction(param, function(err, result) {
             try {
-                //console.log("ERR: "+err);
-                expect(err).to.equal(expectedErrorMessage);
+                expect(err.message).to.equal(expectedErrorMessage);
                 done();
             }
             catch (e)
@@ -144,9 +138,9 @@ describe('IPS Posting Interaction', function() {
 
     it('should return error at invalid Hub-Session (e.g. expired)', function (done) {
         // How can we explicitly expire hub session?
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var param = cloneObject(interactionMessage);
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
         var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postInteraction(param, function(err, result) {
             try {
@@ -169,8 +163,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = null;
-    var sequenceNodeIdentifier = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelopeSubmittable;
 
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
@@ -185,12 +178,9 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
 
-        seqNodeReqMessage = HubMock.testInitializationEnvelope;
-
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
-
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
 
             ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
@@ -230,7 +220,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
         
         ips.postSubmission(param, function(err, result) {
             try {
@@ -250,17 +240,16 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should return a valid error response given a bad request message', function (done) {
         hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         cenock.setupAssessmentErrorNock(CEMock.testCEBaseUrl);
-
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
         
         ips.postSubmission(param, function(err, result) {
             try {
                 expect(result).to.equal(null);
                 // Just the message is being sent via err
-                expect(err.message).to.equal(CEMock.testErrorAssessmentResponseBody.message);
+                expect(err.body.message).to.equal(CEMock.testErrorAssessmentResponseBody.message);
                 done();
             }
             catch (e)
@@ -276,11 +265,11 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         var param = cloneObject(submissionMessage);
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
         param.sequenceNodeKey = 'ABC';
-        var expectedErrorMessage = 'SequenceNodeKey not found';
+        var expectedErrorMessage = 'SequenceNodeKey ' + param.sequenceNodeKey + ' not found.';
         ips.postSubmission(param, function(err, result) {
             try
             {
-                expect(err).to.equal(expectedErrorMessage);
+                expect(err.message).to.equal(expectedErrorMessage);
                 done();
             }
             catch (e)
@@ -297,11 +286,10 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
 
         var param = cloneObject(submissionMessage);
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
         var expectedErrorMessage = 'Invalid Hub-Session';
         ips.postSubmission(param, function(err, result) {
             try {
-                //console.log(JSON.stringify(err));
                 expect(err).to.equal(expectedErrorMessage);
                 done();
             }
@@ -317,16 +305,14 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         var ceResult = CEMock.testAssessmentResponseBody;
         var studentSubmission = { submission: "option000" };
 
-        var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission);
-        
-        //console.log(JSON.stringify(nodeResult));
+        var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission, HubMock.testNodeResult.itemCorrelationToken);
         
         expect(nodeResult.timestamp).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d*Z/);
         // change timestamp on nodeResult to match test ceResult
         nodeResult.timestamp = "2013-10-25T20:21:21.822Z";
         // check the nodeResult, minus the timestamp part
-        expect(nodeResult).to.deep.equal(HubMock.testNodeResult);
 
+        expect(nodeResult).to.deep.equal(HubMock.testNodeResult);
     });
 
     it('should create a Submission NodeResult for an incorrect answer', function () {
@@ -334,13 +320,15 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         var ceResult = CEMock.testAssessmentWithIncorrectResponseBody;
         var studentSubmission = { submission: "option003" };
 
-        var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission);
+        var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission, HubMock.testNodeResult.itemCorrelationToken);
 
         expect(nodeResult.timestamp).to.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d*Z/);
         // change timestamp on nodeResult to match test ceResult
         nodeResult.timestamp = "2013-10-25T20:21:21.822Z";
         // check the nodeResult, minus the timestamp part
         expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrect);
+        
+        //expect(JSON.stringify(nodeResult)).to.equal(JSON.stringify(HubMock.testNodeResultIncorrect));
     });
 
     it('should correctly update the sequenceNode (private func)', function () {
@@ -388,8 +376,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
 describe('IPS retrieveSequenceNode', function () {
     var ips = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = null;
-    var sequenceNodeIdentifier = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelope;
 
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
@@ -397,10 +384,9 @@ describe('IPS retrieveSequenceNode', function () {
 
     before(function (done) {
         ips = new Ips();
-        seqNodeReqMessage = HubMock.testInitializationEnvelope;
 
         seqNodeProvider = new SequenceNodeProvider();
-        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
             done();
         });
@@ -559,7 +545,7 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelope;
 
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
@@ -569,13 +555,11 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
         seqNodeProvider = new SequenceNodeProvider();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
-
-        seqNodeReqMessage = HubMock.testInitializationEnvelope;
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
         
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
             ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
                 // there must be no errors
@@ -620,16 +604,15 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
     });
 
     it('should add a NodeResult with the first Interaction', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
 
         ips.postInteraction(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
+                expect(result).to.equal(HubMock.testInteractionResponseBody); // which is ''
 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -664,18 +647,17 @@ describe('IPS saving to Redis with Interactions using Nock AMS and Nock CE', fun
     });
 
     it('should update the NodeResult with the next Interaction', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var param = cloneObject(interactionMessage);
         
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
         // Change our input
         param.body.interactionData = 'this is my new stuff';
 
         ips.postInteraction(param, function(err, result) {
             try {
                 expect(err).to.equal(null);
-                expect(result).to.be.an('object');
-                expect(result).to.deep.equal(HubMock.testInteractionResponseBody);
+                expect(result).to.equal(HubMock.testInteractionResponseBody);
 
                 var expectData = JSON.stringify(HubMock.testSeqNodeBody);
 
@@ -715,8 +697,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = null;
-    var sequenceNodeIdentifier = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelopeSubmittable;
 
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
@@ -731,11 +712,9 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         // setup mock to catch calls to CorrectnessEngine
         cenock = new CEMock.CENock();
 
-        seqNodeReqMessage = HubMock.testInitializationEnvelope;
-
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission. 
-        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
 
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
 
@@ -796,7 +775,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         
         var param = cloneObject(submissionMessage);
         // Assign the correct sequenceNodeKey
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
         
         ips.postSubmission(param, function(err, result) {
             try {
@@ -855,7 +834,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         };
 
         // Assign the correct sequenceNodeKey
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
  
         ips.postSubmission(param, function(err, result) {
             try {
@@ -920,7 +899,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         };
 
         // Assign the correct sequenceNodeKey
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
  
         ips.postSubmission(param, function(err, result) {
             try {
@@ -953,7 +932,7 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
         };
 
         // Assign the correct sequenceNodeKey
-        param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+        param.sequenceNodeKey = sequenceNodeKey;
  
         ips.postSubmission(param, function(err, result) {
             try {
@@ -969,12 +948,185 @@ describe('IPS saving to Redis with Submissions using Nock AMS and Nock CE', func
     });
 });
 
+describe('Submission Posting for Assessments', function() {
+    var ips = null;
+    var hubnock = null;
+    var seqNodeProvider = null;
+    var seqNodeReqMessage = utils.cloneObject(HubMock.testInitializationEnvelopeSubmittable);
+    // Force generate a different sequenceNodeKey
+    // Because this test requires sleep
+    seqNodeReqMessage.sequenceNodeIdentifier.content.targetBinding = seqNodeReqMessage.sequenceNodeIdentifier.content.targetBinding + "_subm";
+
+
+    var sequenceNodeKey = null;
+    var seqNodeKeyToRemove = null;
+
+    var stub = null;
+
+    beforeEach(function (done) {
+        ips = new Ips();
+        seqNodeProvider = new SequenceNodeProvider();
+
+        hubnock = new HubMock.HubNock();
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
+
+        // setup mock to catch calls to CorrectnessEngine
+        cenock = new CEMock.CENock();
+
+        // Retrieving sequence node is pre-requisite in the flow for other
+        // operations: post interaction and submission. 
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
+
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            ips.retrieveSequenceNode(seqNodeReqMessage, function(error, result) {
+                // there must be no errors
+                //console.log(result);
+                sequenceNodeKey = result.sequenceNodeKey;
+                done();
+            });
+        });
+    });
+
+    afterEach(function (done) {
+        // Nocks can bleed from one test to the next, especially if you're testing error conditions.
+        // This cleans them up after each 'it'.
+        nock.cleanAll();
+        done();
+    });
+
+    /**
+     * Makes a submission so we can compare the message sent to amsProxy
+     */
+    var doSubmission = function() {
+        //hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
+        
+        // Our return message - we have to doctor the mock a bit as # of attempts made is incremented
+        var secondAssessmentResponseBody = cloneObject(CEMock.testAssessmentResponseBody.data);
+        secondAssessmentResponseBody.attemptsMade = 2;
+
+        // Make a new submission
+        var param = {
+            "sequenceNodeKey": "895af0ae2d8aa5bffba54ab0555d7461",
+            "timestamp": "2013-05-25T13:23:42.001Z",
+            "type": "submission",
+            "body": {
+                "studentSubmission": { "key": "option002" }
+            }
+        };
+
+        // Assign the correct sequenceNodeKey
+        param.sequenceNodeKey = sequenceNodeKey;
+
+        ips.postSubmission(param, function(err, result) {
+                // Since we are testing the data passed to AMS,
+                // we don't care about the result. 
+        });
+    };
+
+
+    it('should set doScoreProcessing to true when correct answer provided PRIOR last attempt', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+        var stub = sinon.stub(ips.amsProxy, "sendSubmission", function(param, dummyCallback){
+            try {
+                expect(param.nodeResult.doScoreProcessing).to.be.true;
+                ips.amsProxy.sendSubmission.restore();
+                done();
+            } catch (e)
+            {
+                ips.amsProxy.sendSubmission.restore();
+                done(e);
+            }
+        });
+        doSubmission();
+    });
+
+    it('should set doScoreProcessing to false when INcorrect answer provided PRIOR last attempt', function (done) {
+        cenock.setupAssessmentNock(CEMock.testCEBaseUrl, CEMock.testAssessmentWithIncorrectResponseBody);
+        sinon.stub(ips.amsProxy, "sendSubmission", function(param, dummyCallback){
+            try {
+                expect(param.nodeResult.doScoreProcessing).to.be.false;
+                ips.amsProxy.sendSubmission.restore();
+                done();
+            } catch (e)
+            {
+                ips.amsProxy.sendSubmission.restore();
+                done(e);        
+            }
+        });
+        doSubmission();
+    });
+
+    it('should set doScoreProcessing to true when correct answer provided at last attempt', function (done) {
+        // setup nock so it handles two calls returning response with incorrect 
+        var scope = cenock.setupAssessmentNock(CEMock.testCEBaseUrl, CEMock.testAssessmentWithIncorrectResponseBody, {times: 2});
+        var submissionCtr = 0;
+        sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+            expect(param.nodeResult.doScoreProcessing).to.be.false;
+            callback(null, {"Test":"OK"});
+        });
+        // Two submission that returns incorrect 
+        doSubmission();
+        setTimeout(function(){
+            doSubmission();
+        },500);
+
+        setTimeout(function(){
+            // Last one returns correct 
+            ips.amsProxy.sendSubmission.restore();
+            sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+                try {
+                    expect(param.nodeResult.doScoreProcessing).to.be.true;
+                    ips.amsProxy.sendSubmission.restore();
+                    done();
+                } catch (e)
+                {
+                    ips.amsProxy.sendSubmission.restore();
+                    done(e);        
+                }
+            });
+            cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
+            doSubmission();
+        },1000);
+
+    });
+
+    it('should set doScoreProcessing to true when INcorrect answer provided at last attempt', function (done) {
+        // setup nock so it handles three calls returning response with incorrect 
+        var scope = cenock.setupAssessmentNock(CEMock.testCEBaseUrl, CEMock.testAssessmentWithIncorrectResponseBody, {times: 3});
+        var submissionCtr = 0;
+        sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+            expect(param.nodeResult.doScoreProcessing).to.be.false;
+            callback(null, {"Test":"OK"});
+        });
+        doSubmission();
+        setTimeout(function(){
+            doSubmission();
+        },500);
+
+        setTimeout(function(){
+            ips.amsProxy.sendSubmission.restore();
+            sinon.stub(ips.amsProxy, "sendSubmission", function(param, callback){
+                try {
+                    expect(param.nodeResult.doScoreProcessing).to.be.true;
+                    ips.amsProxy.sendSubmission.restore();
+                    done();
+                } catch (e)
+                {
+                    ips.amsProxy.sendSubmission.restore();
+                    done(e);        
+                }
+            });
+            doSubmission();
+        },1000);
+    });
+});
+
+
 describe('Submission Posting for non-recordable Assessments', function() {
     var ips = null;
     var hubnock = null;
     var seqNodeProvider = null;
-    var seqNodeReqMessage = null;
-    var sequenceNodeIdentifier = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelopeSubmittable;
 
     var seqNodeKey = null;
     var modifiedCacheNode = null;
@@ -1000,14 +1152,14 @@ describe('Submission Posting for non-recordable Assessments', function() {
         var cacheContent = cloneObject(HubMock.testSeqNodeBodySubmittable);
         modifiedCacheNode = {
             hubSession: 'HUB_SESSION',
+            itemCorrelationToken: HubMock.testSeqNodeHeaders.itemCorrelationToken,
             sequenceNodeContent: cacheContent
         };
-
-        seqNodeReqMessage = HubMock.testInitializationEnvelope;
 
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: post interaction and submission.  Make sure our cache is clean
         // and then populate it with a new request to the AMS.
+        seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
         seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
 
@@ -1047,11 +1199,11 @@ describe('Submission Posting for non-recordable Assessments', function() {
                 // we set it up manually so we can look to see if it fires
                 var responseData = HubMock.testSubmissionResponseBody;
                 var hubNock = nock(HubMock.testHubBaseUrl);
-                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
                 
                 var param = cloneObject(submissionMessage);
                 // Assign the correct sequenceNodeKey
-                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+                param.sequenceNodeKey = seqNodeKey;
 
                 // Our mock should be available
                 expect(hubNock.isDone()).to.equal(false);
@@ -1095,11 +1247,11 @@ describe('Submission Posting for non-recordable Assessments', function() {
                 // we set it up manually so we can look to see if it fires
                 var responseData = HubMock.testSubmissionResponseBody;
                 var hubNock = nock(HubMock.testHubBaseUrl);
-                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
                 
                 var param = cloneObject(submissionMessage);
                 // Assign the correct sequenceNodeKey
-                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+                param.sequenceNodeKey = seqNodeKey;
 
                 // Our mock should be available
                 expect(hubNock.isDone()).to.equal(false);
@@ -1145,11 +1297,11 @@ describe('Submission Posting for non-recordable Assessments', function() {
                 // we set it up manually so we can look to see if it fires
                 var responseData = HubMock.testSubmissionResponseBody;
                 var hubNock = nock(HubMock.testHubBaseUrl);
-                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
                 
                 var param = cloneObject(submissionMessage);
                 // Assign the correct sequenceNodeKey
-                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+                param.sequenceNodeKey = seqNodeKey;
 
                 // Our mock should be available
                 expect(hubNock.isDone()).to.equal(false);
@@ -1193,11 +1345,11 @@ describe('Submission Posting for non-recordable Assessments', function() {
                 // we set it up manually so we can look to see if it fires
                 var responseData = HubMock.testSubmissionResponseBody;
                 var hubNock = nock(HubMock.testHubBaseUrl);
-                hubNock.post('/submissions').reply(200, JSON.stringify(responseData));
+                hubNock.post(HubMock.testAmsSubmissionPath).reply(200, JSON.stringify(responseData));
                 
                 var param = cloneObject(submissionMessage);
                 // Assign the correct sequenceNodeKey
-                param.sequenceNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+                param.sequenceNodeKey = seqNodeKey;
 
                 // Our mock should be available
                 expect(hubNock.isDone()).to.equal(false);

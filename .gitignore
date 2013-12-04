@@ -39,6 +39,7 @@ config/local.json
 # Logs and databases #
 ######################
 *.log
+*.log*
 *.log.xml
 *.sql
 *.sqlite

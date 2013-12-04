@@ -29,7 +29,7 @@ var config = require('config');
 var nock = require('nock');
 var HubMock = require('../mock/hub.mock');
 var CEMock = require('../mock/ce.mock');
-var SequenceNodeProvider = require('../../lib/sequencenodeprovider').SequenceNodeProvider;
+var sequencenodeprovider = require('../../lib/sequencenodeprovider');
 var Controller = require('../../lib/controller');
 var Ips = require('../../lib/ips').Ips;
 
@@ -73,20 +73,20 @@ describe('IPC -> IPS Posting Interaction', function() {
         server = appStartUp();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
-        
+        var seqNock = hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
+
         // Retrieving sequence node is pre-requisite in the flow for other
         // operations: posting interaction and submission. 
         request(server.listener)
             .post('/sequencenodes')
             .send(HubMock.testInitializationEnvelope)
             .expect('Content-Type', /json/) // Verify the content type
-            //.expect(HubMock.testSeqNodeBody) // Verify the body
             .expect(200) // Verify the result code (200=OK)
 
             .end(function(err, result){
                 if (err) return done(err);
                 try {
+                    // Store teh sequenceNodeKey for later use
                     seqNodeKey = result.body.data.sequenceNodeKey;
                     url = '/sequencenodes/' + seqNodeKey + '/interactions';
                     done();
@@ -106,7 +106,7 @@ describe('IPC -> IPS Posting Interaction', function() {
     });
 
     it('should return a valid Result given correct request message', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl);
         var envelop = cloneObject(interactionMessage);
 
         envelop.sequenceNodeKey = seqNodeKey;
@@ -115,12 +115,12 @@ describe('IPC -> IPS Posting Interaction', function() {
             .post(url)
             .send(envelop)
             .set('Accept', 'application/json')
-            .expect('Content-Type', /json/) // Verify the content type
+            //.expect('Content-Type', /json/) // Verify the content type
             .expect(201) // Verify the result code (200=OK)
             .end(function(err, result){
                 if (err) return done(err);
                 try {
-                    expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                    expect(JSON.stringify(result.body.data)).to.equal('{}');
                     expect(result.body.status).to.equal('success');
                     done();
                 } catch (e) {
@@ -178,14 +178,14 @@ describe('IPC -> IPS Posting Interaction', function() {
             .expect(201) // Verify the result code (404=NOT FOUND)
             .end(function(err, result){
                 if (err) return done(err);
-                expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                expect(JSON.stringify(result.body.data)).to.equal('{}');
                 expect(result.body.status).to.equal('success');
                 done();
             });
     });
 
     it('should return a valid result even with error at invalid Hub-Session (e.g. expired)', function (done) {
-        hubnock.setupInteractionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
+        hubnock.setupSubmissionNock(HubMock.testHubBaseUrl, HubMock.testHubSessionInvalid);
         var envelop = cloneObject(interactionMessage);
         envelop.sequenceNodeKey = seqNodeKey;
         request(server.listener)
@@ -196,7 +196,7 @@ describe('IPC -> IPS Posting Interaction', function() {
             .expect(201) // Verify the result code (400=Error)
             .end(function(err, result){
                 if (err) return done(err);
-                expect(JSON.stringify(result.body.data)).to.equal(JSON.stringify(HubMock.testInteractionResponseBody));
+                expect(JSON.stringify(result.body.data)).to.equal('{}');
                 expect(result.body.status).to.equal('success');
                 done();
             });
@@ -213,36 +213,44 @@ describe('IPC -> IPS Posting Submission', function() {
     var ips = null;
 
     before(function (done) {
+        var seqNodeProvider = new sequencenodeprovider.SequenceNodeProvider();
+        ips = new Ips();
+
         server = appStartUp();
 
         hubnock = new HubMock.HubNock();
         hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl, HubMock.testSeqNodeBodySubmittable);
 
         cenock = new CEMock.CENock();
-        
-        // Retrieving sequence node is pre-requisite in the flow for other
-        // operations: posting interaction and submission. 
-        request(server.listener)
-            .post('/sequencenodes')
-            .send(HubMock.testInitializationEnvelope)
-            .expect('Content-Type', /json/) // Verify the content type
-            //.expect(HubMock.testSeqNodeBody) // Verify the body
-            .expect(200) // Verify the result code (200=OK)
 
-            .end(function(err, result){
-                if (err) return done(err);
-                try {
-                    seqNodeKey = result.body.data.sequenceNodeKey;
-                    url = '/sequencenodes/' + seqNodeKey + '/submissions';
-                    done();
-                } catch (e) {
-                    done(e);
-                }
-            });
+        var seqNodeReqMessage = HubMock.testInitializationEnvelopeSubmittable;
+        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
+            // Retrieving sequence node is pre-requisite in the flow for other
+            // operations: posting interaction and submission. 
+            request(server.listener)
+                .post('/sequencenodes')
+                .send(seqNodeReqMessage)
+                .expect('Content-Type', /json/) // Verify the content type
+                //.expect(HubMock.testSeqNodeBody) // Verify the body
+                .expect(200) // Verify the result code (200=OK)
+
+                .end(function(err, result){
+                    if (err) return done(err);
+                    try {
+                        seqNodeKey = result.body.data.sequenceNodeKey;
+                        url = '/sequencenodes/' + seqNodeKey + '/submissions';
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+        });
+        
+        
     });
 
     after(function (done) {
-        ips = new Ips();
         // clean up after ourselves
         nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
@@ -317,13 +325,13 @@ describe('IPC -> IPS Posting Submission', function() {
     it('should return error at SequenceNodeKey not found', function (done) {
         var envelop = cloneObject(submissionMessage);
         envelop.sequenceNodeKey = 'UnexistentKey';
-        var expectedErrorMessage = 'SequenceNodeKey not found';
+        var expectedErrorMessage = 'SequenceNodeKey '+ envelop.sequenceNodeKey + ' not found.';
         request(server.listener)
             .post(url)
             .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(400) // Verify the result code (400=ERROR)
+            .expect(404) // Verify the result code (400=ERROR)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);
@@ -343,7 +351,7 @@ describe('IPC -> IPS Posting Submission', function() {
             .send(envelop)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/) // Verify the content type
-            .expect(400) // Verify the result code (400=Error)
+            .expect(500) // Verify the result code (500=Error)
             .end(function(err, result){
                 if (err) return done(err);
                 expect(result.body.message).to.equal(expectedErrorMessage);
@@ -356,31 +364,33 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
     var server = null;
     var hubnock = null;
     var cenock = null;
+    var seqNodeReqMessage = HubMock.testInitializationEnvelope;
     var seqNodeKey  = null;
     var url = null;
     var ips = null;
     var seqNodeProvider = null;
 
     before(function (done) {
+        var seqNodeProvider = new sequencenodeprovider.SequenceNodeProvider();
+        ips = new Ips();
         server = appStartUp();
 
         hubnock = new HubMock.HubNock();
-        hubnock.setupNocks(HubMock.testHubBaseUrl);
+        hubnock.setupSequenceNodeNock(HubMock.testHubBaseUrl);
 
         cenock = new CEMock.CENock();
 
-        // Make sure we're clean
-        ips = new Ips();
-        seqNodeProvider = new SequenceNodeProvider();
+        var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
+        ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
         seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
-            done();
+                done();
+            });
         });
     });
 
     after(function (done) {
-        //ips = new Ips();
-        // clean up after ourselves
+        // clean up after ourselves        
         nock.cleanAll();
         ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
             done();
@@ -392,7 +402,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
         // operations: posting interaction and submission. 
         request(server.listener)
             .post('/sequencenodes')
-            .send(HubMock.testInitializationEnvelope)
+            .send(seqNodeReqMessage)
             .expect('Content-Type', /json/) // Verify the content type
             .expect(200) // Verify the result code (200=OK)
 
@@ -404,7 +414,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     expect(seqNodeKey).to.be.a('string');
                     
                     // Make the expected response
-                    var expectedData = cloneObject(HubMock.neffTargetActivityBody);
+                    var expectedData = cloneObject(HubMock.testSeqNodeBody.targetActivity);
                     expectedData.sequenceNodeKey = seqNodeKey;
                     expectedData.maxAttempts = 3;
                     expectedData.imgBaseUrl = config.imgBaseUrl;
@@ -417,7 +427,7 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     done(e);
                 }
             });
-        });
+    });
 });
 
 

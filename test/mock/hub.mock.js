@@ -44,6 +44,8 @@ var mcqTargetActivity = require('../test_messages/SampleMultipleChoiceConfig.jso
 // 
 module.exports.testHubBaseUrl = config.hubBaseUrl;
 
+module.exports.testAmsSubmissionPath = config.amsSubmissionPath;
+
 
 /**
  * A test Hub session
@@ -83,24 +85,29 @@ module.exports.testInitializationEnvelope = {
     }
 };
 
+module.exports.testInitializationEnvelopeSubmittable = utils.cloneObject(module.exports.testInitializationEnvelope);
+module.exports.testInitializationEnvelopeSubmittable.sequenceNodeIdentifier.content.targetBinding = "http://localtest/paf-repo/resources/activities/MCP/bindings/0"; // Some different data to differentiate SequenceNodekey
+
+module.exports.testSeqNodeHeaders = {
+    "itemCorrelationToken": "TEST-ITEM-CORREL-TOKEN"
+};
 /**
  * A test NodeResult based on ce.mock.testAssessmentResponseBody
  * @type {Object}
  */
 module.exports.testNodeResult = {
-    "@context" : [
-        "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
-    ],
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeResult",
+    "timestamp": "2013-10-25T20:21:21.822Z",
     "doScoreProcessing": true,
     "brixState": {},
+    "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": true,
     "rawItemScore": 1,
     "studentSubmission": { "submission": "option000" },
     "systemResponse": {
         "htmlResponse": "Your answer is correct. Growth rate stays constant."
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
-    },
-    "timestamp": "2013-10-25T20:21:21.822Z"
+    }
 };
 
 /**
@@ -108,19 +115,18 @@ module.exports.testNodeResult = {
  * @type {Object}
  */
 module.exports.testNodeResultIncorrect = {
-    "@context" : [
-        "http://purl.org/pearson/paf/v1/ctx/core/NodeResult"
-    ],
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeResult",
+    "timestamp": "2013-10-25T20:21:21.822Z",
     "doScoreProcessing": false,
     "brixState": {},
+    "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": false,
     "rawItemScore": 0,
     "studentSubmission": { "submission": "option003" },
     "systemResponse": {
         "htmlResponse": "Does the growth rate change with population size?"
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
-    },
-    "timestamp": "2013-10-25T20:21:21.822Z"
+    }
 };
 
 /**
@@ -219,25 +225,27 @@ mcqTargetActivity.containerConfig.push({
 module.exports.testSeqNodeBodySubmittable.targetActivity = mcqTargetActivity;
 module.exports.testSeqNodeBodySubmittable.guid = "course1::abbadabba-dcba-4321-a00c-ae9b938e1aa5::user1::http%3A%2F%2Frepo.paf.dev.pearsoncmg.com%2Fpaf-repo%2Fresources%2Factivities%2F42d2b4f4-abcd-1234-8f06-47b4421f599b%2Fbindings%2F1";
 
+
+
 /**
  * A test (successful) node result response message for Submission
  * @todo : Confirm with PAF documentation
  * @type {Object}
  */
-module.exports.testSubmissionResponseBody = {
-    "feedback": "Something"
-};
+module.exports.testSubmissionResponseBody = '';
+//{
+    //"feedback": "Something" // AMS is returning an empty
+//};
 
 /**
  * A test (successful) node result response message for interaction
  * @todo : Confirm with PAF documentation
  * @type {Object}
  */
-module.exports.testInteractionResponseBody = {
-};
+module.exports.testInteractionResponseBody = '';
 
 /**
- * Message returned from Hub when session was expiired 
+ * Message returned from Hub when session was expired 
  * @type {Object}
  */
 module.exports.testHubSessionInvalid = {
@@ -262,21 +270,28 @@ module.exports.HubNock = function(opt_persist) {
      * This particular Nock will intercept AMS call and return code 200 with the 
      * body as specified in the global variable seqNodeBody
      *
-     * @param {String} baseUrl  - The url that this nock should listen to.
+     * @param {String}  baseUrl             - The url that this nock should listen to.
+     * @param {Object=} opt_responseData    - The optional response data to return.
+     * @param {Object=} opt_responseHeaders - The optional response headers.
      */
-    this.setupSequenceNodeNock = function(baseUrl, opt_responseData) {
+    this.setupSequenceNodeNock = function(baseUrl, opt_responseData, opt_responseHeaders) {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
                                 : module.exports.testSeqNodeBody;
 
+        var responseHeaders = (opt_responseHeaders !== undefined)
+                                ? opt_responseHeaders
+                                : module.exports.testSeqNodeHeaders;
+
         // Nock for the sequencenode retrieval
-        var hubNock = nock(baseUrl);
+        var nockScope = nock(baseUrl);
         if (persist_)
         {
-            hubNock.persist();
+            nockScope.persist();
         }
-        hubNock.filteringPath(function(path) {
+        //nockScope.cleanAll(); // Why I cannot do this???
+        nockScope.filteringPath(function(path) {
                 var prefix = '/paf-hub/resources/sequences/course';
                 if (path.substring(0, prefix.length) === prefix)
                 {
@@ -288,7 +303,8 @@ module.exports.HubNock = function(opt_persist) {
             //        Check that the seqIdentifer sent by AMS is EXACT
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(responseData));
+            .reply(200, JSON.stringify(responseData), responseHeaders);
+        return nockScope;
     };
 
     /**
@@ -305,15 +321,16 @@ module.exports.HubNock = function(opt_persist) {
                                 : module.exports.testInteractionResponseBody;
 
         // Nock for the interactions retrieval
-        var hubNock = nock(baseUrl);
+        var nockScope = nock(baseUrl);
         if (persist_)
         {
-            hubNock.persist();
+            nockScope.persist();
         }
-        hubNock.post('/interactions')
+        nockScope.post('/interactions')
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(responseData));
+            .reply(200, responseData);
+        return nockScope;
     };
 
     /**
@@ -321,37 +338,27 @@ module.exports.HubNock = function(opt_persist) {
      * This particular Nock will intercept AMS call and return code 200 with the 
      * body as specified in the global variable seqNodeBody
      *
-     * @param {String} baseUrl  - The url that this nock should listen to.
+     * @param {String} baseUrl           - The url that this nock should listen to.
+     * @param {Object=} opt_responseData - The optional response data to return.
+     * @param {Object=} opt_matchBody    - The optional body that should match.
      */
-    this.setupSubmissionNock = function(baseUrl, opt_responseData) {
+    this.setupSubmissionNock = function(baseUrl, opt_responseData, opt_matchBody) {
 
         var responseData = (opt_responseData !== undefined)
                                 ? opt_responseData
                                 : module.exports.testSubmissionResponseBody;
+        var matchBody = opt_matchBody ;
         // Nock for the submissions retrieval
-        var hubNock = nock(baseUrl); //.log(console.log);
+        var nockScope = nock(baseUrl); //.log(console.log);
         if (persist_)
         {
-            hubNock.persist();
+            nockScope.persist();
         }
-        hubNock.post('/submissions')
+        nockScope.post(module.exports.testAmsSubmissionPath, matchBody)
             //.matchHeader('Content-Type', 'application/vnd.pearson.paf.v1.node+json')
             //.matchHeader('Hub-Session', module.exports.testHubSession)
-            .reply(200, JSON.stringify(responseData));
-    };
-
-
-    /**
-     * Sets an HTTP server mock that intercepts HTTP call and returns as configured.
-     * This particular Nock will intercept AMS call and return code 200 with the 
-     * body as specified in the global variable seqNodeBody
-     *
-     * @param {String} baseUrl  - The url that this nock should listen to.
-     */
-
-    this.setupNocks = function(baseUrl) {
-
-        this.setupSequenceNodeNock(baseUrl);
+            .reply(200, responseData);
+        return nockScope;
     };
 
 };
