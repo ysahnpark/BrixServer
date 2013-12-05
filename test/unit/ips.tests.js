@@ -311,6 +311,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         // change timestamp on nodeResult to match test ceResult
         nodeResult.timestamp = "2013-10-25T20:21:21.822Z";
         // check the nodeResult, minus the timestamp part
+        nodeResult.nodeData.timestamp = "2013-10-25T20:21:21.822Z";
 
         expect(nodeResult).to.deep.equal(HubMock.testNodeResult);
     });
@@ -326,9 +327,9 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         // change timestamp on nodeResult to match test ceResult
         nodeResult.timestamp = "2013-10-25T20:21:21.822Z";
         // check the nodeResult, minus the timestamp part
-        expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrect);
+        nodeResult.nodeData.timestamp = "2013-10-25T20:21:21.822Z";
         
-        //expect(JSON.stringify(nodeResult)).to.equal(JSON.stringify(HubMock.testNodeResultIncorrect));
+        expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrect);
     });
 
     it('should correctly update the sequenceNode (private func)', function () {
@@ -1066,9 +1067,11 @@ describe('Submission Posting for Assessments', function() {
         });
         // Two submission that returns incorrect 
         doSubmission();
+
+        // Using Timeout to simulate sequential flow so not to interfere with stub
         setTimeout(function(){
             doSubmission();
-        },500);
+        },200);
 
         setTimeout(function(){
             // Last one returns correct 
@@ -1086,7 +1089,7 @@ describe('Submission Posting for Assessments', function() {
             });
             cenock.setupAssessmentNock(CEMock.testCEBaseUrl);
             doSubmission();
-        },1000);
+        },400);
 
     });
 
@@ -1099,9 +1102,11 @@ describe('Submission Posting for Assessments', function() {
             callback(null, {"Test":"OK"});
         });
         doSubmission();
+
+        // Using Timeout to simulate sequential flow so not to interfere with stub
         setTimeout(function(){
             doSubmission();
-        },500);
+        },200);
 
         setTimeout(function(){
             ips.amsProxy.sendSubmission.restore();
@@ -1117,7 +1122,7 @@ describe('Submission Posting for Assessments', function() {
                 }
             });
             doSubmission();
-        },1000);
+        },400);
     });
 });
 

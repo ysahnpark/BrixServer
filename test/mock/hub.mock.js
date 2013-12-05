@@ -107,6 +107,13 @@ module.exports.testNodeResult = {
     "systemResponse": {
         "htmlResponse": "Your answer is correct. Growth rate stays constant."
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
+    },
+    "nodeData": {
+      "timestamp": "2013-10-25T20:21:21.822Z",
+      "studentSubmission": {
+        "submission": "option000"
+      },
+      "correct": true
     }
 };
 
@@ -126,6 +133,13 @@ module.exports.testNodeResultIncorrect = {
     "systemResponse": {
         "htmlResponse": "Does the growth rate change with population size?"
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
+    },
+    "nodeData": {
+      "timestamp": "2013-10-25T20:21:21.822Z",
+      "studentSubmission": {
+        "submission": "option003"
+      },
+      "correct": false
     }
 };
 
