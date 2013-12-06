@@ -55,6 +55,7 @@ config/local.json
 Icon?
 ehthumbs.db
 Thumbs.db
+*.out
 
 # Node module packages #
 ########################
