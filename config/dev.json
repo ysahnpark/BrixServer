@@ -21,8 +21,8 @@
     "logLevel": "trace",
     "logToScreen": false,
     "logToFile": true,
-    "logDir": "/home/ubunto/applications/log",
+    "logDir": "/home/ubuntu/applications/log",
 
-    "imgDir": "/home/ubunto/applications/images",
+    "imgDir": "/home/ubuntu/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
 }
