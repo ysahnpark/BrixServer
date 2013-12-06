@@ -1,26 +1,27 @@
 {
-	"numWorkers": 2,
-	"maxDeadWorkerSize": 10,
-	"host": "10.11.17.125",
-	"port": 8088,
-	"maxSockets": 100,
+    "numWorkers": 2,
+    "maxDeadWorkerSize": 10,
+    "host": "10.11.16.31",
+    "port": 8088,
+    "maxSockets": 100,
 
-    "redisHost": "10.11.29.20",
-    "redisPort": "6379",	
+    "redisHost": "10.11.19.155",
+    "redisPort": "6379",    
 
-"amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
-"cacheAllowFlush": true,
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+    // Whether or not to allow flushing  of the Redis cache
+    "cacheAllowFlush": true,
 
-	"amsBaseUrl": "http://10.11.30.135:8080",
-	"amsCaching": true,
-	"hubBaseUrl": "http://hub.paf.pearson.com",
-	"bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
-	"ceBaseUrl": "http://10.11.20.91:8090",
+    "amsBaseUrl": "http://10.11.30.135:8080",
+    "amsCaching": true,
+    "hubBaseUrl": "http://hub.paf.pearson.com",
+    "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+    "ceBaseUrl": "http://10.11.20.91:8090",
 
-	"logLevel": "trace",
+    "logLevel": "trace",
     "logToScreen": false,
     "logToFile": true,
 
-    "imgDir": "/home/bitnami/Repos/images",
+    "imgDir": "/home/ubunto/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
 }
