@@ -23,6 +23,7 @@ module.exports = {
     "logToScreen":          Joi.Types.Boolean().optional(),
     "logToFile":            Joi.Types.Boolean().optional(),
     "logDir":               Joi.types.String(),
+    "logAllowWebAccess":    Joi.types.Boolean(),
 
     "imgDir":               Joi.Types.String().required(),
     "imgBaseUrl":           Joi.Types.String().required()

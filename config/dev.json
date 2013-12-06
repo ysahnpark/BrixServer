@@ -22,6 +22,7 @@
     "logToScreen": false,
     "logToFile": true,
     "logDir": "/home/ubuntu/applications/log",
+    "logAllowWebAccess": true,
 
     "imgDir": "/home/ubuntu/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
