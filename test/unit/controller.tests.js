@@ -61,13 +61,14 @@ describe ('IPS Controller', function(){
             assert(routes, 'routes should exist');
             assert(_.isArray(routes), 'routes should be an array');
             // Routes in here must be in the same order as routes in controller.js for the following to play nicely
-            assert.strictEqual(routes.length, 6, 'there should be 5 routes in the array');
+            assert.strictEqual(routes.length, 7, 'there should be 5 routes in the array');
             assert.strictEqual(routes[0].method, 'GET', '/healthInfo should be a GET');
             assert.strictEqual(routes[1].method, 'POST', '/sequenceNodes should be a POST');
             assert.strictEqual(routes[2].method, 'POST', '/sequencenodes/{sequenceNodeKey}/interactions should be a POST');
             assert.strictEqual(routes[3].method, 'POST', '/sequencenodes/{sequenceNodeKey}/submissions should be a POST');
             assert.strictEqual(routes[4].method, 'GET', '/images/{param*} should be a GET');
-            assert.strictEqual(routes[5].method, 'DELETE', '/cache/{param*} should be a GET');
+            assert.strictEqual(routes[5].method, 'DELETE', '/cache*} should be a GET');
+            assert.strictEqual(routes[6].method, 'GET', '/log/{param*} should be a GET');
             
             routes.forEach(function(route) {
                 assert(_.isObject(route), 'the route should be an object');
