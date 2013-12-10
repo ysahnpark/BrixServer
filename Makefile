@@ -33,5 +33,8 @@ test-int:
 	 
 test-xunit:
 	@NODE_ENV=test ./node_modules/.bin/mocha --recursive --reporter xunit --timeout 3000 test/unit > test-reports.log.xml
+	 
+test-xunit-build:
+	@HOST=build ./node_modules/.bin/mocha --recursive --reporter xunit --timeout 3000 test/unit > test-reports.log.xml
 
 .PHONY: test test-cov test-cov-html test-int

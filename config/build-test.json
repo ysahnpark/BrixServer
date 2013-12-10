@@ -1,0 +1,29 @@
+{
+    "numWorkers": 2,
+    "maxDeadWorkerSize": 10,
+    "host": "localhost",
+    "port": 8088,
+    "maxSockets": 100,
+
+    "redisHost": "10.11.19.155",
+    "redisPort": "6379",    
+
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+    // Whether or not to allow flushing  of the Redis cache
+    "cacheAllowFlush": true,
+
+    "amsBaseUrl": "http://10.11.30.135:8080",
+    "amsCaching": true,
+    "hubBaseUrl": "http://hub.paf.pearson.com",
+    "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+    "ceBaseUrl": "http://10.11.20.91:8090",
+
+    "logLevel": "trace",
+    "logToScreen": false,
+    "logToFile": false,
+    "logDir": "/home/ubuntu/applications/log",
+    "logAllowWebAccess": false,
+
+    "imgDir": "/home/ubuntu/applications/images",
+    "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
+}
