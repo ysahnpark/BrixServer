@@ -12,10 +12,10 @@
     // Whether or not to allow flushing  of the Redis cache
     "cacheAllowFlush": true,
 
-    "amsBaseUrl": "http://10.11.30.135:8080",
+    "amsBaseUrl": "http://localhost:9080",
     "amsCaching": true,
     "hubBaseUrl": "http://hub.paf.pearson.com",
-    "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+    "bipsBaseUrl": "http://localhost:8088",
     "ceBaseUrl": "http://10.11.20.91:8090",
 
     "logLevel": "trace",
