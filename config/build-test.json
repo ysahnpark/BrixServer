@@ -1,7 +1,7 @@
 {
     "numWorkers": 2,
     "maxDeadWorkerSize": 10,
-    "host": "10.11.16.31",
+    "host": "localhost",
     "port": 8088,
     "maxSockets": 100,
 
@@ -12,17 +12,17 @@
     // Whether or not to allow flushing  of the Redis cache
     "cacheAllowFlush": true,
 
-    "amsBaseUrl": "http://10.11.30.135:8080",
+    "amsBaseUrl": "http://localhost:9080",
     "amsCaching": true,
     "hubBaseUrl": "http://hub.paf.pearson.com",
-    "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+    "bipsBaseUrl": "http://localhost:8088",
     "ceBaseUrl": "http://10.11.20.91:8090",
 
     "logLevel": "trace",
     "logToScreen": false,
-    "logToFile": true,
+    "logToFile": false,
     "logDir": "/home/ubuntu/applications/log",
-    "logAllowWebAccess": true,
+    "logAllowWebAccess": false,
 
     "imgDir": "/home/ubuntu/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
