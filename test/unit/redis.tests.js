@@ -8,6 +8,9 @@ process.env.NODE_ENV = 'test';
 var os = require("os");
 var expect = require('chai').expect;
 var redis = require("redis");
+var config = require('config');
+
+var utils = require('../../lib/utils');
 
 describe('Redis', function () {
 
@@ -19,7 +22,7 @@ describe('Redis', function () {
     var redisClient;
 
 	before(function (done) {
-		redisClient = redis.createClient(REDIS_PORT, REDIS_SERVER);
+		redisClient = utils.getRedisClient(config);
 
         // Add the test route with the handler
         // Redis error check
