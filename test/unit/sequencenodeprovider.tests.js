@@ -47,7 +47,7 @@ var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js').Sequence
 function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expectData, done) {
 
     // Make sure that the cache does not have the key yet (before the proxy call)
-    var redisClient = redis.createClient();
+    var redisClient = utils.getRedisClient(config);
 
     seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(sequenceNodeIdentifier);
 
