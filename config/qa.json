@@ -1,0 +1,30 @@
+{
+    "numWorkers": 2,
+    "maxDeadWorkerSize": 10,
+    "host": "0.0.0.0",
+    "port": 8080,
+    "maxSockets": 100,
+
+    "redisHost": "10.11.24.24",
+    "redisPort": "6379",    
+
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+    // Whether or not to allow flushing  of the Redis cache
+    "cacheAllowFlush": true,
+
+    "amsBaseUrl": "http://10.11.30.135:8080",
+    "amsCaching": true,
+    "hubBaseUrl": "http://hub.paf.pearson.com",
+    "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+    // The CE is pointing to the QA's HA proxy
+    "ceBaseUrl": "http://10.11.0.72:8080",
+
+    "logLevel": "trace",
+    "logToScreen": false,
+    "logToFile": true,
+    "logDir": "/home/ubuntu/applications/log",
+    "logAllowWebAccess": true,
+
+    "imgDir": "/home/ubuntu/applications/images",
+    "imgBaseUrl": "qa-ips-lb-1087722155.us-west-1.elb.amazonaws.com/ips/images/"
+}

@@ -1,0 +1,63 @@
+# This is an upstart (http://upstart.ubuntu.com/) script
+# to run the CE node.js server on system boot and make it
+# manageable with commands such as
+# 'sudo start brixapp' and 'sudo stop brixapp'
+#
+# This script is to be placed in /etc/init to work with upstart.
+#
+# Internally the 'initctl' command is used to manage:
+# initctl help
+# initctl status brixapp
+# sudo initctl start brixapp (same as 'sudo start brixapp')
+# sudo initctl reload brixapp
+# sudo initctrl stop brixapp (same as 'sudo stop brixapp')
+
+description "node.js server for brixapp"
+author      "Young Suk Ahn <youngsuk.ahnpark@pearson.com>"
+version "1.0"
+
+### Script Environment Variables
+
+# Specify NODE_ENV as you can't count on the brixserver user's ENV variables
+env NODE_ENV=prod
+# app home
+env HOME=/home/ubuntu/applications/BrixServer
+# app name
+env APP=brixapp.js
+# server log - essentially console
+env SERVERLOG=/home/ubuntu/applications/log/nodeserver.log
+
+###
+
+# Run this as the brixserver user
+setuid brixserver
+
+# If you don't have this you'll spawn a mess of node processes
+expect fork
+
+# Start and Stop
+start on started mountall
+
+# 'stop on shutdown' was recommended by some examples but doesn't
+# seem to be valid.  'stop on runlevel [016]' was from the cookbook 
+stop on runlevel [016]
+
+# Automatically Respawn:
+respawn
+# Stop if respawned more than 99 times in 5 seconds
+respawn limit 99 5
+
+# Do the stuff
+script
+    export HOME=$HOME
+    export NODE_ENV=$NODE_ENV
+    chdir $HOME
+    #exec /usr/bin/node $APP >> $SERVERLOG 2>&1
+    exec /usr/bin/node $APP > $SERVERLOG &
+end script
+
+#post-start script
+#   # Optionally put a script here that will notifiy you node has (re)started
+#   # chdir $HOME
+#   # bin/stuff.sh "node.js has started!"
+#end script
