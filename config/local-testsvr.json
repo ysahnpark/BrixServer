@@ -7,24 +7,26 @@
 
     "redisHost": "127.0.0.1",
     "redisPort": "6379",
+    // Whether or not to allow flushing  of the Redis cache
+    "cacheAllowFlush": true,
 
     // The AMS base URL, pointing to local test machine.
     "amsBaseUrl": "http://localhost:9080",
-    // The AMS base URL, pointing to the cloud DEV.
-    //"amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
-    "amsCaching": true,
     "hubBaseUrl": "http://localtest",
-    //"hubBaseUrl": "http://hub.paf.dev.pearsoncmg.com",
     "bipsBaseUrl": "http://localhost:8088",
     "ceBaseUrl": "http://localhost:8090",
 
+    // Log related settings
     "logLevel": "debug",
     "logToScreen": true,
     "logToFile": true,
+    "logDir": "../log",
+    "logAllowWebAccess": true,
 
+    // Image related settings
     "imgDir": "./images",
     "imgBaseUrl": "http://localhost:8088/images/"
 }
