@@ -11,10 +11,8 @@ module.exports = {
     "redisPort":            Joi.Types.String(),
     "cacheAllowFlush":      Joi.Types.Boolean().optional(),
 
-
     "amsBaseUrl":           Joi.Types.String().required(),
     "amsSubmissionPath":    Joi.Types.String().required(),
-    "amsCaching":           Joi.Types.Boolean().required(),
     "hubBaseUrl":           Joi.Types.String().required(),
     "bipsBaseUrl":          Joi.Types.String().required(),
     "ceBaseUrl":            Joi.Types.String().required(),
@@ -22,8 +20,8 @@ module.exports = {
     "logLevel":             Joi.Types.String().optional(),
     "logToScreen":          Joi.Types.Boolean().optional(),
     "logToFile":            Joi.Types.Boolean().optional(),
-    "logDir":               Joi.types.String(),
-    "logAllowWebAccess":    Joi.types.Boolean(),
+    "logDir":               Joi.types.String().optional(),
+    "logAllowWebAccess":    Joi.types.Boolean().optional(),
 
     "imgDir":               Joi.Types.String().required(),
     "imgBaseUrl":           Joi.Types.String().required()

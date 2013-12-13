@@ -7,24 +7,28 @@
 
     "redisHost": "10.11.24.24",
     "redisPort": "6379",    
-
-    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
     // Whether or not to allow flushing  of the Redis cache
     "cacheAllowFlush": true,
 
+    // The AMS base URL, pointing to QA machine.
     "amsBaseUrl": "http://10.11.30.135:8080",
+    // The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
     "amsCaching": true,
+
     "hubBaseUrl": "http://hub.paf.pearson.com",
     "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
     // The CE is pointing to the QA's HA proxy
     "ceBaseUrl": "http://10.11.0.72:8080",
 
+    // Log related settings
     "logLevel": "trace",
     "logToScreen": false,
     "logToFile": true,
     "logDir": "/home/ubuntu/applications/log",
     "logAllowWebAccess": true,
 
+    // Image related settings
     "imgDir": "/home/ubuntu/applications/images",
-    "imgBaseUrl": "qa-ips-lb-1087722155.us-west-1.elb.amazonaws.com/ips/images/"
+    "imgBaseUrl": "http://qa-ips-lb-1087722155.us-west-1.elb.amazonaws.com/ips/images/"
 }

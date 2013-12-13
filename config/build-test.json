@@ -7,23 +7,27 @@
 
     "redisHost": "10.11.19.155",
     "redisPort": "6379",    
-
-    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
     // Whether or not to allow flushing  of the Redis cache
     "cacheAllowFlush": true,
 
-    "amsBaseUrl": "http://localhost:9080",
-    "amsCaching": true,
+    // The AMS base URL, pointing to non-existent localtest machine.
+    "amsBaseUrl": "http://localtest",
+    // The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+
     "hubBaseUrl": "http://hub.paf.pearson.com",
     "bipsBaseUrl": "http://localhost:8088",
-    "ceBaseUrl": "http://10.11.20.91:8090",
+    // The CorrecnessEngine base URL, pointing to non-existent localtest machine.
+    "ceBaseUrl": "http://localtest",
 
+    // Log related settings
     "logLevel": "trace",
     "logToScreen": false,
     "logToFile": false,
-    "logDir": "/home/ubuntu/applications/log",
+    "logDir": ".",
     "logAllowWebAccess": false,
 
+    // Image related settings
     "imgDir": "/home/ubuntu/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
 }

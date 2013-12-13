@@ -1,29 +1,33 @@
 {
     "numWorkers": 2,
     "maxDeadWorkerSize": 10,
-    "host": "10.11.16.31",
+    "host": "0.0.0.0",
     "port": 8088,
     "maxSockets": 100,
 
     "redisHost": "10.11.19.155",
     "redisPort": "6379",    
-
-    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
     // Whether or not to allow flushing  of the Redis cache
     "cacheAllowFlush": true,
 
+    // The AMS base URL, pointing to DEV machine.
     "amsBaseUrl": "http://10.11.30.135:8080",
-    "amsCaching": true,
+    // The AMS's NodeResult submission endpoint path
+    "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
+
     "hubBaseUrl": "http://hub.paf.pearson.com",
     "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
+    // The CorrecnessEngine base URL, pointing to DEV machine.
     "ceBaseUrl": "http://10.11.20.91:8090",
 
+    // Log related settings
     "logLevel": "trace",
     "logToScreen": false,
     "logToFile": true,
     "logDir": "/home/ubuntu/applications/log",
     "logAllowWebAccess": true,
 
+    // Image related settings
     "imgDir": "/home/ubuntu/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
 }
