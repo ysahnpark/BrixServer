@@ -67,10 +67,10 @@ describe ('IPS Controller', function(){
             assert.strictEqual(routes[idx++].method, 'POST', '/sequencenodes/{sequenceNodeKey}/interactions should be a POST');
             assert.strictEqual(routes[idx++].method, 'POST', '/sequencenodes/{sequenceNodeKey}/submissions should be a POST');
             assert.strictEqual(routes[idx++].method, 'GET', '/images/{param*} should be a GET');
-            assert.strictEqual(routes[idx++].method, 'GET', '/ping should be a GET');
             assert.strictEqual(routes[idx++].method, 'DELETE', '/cache* should be a GET');
-            assert.strictEqual(routes[idx++].method, 'GET', '/log/{param*} should be a GET');
-            assert.strictEqual(routes[idx++].method, 'GET', '/index.html should be a GET');
+            //assert.strictEqual(routes[idx++].method, 'GET', '/log/{param*} should be a GET');
+            //assert.strictEqual(routes[idx++].method, 'GET', '/ping should be a GET');
+            //assert.strictEqual(routes[idx++].method, 'GET', '/index.html should be a GET');
             assert.strictEqual(routes.length, idx, 'there should be ' + idx + ' routes in the array');
             
             routes.forEach(function(route) {
