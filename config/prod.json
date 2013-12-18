@@ -11,7 +11,7 @@
     "cacheAllowFlush": false,
 
     // The AMS base URL, pointing to PRD machine. @todo: PENDING THE PROD URL
-    "amsBaseUrl": "http://10.11.30.135:8080",
+    "amsBaseUrl": "http://???:8080",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
@@ -29,5 +29,5 @@
 
     // Image related settings
     "imgDir": "/home/ubuntu/applications/images",
-    "imgBaseUrl": "http://qa-ips-lb-1087722155.us-west-1.elb.amazonaws.com/images/"
+    "imgBaseUrl": "http://prod-ips-803617329.us-west-1.elb.amazonaws.com/images/"
 }
