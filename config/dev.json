@@ -18,7 +18,7 @@
     "hubBaseUrl": "http://hub.paf.pearson.com",
     "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips",
     // The CorrecnessEngine base URL, pointing to DEV machine.
-    "ceBaseUrl": "http://10.11.20.91:8090",
+    "ceBaseUrl": "http://10.11.16.30:8090",
 
     // Log related settings
     "logLevel": "trace",
