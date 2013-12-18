@@ -10,8 +10,8 @@
     // Whether or not to allow flushing  of the Redis cache
     "cacheAllowFlush": false,
 
-    // The AMS base URL, pointing to PRD machine. @todo: PENDING THE PROD URL
-    "amsBaseUrl": "http://???:8080",
+    // The AMS base URL, pointing to PROD machine. @todo: PENDING THE PROD URL
+    "amsBaseUrl": "http://qa-ecs-8494243.us-west-1.elb.amazonaws.com",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
