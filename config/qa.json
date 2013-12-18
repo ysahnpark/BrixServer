@@ -11,8 +11,8 @@
     "cacheAllowFlush": true,
 
     // The AMS base URL, pointing to QA machine.
-    "amsBaseUrl": "http://10.11.30.135:8080",
-    //"amsBaseUrl": "http://qa-ecs-8494243.us-west-1.elb.amazonaws.com",
+    //"amsBaseUrl": "http://10.11.30.135:8080",
+    "amsBaseUrl": "http://qa-ecs-8494243.us-west-1.elb.amazonaws.com",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
