@@ -11,7 +11,10 @@
     "cacheAllowFlush": false,
 
     // The AMS base URL, pointing to PROD machine. 
-    "amsBaseUrl": "http://las-b-360560787.us-west-1.elb.amazonaws.com",
+    //"amsBaseUrl": "http://las-b-360560787.us-west-1.elb.amazonaws.com",
+    // AMS using load balander's internal IP
+    "amsBaseUrl": "http://54.193.20.16/las-paf",
+
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
