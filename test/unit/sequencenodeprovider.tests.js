@@ -39,7 +39,7 @@ var SequenceNodeProvider = require('../../lib/sequencenodeprovider.js').Sequence
  *           be called, and test will fail with timeout instead of the actual assert.
  *
  * @param {SequenceNodeProvider} seqNodeProvider   - The SequenceNodeProvider instance
- * @param {string} sequenceNodeIdentifier     - The JSON input parameter in string
+ * @param {Object} sequenceNodeIdentifier     - The JSON input parameter in string
  * @param {?string} expectError - The expected error message, or null if no error is expected
  * @param {?string} expectBody  - The expected result body (stringified JSON if necessary), or null if error is expected
  * @param {Function} done       - The done callback function for the Mocha's asynch testing
@@ -55,7 +55,6 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
     redisClient.del('SEQN:' + seqNodeKey, function(error, body) {
 
         seqNodeProvider.getSequenceNode(sequenceNodeIdentifier, function(error, body) {
-        
             if (expectError === null) {
                 // No error means we should be able to retrieve it from cache as well.
                 try
@@ -93,6 +92,8 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
             {
                 try
                 {
+console.log("--test error:" + JSON.stringify(error));
+console.log("--expe error:" + JSON.stringify(expectError));
                     expect(error.message).to.equal(expectError);
                 } 
                 catch( e )
@@ -132,119 +133,29 @@ describe('SequenceNodeProvider', function () {
     // Define different test input messages (sequence node ID as sent from AMS)
     var correctReqMessage = utils.cloneObject(HubMock.testSeqNodeReqMessage);
 
-    var incorrectReqMessage_missingHubSession = {
-            header : {
-                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNode",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode",
-            method: "POST"
-        };
+    var incorrectReqMessage_missingHubSession = utils.cloneObject(correctReqMessage);
+    delete incorrectReqMessage_missingHubSession.header['Hub-Session'];
 
-    var incorrectReqMessage_missingUrl = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNude",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            method: "POST"
-        };
+    var incorrectReqMessage_missingUrl = utils.cloneObject(correctReqMessage);
+    delete incorrectReqMessage_missingUrl['url'];
+    
+    var incorrectReqMessage_missingMethod = utils.cloneObject(correctReqMessage);
+    delete incorrectReqMessage_missingMethod['method'];
+    
+    var incorrectReqMessage_illegalMethod = utils.cloneObject(correctReqMessage);
+    incorrectReqMessage_illegalMethod.method = 'PUST';
 
-    var incorrectReqMessage_missingMethod = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNude",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode"
-        };
-
-    var incorrectReqMessage_illegalMethod = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNude",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode",
-            method: "PUST"
-        };
-
-    var incorrectReqMessage_wrongType = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNude",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode",
-            method: "POST"
-        };
-
-    var incorrectReqMessage_missingContext = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@type": "SequenceNode",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode",
-            method: "POST"
-        };
-
-    var incorrectReqMessage_missingType = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "nodeIndex": 1,
-                 "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
-            },
-            url: "http://localhost/seqnode",
-            method: "POST"
-        };
-
-    var incorrectReqMessage_missingBinding = {
-            header : {
-                "Hub-Session" : HUB_SESSION,
-                "Content­-Type" : "application/vnd.pearson.paf.v1.node+json"
-            },
-            content : {
-                 "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
-                 "@type": "SequenceNode",
-                 "nodeIndex": 1
-            },
-            url: "http://localhost/seqnode",
-            method: "POST"
-        };
+    var incorrectReqMessage_wrongType = utils.cloneObject(correctReqMessage);
+    incorrectReqMessage_wrongType.content["@type"] = "SequenceNude";
+    
+    var incorrectReqMessage_missingContext = utils.cloneObject(correctReqMessage);
+    delete incorrectReqMessage_missingContext.content['@context'];
+    
+    var incorrectReqMessage_missingType = utils.cloneObject(correctReqMessage);
+    delete incorrectReqMessage_missingType.content['@type'];
+    
+    var incorrectReqMessage_missingBinding = utils.cloneObject(correctReqMessage);
+    delete incorrectReqMessage_missingBinding.content['targetBinding'];
 
     var seqNodeProvider = null;
     var inputValidationErrorMsg = 'Input validation error';
