@@ -92,8 +92,6 @@ function testReqNode(seqNodeProvider, sequenceNodeIdentifier, expectError, expec
             {
                 try
                 {
-console.log("--test error:" + JSON.stringify(error));
-console.log("--expe error:" + JSON.stringify(expectError));
                     expect(error.message).to.equal(expectError);
                 } 
                 catch( e )
