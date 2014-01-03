@@ -11,7 +11,7 @@
     "cacheAllowFlush": true,
 
     // The AMS base URL, pointing to local test machine.
-    "amsBaseUrl": "http://localhost:9080",
+    "amsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
