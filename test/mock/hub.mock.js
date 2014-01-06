@@ -65,7 +65,12 @@ module.exports.testSeqNodeReqMessage = {
     content : {
          "@context": "http://purl.org/pearson/paf/v1/ctx/core/SequenceNode",
          "@type": "SequenceNode",
-         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0"
+         "targetBinding": "http://repo.paf.dev.pearsoncmg.com/paf-repo/resources/activities/42d2b4f4-46bd-49ee-8f06-47b4421f599b/bindings/0",
+         "callContext": {
+            "courseId": "LAS-AMS-COURSE",
+            "assetId": "LAS-AMS-ASSIGNMENT",
+            "lasAuthToken": "LAS_AUTH_CONTEXT"
+        }
     },
     url: module.exports.testHubBaseUrl + "/paf-hub/resources/sequences/course",
     method: "POST"
