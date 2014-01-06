@@ -303,7 +303,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should create a Submission NodeResult for a correct answer', function () {
 
         var ceResult = CEMock.testAssessmentResponseBody;
-        var studentSubmission = { submission: "option000" };
+        var studentSubmission = { key: "option000" };
 
         var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission, HubMock.testNodeResult.itemCorrelationToken);
         
@@ -319,7 +319,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should create a Submission NodeResult for an incorrect answer', function () {
 
         var ceResult = CEMock.testAssessmentWithIncorrectResponseBody;
-        var studentSubmission = { submission: "option003" };
+        var studentSubmission = { key: "option003" };
 
         var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission, HubMock.testNodeResult.itemCorrelationToken);
 
@@ -382,6 +382,8 @@ describe('IPS retrieveSequenceNode', function () {
     var sequenceNodeKey = null;
     var seqNodeKeyToRemove = null;
     var targetActivity = null;
+
+    var sampleSequenceNode = HubMock.testSeqNodeBodySubmittable;
 
     before(function (done) {
         ips = new Ips();
@@ -475,7 +477,8 @@ describe('IPS retrieveSequenceNode', function () {
     });
 
     it('should correctly sanitize targetActivity', function () {
-        var result = ips.sanitizeBrixConfig__(sampleMcpConfig);
+        var state = {};
+        var result = ips.sanitizeBrixConfig__(sampleMcpConfig, state);
         
         // Verify that the original does contain the answerKey
         sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
@@ -502,6 +505,39 @@ describe('IPS retrieveSequenceNode', function () {
                 expect(val).to.have.property('configFixup');
             });
         });
+    });
+
+    it('should build state for correct submission types (private func)', function () {
+        var nodeResult = [
+            HubMock.testNodeResultIncorrect,
+            HubMock.testNodeResult
+            ];
+        var state = ips.buildSubmissionStateObject__(nodeResult);
+        expect(state).to.deep.equal(HubMock.testMultipleChoiceStateCorrect);
+    });
+
+    it('should build state for incorrect submission types (private func)', function () {
+        var res1 = cloneObject(HubMock.testNodeResultIncorrect);
+        var res2 = cloneObject(HubMock.testNodeResultIncorrect);
+        var res3 = cloneObject(HubMock.testNodeResultIncorrect);
+        // build the nodeResult we want
+        var nodeResult = [];
+        nodeResult.push(res1);
+
+        res2.studentSubmission = { "key": "option002"};
+        res2.systemResponse.htmlResponse = "No, that's not it.";
+        nodeResult.push(res2);
+
+        res3.studentSubmission = { "key": "option001"};
+        res3.systemResponse.htmlResponse = "No, that's not it either.";
+        res3.correctAnswer = {
+                "key": "option000",
+                "feedback": "Your answer is correct. Growth rate stays constant."
+            };
+        nodeResult.push(res3);
+
+        var state = ips.buildSubmissionStateObject__(nodeResult);
+        expect(state).to.deep.equal(HubMock.testMultipleChoiceStateIncorrect);
     });
 
     it('should correctly obtain the container by id (private func)', function () {

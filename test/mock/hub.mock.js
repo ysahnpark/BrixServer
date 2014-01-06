@@ -103,7 +103,7 @@ module.exports.testNodeResult = {
     "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": true,
     "rawItemScore": 1,
-    "studentSubmission": { "submission": "option000" },
+    "studentSubmission": { "key": "option000" },
     "systemResponse": {
         "htmlResponse": "Your answer is correct. Growth rate stays constant."
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
@@ -111,7 +111,7 @@ module.exports.testNodeResult = {
     "nodeData": {
       "timestamp": "2013-10-25T20:21:21.822Z",
       "studentSubmission": {
-        "submission": "option000"
+        "key": "option000"
       },
       "correct": true
     }
@@ -129,7 +129,7 @@ module.exports.testNodeResultIncorrect = {
     "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": false,
     "rawItemScore": 0,
-    "studentSubmission": { "submission": "option003" },
+    "studentSubmission": { "key": "option003" },
     "systemResponse": {
         "htmlResponse": "Does the growth rate change with population size?"
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
@@ -137,11 +137,64 @@ module.exports.testNodeResultIncorrect = {
     "nodeData": {
       "timestamp": "2013-10-25T20:21:21.822Z",
       "studentSubmission": {
-        "submission": "option003"
+        "key": "option003"
       },
       "correct": false
     }
 };
+
+/**
+ * A test state object ending in a correct choice
+ * @type {Array}
+ */
+module.exports.testMultipleChoiceStateCorrect = {
+    submissions: [
+        {
+            "studentSubmission": { "key": "option003" },
+            "correctness": 0,
+            "feedback": "Does the growth rate change with population size?",
+            "attemptsMade": 1
+        },
+        {
+            "studentSubmission": { "key": "option000" },
+            "correctness": 1,
+            "feedback": "Your answer is correct. Growth rate stays constant.",
+            "attemptsMade": 2
+        }
+    ]
+};
+
+/**
+ * A test state object ending in an incorrect choice
+ * @type {Array}
+ */
+module.exports.testMultipleChoiceStateIncorrect = {
+    submissions: [
+        {
+            "studentSubmission": { "key": "option003" },
+            "correctness": 0,
+            "feedback": "Does the growth rate change with population size?",
+            "attemptsMade": 1
+        },
+        {
+            "studentSubmission": { "key": "option002" },
+            "correctness": 0,
+            "feedback": "No, that's not it.",
+            "attemptsMade": 2
+        },
+        {
+            "studentSubmission": { "key": "option001" },
+            "correctness": 0,
+            "feedback": "No, that's not it either.",
+            "correctAnswer": {
+                "key": "option000",
+                "feedback": "Your answer is correct. Growth rate stays constant."
+            },
+            "attemptsMade": 3
+        }
+    ]
+};
+
 
 /**
  * A test targetActivity for the test SequenceNode (module.exports.testSeqNodeBody) below.
