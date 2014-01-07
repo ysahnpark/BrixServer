@@ -123,7 +123,9 @@ module.exports.testNodeResult = {
 };
 
 /**
- * A test NodeResult based on ce.mock.testAssessmentWithIncorrectResponseBody
+ * A test NodeResult roughly based on ce.mock.testAssessmentWithIncorrectResponseBody, 
+ * though lacking a correctAnswer property
+ * 
  * @type {Object}
  */
 module.exports.testNodeResultIncorrect = {
@@ -137,7 +139,36 @@ module.exports.testNodeResultIncorrect = {
     "studentSubmission": { "key": "option003" },
     "systemResponse": {
         "htmlResponse": "Does the growth rate change with population size?"
-        //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
+    },
+    "nodeData": {
+      "timestamp": "2013-10-25T20:21:21.822Z",
+      "studentSubmission": {
+        "key": "option003"
+      },
+      "correct": false
+    }
+};
+
+/**
+ * A test NodeResult based on ce.mock.testAssessmentWithIncorrectResponseBody
+ * including correctAnswer
+ * @type {Object}
+ */
+module.exports.testNodeResultIncorrectWithCorrectAnswer = {
+    "@context" : "http://purl.org/pearson/paf/v1/ctx/core/NodeResult",
+    "timestamp": "2013-10-25T20:21:21.822Z",
+    "doScoreProcessing": false,
+    "brixState": {},
+    "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
+    "correct": false,
+    "rawItemScore": 0,
+    "studentSubmission": { "key": "option003" },
+    "systemResponse": {
+        "htmlResponse": "Does the growth rate change with population size?"
+    },
+    "correctAnswer": {
+    "key": "option001",
+    "feedback": "Your answer is correct. Growth rate stays constant."
     },
     "nodeData": {
       "timestamp": "2013-10-25T20:21:21.822Z",

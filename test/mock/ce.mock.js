@@ -40,9 +40,7 @@ module.exports.testAssessmentResponseBody = {
     "code": 200,
     "data": {
         "correctness": 1,
-        "feedback": {
-            "text": "Your answer is correct. Growth rate stays constant."
-        },
+        "feedback": "Your answer is correct. Growth rate stays constant.",
         "correctAnswer": {},
         "attemptsMade": 1
     },
@@ -57,11 +55,10 @@ module.exports.testAssessmentWithIncorrectResponseBody = {
     "code": 200,
     "data": {
         "correctness": 0,
-        "feedback": {
-            "text": "Does the growth rate change with population size?"
-        },
+        "feedback": "Does the growth rate change with population size?",
         "correctAnswer": {
-            "key": "option003"
+            "key": "option001",
+            "feedback": "Your answer is correct. Growth rate stays constant."
         }
     },
     "status": "success"

@@ -329,7 +329,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
         // check the nodeResult, minus the timestamp part
         nodeResult.nodeData.timestamp = "2013-10-25T20:21:21.822Z";
         
-        expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrect);
+        expect(nodeResult).to.deep.equal(HubMock.testNodeResultIncorrectWithCorrectAnswer);
     });
 
     it('should correctly update the sequenceNode (private func)', function () {
@@ -477,8 +477,8 @@ describe('IPS retrieveSequenceNode', function () {
     });
 
     it('should correctly sanitize targetActivity', function () {
-        var state = {};
-        var result = ips.sanitizeBrixConfig__(sampleMcpConfig, state);
+        var nodeResult = {};
+        var result = ips.sanitizeBrixConfig__(sampleMcpConfig, nodeResult);
         
         // Verify that the original does contain the answerKey
         sampleMcpConfig.containerConfig.forEach(function(containerItem, key){
