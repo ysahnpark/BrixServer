@@ -108,7 +108,7 @@ module.exports.testNodeResult = {
     "itemCorrelationToken": module.exports.testSeqNodeHeaders.itemCorrelationToken,
     "correct": true,
     "rawItemScore": 1,
-    "studentSubmission": { "key": "option000" },
+    "studentSubmission": { "key": "option001" },
     "systemResponse": {
         "htmlResponse": "Your answer is correct. Growth rate stays constant."
         //"templateResponse": "Your answer <%= studAnsValue %> is correct. Growth rate stays constant."
@@ -116,7 +116,7 @@ module.exports.testNodeResult = {
     "nodeData": {
       "timestamp": "2013-10-25T20:21:21.822Z",
       "studentSubmission": {
-        "key": "option000"
+        "key": "option001"
       },
       "correct": true
     }
@@ -192,7 +192,7 @@ module.exports.testMultipleChoiceStateCorrect = {
             "attemptsMade": 1
         },
         {
-            "studentSubmission": { "key": "option000" },
+            "studentSubmission": { "key": "option001" },
             "correctness": 1,
             "feedback": "Your answer is correct. Growth rate stays constant.",
             "attemptsMade": 2

@@ -303,7 +303,7 @@ describe('IPS Posting Submission using a Nock AMS and Nock CE', function() {
     it('should create a Submission NodeResult for a correct answer', function () {
 
         var ceResult = CEMock.testAssessmentResponseBody;
-        var studentSubmission = { key: "option000" };
+        var studentSubmission = { key: "option001" };
 
         var nodeResult = ips.buildSubmissionNodeResult__(ceResult, studentSubmission, HubMock.testNodeResult.itemCorrelationToken);
         
