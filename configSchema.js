@@ -23,6 +23,9 @@ module.exports = {
     "logDir":               Joi.types.String().optional(),
     "logAllowWebAccess":    Joi.types.Boolean().optional(),
 
+    "brixClientBuildAccess":Joi.Types.Boolean().optional(),
+    "brixClientBuildDir":   Joi.Types.String().required(),
+
     "imgDir":               Joi.Types.String().required(),
     "imgBaseUrl":           Joi.Types.String().required()
 };

@@ -26,7 +26,10 @@
     "logDir": "../log",
     "logAllowWebAccess": true,
 
+    "brixClientBuildAccess": true,
+    "brixClientBuildDir": "../BrixClient/build/",
+
     // Image related settings
-    "imgDir": "/Users/uivesse/Repos/Images",
+    "imgDir": "../images",
     "imgBaseUrl": "http://localhost:8088/images/"
 }
