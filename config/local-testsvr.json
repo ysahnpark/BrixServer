@@ -26,6 +26,8 @@
     "logDir": "../log",
     "logAllowWebAccess": true,
 
+    "clientAssetsDir": "./client-assets/",
+
     // Image related settings
     "imgDir": "./images",
     "imgBaseUrl": "http://localhost:8088/images/"

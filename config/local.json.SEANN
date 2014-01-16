@@ -24,6 +24,8 @@
     "logToFile": true,
     "logDir": "./",
 
+    "clientAssetsDir": "./client-assets/",
+
     "imgDir": "/Users/uivesse/Repos/Images",
     "imgBaseUrl": "http://localhost:8088/images/"
 }
