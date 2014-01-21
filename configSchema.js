@@ -23,6 +23,8 @@ module.exports = {
     "logDir":               Joi.types.String().optional(),
     "logAllowWebAccess":    Joi.types.Boolean().optional(),
 
+    "clientAssetsDir":      Joi.Types.String().required(),
+
     "imgDir":               Joi.Types.String().required(),
     "imgBaseUrl":           Joi.Types.String().required()
 };

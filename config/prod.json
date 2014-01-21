@@ -12,7 +12,7 @@
 
     // The AMS base URL, pointing to PROD machine. 
     //"amsBaseUrl": "http://las-b-360560787.us-west-1.elb.amazonaws.com",
-    // AMS using load balander's internal IP
+    // AMS using load balander's IP
     "amsBaseUrl": "http://54.193.20.16",
 
     // The AMS's NodeResult submission endpoint path
@@ -29,6 +29,8 @@
     "logToFile": true,
     "logDir": "/home/ubuntu/applications/log",
     "logAllowWebAccess": true,
+
+    "clientAssetsDir": "./client-assets/",
 
     // Image related settings
     "imgDir": "/home/ubuntu/applications/images",

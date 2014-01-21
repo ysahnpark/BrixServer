@@ -60,3 +60,7 @@ Thumbs.db
 # Node module packages #
 ########################
 #node_modules
+
+# Cached #
+##########
+.sonar

@@ -24,6 +24,8 @@
     "logToScreen": false,
     "logToFile": false,
 
+    "clientAssetsDir": "./client-assets/",
+
     // Image related settings
     "imgDir": "./images",
     "imgBaseUrl": "http://localhost:8088/images/"

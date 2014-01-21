@@ -27,6 +27,8 @@
     "logDir": "/home/ubuntu/applications/log",
     "logAllowWebAccess": true,
 
+    "clientAssetsDir": "./client-assets/",
+
     // Image related settings
     "imgDir": "/home/ubuntu/applications/images",
     "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/ips/images/"
