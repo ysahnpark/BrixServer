@@ -52,8 +52,8 @@ script
     export HOME=$HOME
     export NODE_ENV=$NODE_ENV
     chdir $HOME
-    #exec /usr/bin/node $APP >> $SERVERLOG 2>&1
-    exec /usr/bin/node $APP > $SERVERLOG &
+    exec /usr/bin/node $APP > $SERVERLOG 2>&1&
+    #exec /usr/bin/node $APP > $SERVERLOG &
 end script
 
 #post-start script

@@ -1,5 +1,5 @@
 # This is an upstart (http://upstart.ubuntu.com/) script
-# to run the IPS (BrixServer) node.js server on system boot and make it
+# to run the CE node.js server on system boot and make it
 # manageable with commands such as
 # 'sudo start brixapp' and 'sudo stop brixapp'
 #
@@ -19,7 +19,7 @@ version "1.0"
 ### Script Environment Variables
 
 # Specify NODE_ENV as you can't count on the brixserver user's ENV variables
-env NODE_ENV=dev
+env NODE_ENV=rev
 # app home
 env HOME=/home/ubuntu/applications/BrixServer
 # app name
