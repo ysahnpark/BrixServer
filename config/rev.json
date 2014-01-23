@@ -5,26 +5,23 @@
     "port": 8080,
     "maxSockets": 100,
 
-    "redisHost": "10.11.26.128",
+    "redisHost": "10.11.31.3",
     "redisPort": "6379",    
     // Whether or not to allow flushing  of the Redis cache
-    "cacheAllowFlush": false,
+    "cacheAllowFlush": true,
 
-    // The AMS base URL, pointing to PROD machine. 
-    //"amsBaseUrl": "http://las-b-360560787.us-west-1.elb.amazonaws.com",
-    // AMS load balancer's IP
-    "amsBaseUrl": "http://54.193.20.16",
-
+    // The AMS base URL, pointing to QA machine.
+    "amsBaseUrl": "http://qa-ecs-8494243.us-west-1.elb.amazonaws.com",
     // The AMS's NodeResult submission endpoint path
     "amsSubmissionPath": "/las-paf/sd/paf-service/ip/brix/nodresult",
 
     "hubBaseUrl": "http://hub.paf.pearson.com",
-    "bipsBaseUrl": "http://prod-ips-803617329.us-west-1.elb.amazonaws.com",
-    // The CE is pointing to the PROD's HA proxy
-    "ceBaseUrl": "http://10.11.29.240:8080",
+    "bipsBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/rev-ips",
+    // The CE is pointing to the QA's HA proxy
+    "ceBaseUrl": "http://10.11.18.3:8080",
 
     // Log related settings
-    "logLevel": "debug",
+    "logLevel": "trace",
     "logToScreen": false,
     "logToFile": true,
     "logDir": "/home/ubuntu/applications/log",
@@ -34,5 +31,5 @@
 
     // Image related settings
     "imgDir": "/home/ubuntu/applications/images",
-    "imgBaseUrl": "http://prod-ips-803617329.us-west-1.elb.amazonaws.com/images/"
+    "imgBaseUrl": "http://dev-414158649.us-west-1.elb.amazonaws.com/rev-ips/images/"
 }
