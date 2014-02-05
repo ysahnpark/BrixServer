@@ -382,8 +382,8 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
 
         var seqNodeKeyToRemove = seqNodeProvider.obtainSequenceNodeKey(seqNodeReqMessage.sequenceNodeIdentifier);
         ips.removeFromCache__(seqNodeKeyToRemove, function(removeErr, removeRes){
-        seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
-        ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
+            seqNodeKey = seqNodeProvider.obtainSequenceNodeKey(HubMock.testSeqNodeReqMessage);
+            ips.removeFromCache__(seqNodeKey, function(removeErr, removeRes){
                 done();
             });
         });
@@ -414,13 +414,25 @@ describe('IPC -> IPS retrieveSequenceNode Test', function () {
                     expect(seqNodeKey).to.be.a('string');
                     
                     // Make the expected response
-                    var expectedData = cloneObject(HubMock.testSeqNodeBody.targetActivity);
-                    expectedData.sequenceNodeKey = seqNodeKey;
-                    expectedData.maxAttempts = 3;
-                    expectedData.imgBaseUrl = config.imgBaseUrl;
+                    var expectedData = {
+                        item: {
+                            activity_id: HubMock.seqNodeBodyTemplate.targetBinding.boundActivity,
+                            assignment_id: HubMock.seqNodeBodyTemplate.parentSequence.toolSettings.assignmentUrl
+                        },
+                        activityConfig: cloneObject(HubMock.testSeqNodeBody.targetActivity),
+                    };
+                    expectedData.activityConfig.sequenceNodeKey = seqNodeKey;
+                    expectedData.activityConfig.maxAttempts = 3;
+                    expectedData.activityConfig.imgBaseUrl = config.imgBaseUrl;
+
+                    // Removing sequenceNodeKey from the result prior verifying expectation.
+                    // Reason: sequenceNodeKey is hashed from sni, if it changes it must change too.
+                    delete result.body.data['sequenceNodeKey'];
+                    delete result.body.data['bipsSubmission'];
+                    delete result.body.data['bipsInteraction'];
 
                     // Test return is as expected
-                    expect(result.body.data.activityConfig).to.deep.equal(expectedData);
+                    expect(result.body.data).to.deep.equal(expectedData);
                     
                     done();
                 } catch (e) {

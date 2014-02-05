@@ -241,6 +241,38 @@ describe('SequenceNodeProvider', function () {
         var strMessage = incorrectReqMessage_missingBinding;
         testReqNode(seqNodeProvider, strMessage, inputValidationErrorMsg, null, done);
     });
+
+    it('should correctly extract itemIds', function () {
+        var itemIds = seqNodeProvider.extractItemIds(HubMock.testSeqNodeBody);
+
+        var expected = {
+            activity_id: HubMock.seqNodeBodyTemplate.targetBinding.boundActivity,
+            assignment_id: HubMock.seqNodeBodyTemplate.parentSequence.toolSettings.assignmentUrl
+        };
+        expect(itemIds).to.deep.equal(expected);
+
+    });
+
+    it('should itemIds should be null if sequence node content does not contain required fields', function () 
+    {
+        var message = utils.cloneObject(HubMock.testSeqNodeBody);
+        delete message.parentSequence['toolSettings']['assignmentUrl'];
+        var itemIds = seqNodeProvider.extractItemIds(message);
+        expect(itemIds).to.be.null;
+
+        delete message.parentSequence['toolSettings'];
+        itemIds = seqNodeProvider.extractItemIds(message);
+        expect(itemIds).to.be.null;
+
+        message = utils.cloneObject(HubMock.testSeqNodeBody);
+        delete message.targetBinding['boundActivity'];
+        var itemIds = seqNodeProvider.extractItemIds(message);
+        expect(itemIds).to.be.null;
+
+        delete message['targetBinding'];
+        itemIds = seqNodeProvider.extractItemIds(message);
+        expect(itemIds).to.be.null;
+    });
 });
 
 

@@ -279,15 +279,35 @@ module.exports.seqNodeBodyTemplate = {
             "endTime": null
         },
         "prevNode": null,
-        "targetBinding": null,
+        "targetBinding": {
+            "guid": "test.sanvan.activity.mcq1a",
+            "boundActivity": "http://repo.paf.cert.pearsoncmg.com/paf-repo/resources/activities/test.sanvan.activity.mcq1a",
+            "bindingIndex": 0,
+            "activityTitle": "Test Title",
+            "activityFormat": "application/vnd.pearson.sanvan.v1.activity",
+            "@id": "http://repo.paf.cert.pearsoncmg.com/paf-repo/resources/activities/daeed9a1-7b23-4d61-bde3-664259358db0/bindings/0",
+            "credit": "ForCredit"
+        },
+        
         "parentSequence": {
-            "guid": null,
-            "user": null,
-            "learningContext": "urn:udson:pearson.com/sms/prod:course/jsmith38271",
+            "guid": "c26e28750b6811cf77c0b6f8974fd79d!cd8131b0-64f8-11e3-80ce-8b507405a09b",
+            "user": "brix.student@mailinator.com",
+            "learningContext": "LAS-AMS-COURSE",
+            "nodeCollection": "http: //hub.paf.cert.pearsoncmg.com/paf-hub/resources/sequences/c26e28750b6811cf77c0b6f8974fd79d!cd8131b0-64f8-11e3-80ce-8b507405a09b/nodes",
+            "toolSettings": {
+                "assignmentUrl": "http: //repo.paf.cert.pearsoncmg.com/paf-repo/resources/activities/test.sanvan.assign.mcq1a",
+                "gradebookURI": "",
+                "contentType": "application/vnd.pearson.paf.v1.assignment+json"
+            },
+            "startTime": "2013-12-14T19: 49: 11Z",
+            "sequenceResult": {
+                "resultStatus": "InProgress"
+            },
             "overallActivity": "OverallActiviy, DO we need it?",
-            "@context": null,
+            "@context": "http: //purl.org/pearson/paf/v1/ctx/core/RichActivitySequence",
             "@id": "/paf-hub/resources/sequences/course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1",
-            "@type": null
+            "@type": "ActivitySequence"
+
         },
         "resultCollection": "http://hub.paf.dev.pearsoncmg.com/paf-hub/resources/sequences/course1::a8bbad4b-73e6-4713-a00c-ae9b938e1aa5::user1/nodes/1/results",
         "endTime": null,
